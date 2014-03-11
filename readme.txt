@@ -7,7 +7,6 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Stable tag: 1.0
 
-== Short description ==
 Genoo Plugin brings seamless marketing automation integration to Genoo users who use WordPress to host their websites and blogs.
 
 
