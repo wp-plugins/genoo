@@ -56,7 +56,7 @@ Some of the features include:
 
 3.  The External Forms you've created with your Genoo account are listed.  You select which one is the default "blog subscribe" form.  Using Shortcodes or our Widget to easily place the right form on the right page on your website ensures that all of your lead information resides in your Genoo account's centralized lead database, allowing you to automate actions and follow-up effectively.
 
-4.  Push all existing subscribers and approved commenters to your Genoo account easily, and perform other housekeeping activities as needed. (note: once you push your existing subscribers and approved commenters, all NEW subscribers will be pushed automatically - just use the chosen Genoo blog subscribe form on your pages.  Approved commenters will be pushed across in real time to your Genoo account, as comments are approved.  Understanding which leads are commenting in addition to all their other activity is now seamless!
+4.  Push all existing subscribers and approved commenters to your Genoo account easily, and perform other housekeeping activities as needed. (note: once you push your existing subscribers and approved commenters, all NEW subscribers will be pushed automatically - just use the chosen Genoo blog subscribe form on your pages.  Approved commenters will be pushed across in real time to your Genoo account, as comments are approved).  Understanding which leads are commenting in addition to all their other activity is now seamless!
 
 == Frequently Asked Questions ==
 
