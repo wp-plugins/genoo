@@ -318,3 +318,21 @@
 	-o-transition:all 0.1s ease-in-out !important;
 	transition:all 0.1s ease-in-out !important;
 }
+
+#lcform .extform label{
+    display: inline-block;
+    width:100px;
+    margin-right:5px;
+    text-align:left;
+}
+
+#lcform  textarea{
+    width:95%;
+    height:250px;
+}
+#lcform p {
+    margin-bottom:5px;
+}
+#lcform .ext-form-input{
+    width: 95%;
+}
