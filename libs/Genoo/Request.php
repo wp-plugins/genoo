@@ -15,5 +15,37 @@ use Genoo\Url;
 
 class Request
 {
-    public function __construct(){}
+    /**
+     * Has request in?
+     *
+     * @param $id
+     * @return bool
+     */
+
+    public static function has($id)
+    {
+        if(isset($_GET[$id])){
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Form result?
+     *
+     * @return bool|null
+     */
+
+    public static function formResult()
+    {
+        if(isset($_GET['formResult'])){
+            if($_GET['formResult'] == 'true'){
+                return true;
+            } elseif($_GET['formResult'] == 'false'){
+                return false;
+            }
+        }
+        return null;
+    }
 }

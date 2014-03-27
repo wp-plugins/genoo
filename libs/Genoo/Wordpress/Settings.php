@@ -370,6 +370,13 @@ class Settings
                         $options[$key] = '';
                     }
                     break;
+                // non-empty values
+                case 'sucessMessage':
+                case 'errorMessage':
+                    if(empty($options[$key])){
+                        $this->addError($key, __('Form message is a required field.', 'genoo'));
+                    }
+                    break;
                 // default, if it's not array, sanatize
                 default:
                     if(!is_array($value)){

@@ -12,6 +12,7 @@
 namespace Genoo;
 
 use Genoo\Admin,
+    Genoo\Widgets,
     Genoo\Wordpress\Redirect,
     Genoo\Wordpress\Debug,
     Genoo\Wordpress\Http,
@@ -80,6 +81,15 @@ class Tools
                 static::$admin->repositarySettings->flush();
                 // save notice so it's visible after the redirect
                 static::$admin->repositarySettings->addSavedNotice('updated', 'All settings deleted.');
+                // flush forms and lumns
+                try{
+                    static::$admin->repositaryForms->flush();
+                    static::$admin->repositaryLumens->flush();
+                } catch (\Exception $e){
+                    static::$admin->repositarySettings->addSavedNotice('error', $e->getMessage());
+                }
+                // flush widgets
+                Widgets::removeInstancesOf('genoo');
                 // wordpress redirect
                 Redirect::to(admin_url('admin.php?page=Genoo'));
                 break;

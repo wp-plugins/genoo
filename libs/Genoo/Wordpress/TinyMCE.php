@@ -40,5 +40,7 @@ class TinyMCE
             $buttons[] = 'genooForm';
             return $buttons;
         });
+        /** Add editor style */
+        add_editor_style(GENOO_ASSETS . 'GenooEditor.css');
     }
 }

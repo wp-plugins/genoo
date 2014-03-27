@@ -22,6 +22,8 @@ class RepositorySettings extends Repository
     const KEY_GENERAL = 'genooApiGeneral';
     /** theme */
     const KEY_THEME = 'genooThemeSettings';
+    /** theme */
+    const KEY_MSG = 'genooFormMessages';
     /** @var get_option key */
     var $key;
 
@@ -242,6 +244,63 @@ class RepositorySettings extends Repository
     public function getLeadType(){ return $this->getOption('apiCommenterLeadType', self::KEY_SETTINGS); }
 
 
+    /**
+     * Success message
+     *
+     * @return string
+     */
+
+    public function getSuccessMessage()
+    {
+        $o = $this->getDefaultValue(self::KEY_MSG, 'sucessMessage');
+        $s = $this->getOption('sucessMessage', self::KEY_MSG);
+        if(isset($s) && !empty($s)){
+            return $s;
+        }
+        return $o;
+    }
+
+
+    /**
+     * Error message
+     *
+     * @return string
+     */
+
+    public function getFailureMessage()
+    {
+        $o = $this->getDefaultValue(self::KEY_MSG, 'errorMessage');
+        $s = $this->getOption('errorMessage', self::KEY_MSG);
+        if(isset($s) && !empty($s)){
+            return $s;
+        }
+        return $o;
+    }
+
+
+    /**
+     * Get field default value
+     *
+     * @param $section
+     * @param $field
+     * @return null
+     */
+
+    public function getDefaultValue($section, $name)
+    {
+        $settings = $this->getSettingsFields();
+        if(isset($settings[$section])){
+            foreach($settings[$section] as $field){
+                if($field['name'] == $name){
+                    if(isset($field['default']) && !empty($field['default'])){
+                        return $field['default'];
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 
     /**
      * Gets settings page sections
@@ -256,6 +315,10 @@ class RepositorySettings extends Repository
                 array(
                     'id' => 'genooApiSettings',
                     'title' => __('API settings', 'genoo')
+                ),
+                array(
+                    'id' => 'genooFormMessages',
+                    'title' => __('Form messages', 'genoo')
                 ),
                 array(
                     'id' => 'genooThemeSettings',
@@ -323,6 +386,22 @@ class RepositorySettings extends Repository
                 ),
                 $this->getSettingsFieldLeadTypes()
             ),
+            'genooFormMessages' => array(
+                array(
+                    'name' => 'sucessMessage',
+                    'label' => __('Successful form submission message', 'genoo'),
+                    'type' => 'textarea',
+                    'desc' => __('This is default message displayed upon form success.', 'genoo'),
+                    'default' => __('Thank your for your subscription.', 'genoo')
+                ),
+                array(
+                    'name' => 'errorMessage',
+                    'label' => __('Failed form submission message', 'genoo'),
+                    'type' => 'textarea',
+                    'desc' => __('This is default message displayed upon form error.', 'genoo'),
+                    'default' => __('There was a problem processing your request.', 'genoo')
+                ),
+            ),
             'genooThemeSettings' => array(
                 array(
                     'desc' => __('Set the theme to use for your forms. “Default” means that Genoo forms will conform to the default form look associated with your WordPress theme.', 'genoo'),
@@ -374,8 +453,10 @@ class RepositorySettings extends Repository
 
     public static function flush()
     {
-        delete_option('genooApiSettings');
-        delete_option('genooApiGeneral');
+        delete_option(self::KEY_SETTINGS);
+        delete_option(self::KEY_GENERAL);
+        delete_option(self::KEY_THEME);
+        delete_option(self::KEY_MSG);
         delete_option('genooDebug');
         delete_option('genooDebugCheck');
     }

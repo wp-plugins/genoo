@@ -35,7 +35,29 @@ class Utils
      * @return mixed
      */
 
-    public static function addQueryParam($url, $key, $value){ return add_query_arg($key, $value, $url); }
+    public static function addQueryParam($url, $key, $value = null){ return add_query_arg($key, $value, $url); }
+
+
+    /**
+     * Add query params, in array
+     *
+     * @param $url
+     * @param array $params
+     * @return mixed
+     */
+
+    public static function addQueryParams($url, array $params = array()){ return add_query_arg($params, $url); }
+
+
+    /**
+     * Remove query parameter
+     *
+     * @param $url
+     * @param $key
+     * @return mixed
+     */
+
+    public static function removeQueryParam($url, $key){ return remove_query_arg($key, $url); }
 
 
     /**

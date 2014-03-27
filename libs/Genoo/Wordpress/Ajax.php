@@ -136,7 +136,7 @@ class Ajax
         header('Content-type: application/json');
         try{
             die(Json::encode($data));
-        } catch (\Exception $e){} // as of this moment, we don't do anything with exception, it's ajax call
+        } catch (\Exception $e){} // as of this moment, we don't do anything with exceptions, it's ajax call
                                   // they would just break the thang
     }
 }

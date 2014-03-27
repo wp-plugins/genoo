@@ -16,11 +16,17 @@ use Genoo\RepositorySettings,
     Genoo\RepositoryLumens,
     Genoo\Cache,
     Genoo\Api,
+    Genoo\ModalWindow,
+    Genoo\HtmlForm,
+    Genoo\Wordpress\Utils,
     Genoo\Utils\Strings;
 
 
 class Shortcodes
 {
+    /* Shortcode get parameter */
+    const SHORTCODE_ID = 'gs';
+
 
     /**
      * Register shortcodes
@@ -34,6 +40,71 @@ class Shortcodes
 
 
     /**
+     * Return url for shortcode
+     *
+     * @param $id
+     * @return mixed
+     */
+
+    public static function getReturnUrlShortcode($id)
+    {
+        return Utils::addQueryParams(ModalWindow::closeUrl(),array(self::SHORTCODE_ID => self::getShortcodeId($id)));
+    }
+
+
+    /**
+     * Get shortcode id
+     *
+     * @param $id
+     * @return mixed
+     */
+
+    public static function getShortcodeId($id)
+    {
+        return str_replace('-', '', self::SHORTCODE_ID . Strings::firstUpper($id));
+    }
+
+
+    /**
+     * Is modal visible, static
+     *
+     * @param $id
+     * @return bool
+     */
+
+    public static function isShortcodeVisible($id)
+    {
+        $modalId = self::getShortcodeId($id);
+        if((isset($_GET[self::SHORTCODE_ID]) && $_GET[self::SHORTCODE_ID] == $modalId)){
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Shortcode form result
+     *
+     * @param $id
+     * @return bool|null
+     */
+
+    public static function shortcoeFormResult($id)
+    {
+        if(self::isShortcodeVisible($id)){
+            if(isset($_GET['formResult'])){
+                if($_GET['formResult'] == 'true'){
+                    return true;
+                } elseif($_GET['formResult'] == 'false'){
+                    return false;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /**
      * Forms
      *
      * @param $atts
@@ -43,13 +114,34 @@ class Shortcodes
     public static function form($atts)
     {
         try {
+            // prep
             $repositorySettings = new RepositorySettings();
             $repositoryForms = new RepositoryForms(new Cache(GENOO_CACHE), new Api($repositorySettings));
             $formId = !empty($atts['id']) && is_numeric($atts['id']) ? $atts['id'] : null;
             $formIdFinal = is_null($formId) ? $repositorySettings->getActiveForm() : $formId;
             $formTheme = !empty($atts['theme']) ? $atts['theme'] : $repositorySettings->getActiveTheme();
+            // do we have a form ID?
             if(!empty($formIdFinal)){
-                return '<div class="genooForm themeResetDefault '. $formTheme .'"><div class="genooGuts">' . $repositoryForms->getForm($formIdFinal) . '</div></div>';
+                // prep html
+                $h = '<div class="genooForm genooShortcode themeResetDefault '. $formTheme .'"><div class="genooGuts"><div id="genooMsg"></div>';
+                $h .= $repositoryForms->getForm($formIdFinal);
+                $h .= '</div></div>';
+                // id
+                $id = $formIdFinal;
+                // inject inputs and message
+                $inject = new HtmlForm($h);
+                $inject->appendHiddenInputs(array('popup' => 'true','returnModalUrl' => self::getReturnUrlShortcode($id)));
+                $result = self::shortcoeFormResult($id);
+                // do we have a result?
+                if(($result == true || $result == false) && (!is_null($result))){
+                    if($result == false){
+                        $inject->appendMsg($repositorySettings->getFailureMessage(), $result);
+                    } elseif($result == true) {
+                        $inject->appendMsg($repositorySettings->getSuccessMessage(), $result);
+                    }
+                }
+                // return html
+                return $inject;
             }
         } catch (\Exception $e){
             return null;
@@ -77,4 +169,4 @@ class Shortcodes
             return null;
         }
     }
-}
+};

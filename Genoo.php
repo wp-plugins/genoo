@@ -4,8 +4,8 @@
     Description: Genoo, LLC
     Author:  Genoo, LLC
     Author URI: http://www.genoo.com/
-    Author Email:
-    Version: 1.0.8
+    Author Email: info@genoo.com
+    Version: 1.3
     License: GPLv2
     Text Domain: genoo
 */

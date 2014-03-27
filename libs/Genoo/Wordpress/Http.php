@@ -69,9 +69,6 @@ class Http
 
     public function post($body = null, $method = 'POST')
     {
-        // max excecution time
-        // $timeMaxOut = ini_get('max_execution_time');
-        // $timeOut = is_numeric($timeMaxOut) && $timeMaxOut > 5 ? $timeMaxOut - 1 : 25;
         // content type need for correct API resopnse
         $defaults = array(
             'method' => $method,

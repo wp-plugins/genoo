@@ -61,7 +61,7 @@ class Genoo
         // helper constants
         define('GENOO_PART_SETUP', $this->api->isSetup());
         define('GENOO_SETUP', $this->api->isSetupFull());
-        define('GENOO_LUMENS', $this->api->isLumensSetup());
+        define('GENOO_LUMENS', false); // for now, before $this->api->isLumensSetup()
         // wp init
         add_action('plugins_loaded', array($this, 'init'));
     }
@@ -73,7 +73,6 @@ class Genoo
 
     public function init()
     {
-
         /**
          * 0. Text-domain
          */
@@ -87,7 +86,7 @@ class Genoo
         if(GENOO_DEBUG){ new Debug(); }
 
         /**
-         * 2. Register Widgets / Shortcodes / Cron
+         * 2. Register Widgets / Shortcodes / Cron, etc.
          */
 
         Cron::register(GENOO_CRON);

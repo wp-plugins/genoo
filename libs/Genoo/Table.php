@@ -19,9 +19,9 @@ if(!class_exists('WP_List_Table')){
 }
 
 
-use Genoo\Wordpress\Utils,
+use Genoo\RepositoryUser,
     Genoo\Utils\Strings,
-    Genoo\RepositoryUser,
+    Genoo\Wordpress\Utils,
     Genoo\Wordpress\Notice;
 
 

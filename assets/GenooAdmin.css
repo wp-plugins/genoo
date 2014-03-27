@@ -17,6 +17,11 @@
 	Assets
 */
 
+.genooParagraph { padding: 10px 0 5px 0; }
+.widget .genooParagraph:last-child { padding-bottom: 10px; }
+.genooParagraph label { margin-bottom: 10px; display: inline-block; }
+.genooOneline label { margin-bottom: 0; }
+.genooHidden { display: none !important; }
 .genooTick { display: inline-block; width: 24px; height: 24px; min-height: 24px; background: url("bgTick.png") bottom left no-repeat transparent; }
 .genooTick { margin: 0 auto; }
 .genooTick.active { background-position: top left; }
@@ -44,6 +49,34 @@
 /* prevent flickering */
 #genooThemeSettings-genooFormPrev { width: auto; max-width: 260px; }
 #genooThemeSettings-genooFormPrev img { display: block; width: 100%; height: auto; min-height: 0; }
+
+/*
+	Genoo Editor outer styles
+*/
+
+#genooButtons { padding: 2px; position: absolute; display: none; z-index: 155000; }
+#genooEditForm,
+#genooDeleteForm
+{
+	border-color: #999;
+	background-color: #eee;
+	margin: 2px;
+	padding: 2px;
+	border-width: 1px;
+	border-style: solid;
+	-webkit-border-radius: 3px;
+	border-radius: 3px
+}
+#genooEditForm:hover,
+#genooDeleteForm:hover
+{
+	border-color: #555;
+	background-color: #ccc;
+	cursor: pointer;
+}
+/* WordPress should do this automatically, better this way */
+#wp_editimgbtn:hover, #wp_gallerybtns:hover,
+#wp_editgallery:hover, #wp_delgallery:hover{ cursor: pointer; }
 
 /*
 	Mobile

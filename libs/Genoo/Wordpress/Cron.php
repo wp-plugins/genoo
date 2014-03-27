@@ -28,11 +28,11 @@ class Cron
                     break;
             }
         } else {
-            // test Valid key
-            $genooSettings = new RepositorySettings();
-            $genooApi = new Api($genooSettings);
-            // validate key, throw error in notices
             try{
+                // test Valid key
+                $genooSettings = new RepositorySettings();
+                $genooApi = new Api($genooSettings);
+                // validate key, throw error in notices
                 $genooApi->validate();
             } catch (ApiException $e){
                 $genooSettings->addSavedNotice('error', $e->getMessage());

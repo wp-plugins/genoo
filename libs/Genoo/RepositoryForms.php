@@ -84,7 +84,9 @@ class RepositoryForms extends Repository
         $formsVars = array();
         try{
             $forms = $this->getFormsTable();
-            foreach($forms as $form){ $formsVars[$form['id']] = $form['name']; }
+            if($forms){
+                foreach($forms as $form){ $formsVars[$form['id']] = $form['name']; }
+            }
         } catch(\Exception $e){}
 
         return $formsVars;
@@ -100,12 +102,15 @@ class RepositoryForms extends Repository
     public function getFormsTable()
     {
         $forms = array();
-        foreach($this->getForms() as $form){
-            $form = (object)$form;
-            $forms[] = array(
-                'id' => $form->id,
-                'name' => $form->name,
-            );
+        $prepForms = $this->getForms();
+        if(!empty($prepForms)){
+            foreach($prepForms as $form){
+                $form = (object)$form;
+                $forms[] = array(
+                    'id' => $form->id,
+                    'name' => $form->name,
+                );
+            }
         }
         return $forms;
     }

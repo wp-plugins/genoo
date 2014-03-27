@@ -14,22 +14,134 @@ namespace Genoo;
 use Genoo\RepositorySettings,
     Genoo\RepositoryForms,
     Genoo\Cache,
-    Genoo\Api;
+    Genoo\Api,
+    Genoo\Utils\Strings,
+    Genoo\ModalWindow;
 
 
 class Widgets
 {
 
     /**
-     * Register widges
+     * Register widgets
      */
 
     public static function register()
     {
         add_action('widgets_init', function(){
             register_widget('\Genoo\WidgetForm');
-            register_widget('\Genoo\WidgetLumen');
+            if(GENOO_LUMENS){ register_widget('\Genoo\WidgetLumen'); }
         });
+    }
+
+
+    /**
+     * Get registered widget by name
+     *
+     * @param string $name
+     * @return array
+     */
+
+    public static function get($name = '')
+    {
+        // global
+        global $wp_widget_factory;
+        // vars
+        $arr = array();
+        // go thru
+        if($wp_widget_factory->widgets){
+            foreach($wp_widget_factory->widgets as $class => $widget){
+                // congratulations, we have a Genoo widget
+                if(Strings::contains(Strings::lower($widget->id_base), $name)){
+                    $widget->class = $class;
+                    $arr[] = $widget;
+                }
+            }
+        }
+        // return widgets
+        return $arr;
+    }
+
+
+    /**
+     * Remove instances of 'PLUGIN_ID'
+     *
+     * @param string $name
+     */
+
+    public static function removeInstancesOf($name = '')
+    {
+        $sidebarChanged = false;
+        $sidebarWidgets = wp_get_sidebars_widgets();
+        // not empty?
+        if(is_array($sidebarWidgets) && !empty($sidebarWidgets)){
+            // go thru areas
+            foreach($sidebarWidgets as $sidebarKey => $sidebarWidget){
+                // not empty array?
+                if(is_array(($sidebarWidget)) && !empty($sidebarWidget)){
+                    // go thru
+                    foreach($sidebarWidget as $key => $value){
+                        // is it our widget-like?
+                        if(Strings::contains($value, $name)){
+                            unset($sidebarWidgets[$sidebarKey][$key]);
+                            $sidebarChanged = true;
+                        }
+                    }
+                }
+            }
+        }
+        if($sidebarChanged == true){
+            wp_set_sidebars_widgets($sidebarWidgets);
+        }
+    }
+
+
+    /**
+     * Wordpress innner function
+     *
+     * @return array | mixed
+     */
+
+    public static function getArrayOfWidgets(){ return retrieve_widgets(); }
+
+
+    /**
+     * Get footer modals
+     *
+     * @return array
+     */
+
+    public static function getFooterModals()
+    {
+        // get them
+        $widgets = self::get('genoo');
+        $widgetsArray = self::getArrayOfWidgets();
+        $widgetsObj = array();
+        // go thru them
+        if($widgets){
+            foreach($widgets as $widget){
+                // get instances
+                $widgetInstances = $widget->get_settings();
+                if(is_array($widgetInstances)){
+                    foreach($widgetInstances as $id => $instance){
+                        $currId = $widget->id_base . $id;
+                        $currWpId = $widget->id_base . '-' . $id;
+                        // this is it! is it modal widget?
+                        if(isset($instance['modal']) && $instance['modal'] == 1){
+                            // is it active tho?
+                            if(isset($widgetsArray['wp_inactive_widgets']) && !in_array($currWpId, $widgetsArray['wp_inactive_widgets'])){
+                                unset($widgetInstances[$id]['modal']);
+                                $widgetsObj[$currId] = new \stdClass();
+                                $widgetsObj[$currId]->widget = $widget;
+                                $widgetsObj[$currId]->instance = $widgetInstances[$id];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // give me
+        return $widgetsObj;
     }
 }
 
@@ -47,7 +159,7 @@ class WidgetForm extends \WP_Widget
 
     function __construct()
     {
-        parent::__construct('genooForm', 'Genoo', array('description' => __('Genoo widget form.', 'genoo')));
+        parent::__construct('genooForm', 'Genoo', array('description' => __('Add Genoo forms to your pages.', 'genoo')));
     }
 
 
@@ -60,27 +172,91 @@ class WidgetForm extends \WP_Widget
      * @param array $instance Saved values from database.
      */
 
-    public function widget($args, $instance)
+    public function widget($args, $instance){ echo $this->getHtml($args, $instance); }
+
+
+    /**
+     * Get html
+     *
+     * @param $args
+     * @param $instance
+     * @return string
+     */
+
+    public function getHtml($args, $instance)
     {
-        $repositorySettings = new RepositorySettings();
-        $repositoryForms = new RepositoryForms(new Cache(GENOO_CACHE), new Api($repositorySettings));
-        $formId = !empty($instance['form']) && is_numeric($instance['form']) ? $instance['form'] : null;
-        $formIdFinal = is_null($formId) ? $repositorySettings->getActiveForm() : $formId;
+        global $is_macIE, $is_winIE, $is_IE;
+        // default
+        $default = array(
+            'before_title' => '',
+            'before_widget' => '',
+            'after_title' => '',
+            'after_widget' => '',
+            'modal' => '',
+            'title' => '',
+        );
+        $args = array_merge($default, $args);
+        $html = '';
+        // prep
         $formTitle = !empty($instance['title']) ? $instance['title'] : __('Subscribe', 'genoo');
         $formClass = !empty($instance['theme']) ? $instance['theme'] : 'themeDefault';
-        if(!empty($formIdFinal)){
-            echo $args['before_widget'];
-                echo '<div class="genooForm themeResetDefault '. $formClass .'">';
-                    echo '<div class="genooTitle">' . $args['before_title'] . $formTitle . $args['after_title'] . '</div>';
-                    echo '<div class="clear"></div>';
-                    echo '<div class="genooGuts">';
-                        echo $repositoryForms->getForm($formIdFinal);
-                    echo '</div>';
-                    echo '<div class="clear"></div>';
-                echo '</div>';
-            echo $args['after_widget'];
+        $formModal = isset($instance['modal']) ? ($instance['modal'] == 1 ? true : false) : false;
+        $formButton = !empty($instance['button']) ? strip_tags($instance['button']) : $formTitle;
+
+        // if form is not in modal window
+        if($formModal == false){
+            try {
+                $repositorySettings = new RepositorySettings();
+                $repositoryForms = new RepositoryForms(new Cache(GENOO_CACHE), new Api($repositorySettings));
+                $formId = !empty($instance['form']) && is_numeric($instance['form']) ? $instance['form'] : null;
+                $formIdFinal = is_null($formId) ? $repositorySettings->getActiveForm() : $formId;
+                $formForm = !empty($formIdFinal) ? $repositoryForms->getForm($formIdFinal) : '';
+            } catch (\Exception $e){
+                $formIdFinal = null;
+                $html = "<span class='error'>" . $e->getMessage() . "</span>";
+            }
         }
+
+        // form?
+        if(isset($formIdFinal) && $formModal == false){
+            // html
+            $html .= $formModal ? '<div id="'. $this->id .'" class="genooModal">' : '';
+            $html .= $args['before_widget'];
+                $html .= '<div class="genooForm themeResetDefault '. $formClass .'">';
+                $html .= '<div class="genooTitle">' . $args['before_title'] . $formTitle . $args['after_title'] . '</div>';
+                $html .= '<div class="clear"></div>';
+                $html .= '<div class="genooGuts">';
+                    $html .= '<div id="genooMsg"></div>';
+                    $html .= $formForm;
+                $html .= '</div>';
+                $html .= '<div class="clear"></div>';
+                $html .= '</div>';
+            $html .= $args['after_widget'];
+            $html .= $formModal ? '</div>' : '';
+        } elseif ($formModal == true){
+            $html .= $args['before_widget'];
+            $html .= '<div class="'. $formClass .' genooNoBG">';
+            if($is_macIE || $is_winIE || $is_IE){
+                $html .= '<span>' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '</span>';
+            } else {
+                $html .= '<span class="genooDisplayDesktop">' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '</span>';
+                $html .= '<span class="genooDisplayMobile">' . ModalWindow::button($formButton, $this->id, false, 'genooButton form-button-submit', true) . '</span>';
+            }
+            $html .= '</div>';
+            $html .= $args['after_widget'];
+        }
+
+        return $html;
     }
+
+
+    /**
+     * Get id
+     *
+     * @return mixed
+     */
+
+    public function getId(){ return $this->id; }
 
 
     /**
@@ -89,37 +265,71 @@ class WidgetForm extends \WP_Widget
      * @param $instance
      */
 
-    function form($instance)
+    public function form($instance)
     {
-        // prep stuff
-        $repoSettings = new RepositorySettings();
-        $repoForms = new RepositoryForms(new Cache(GENOO_CACHE), new Api($repoSettings));
-        $widgetThemes = $repoSettings->getSettingsThemes();
-        $widgetForms = array_merge(array(array('id' => 0, 'name' => __('Default subscription form', 'genoo'))), $repoForms->getFormsTable());
-        $instance = wp_parse_args((array) $instance, array('title' => __('Subscribe', 'genoo'), 'form' => 0, 'theme' => 0));
-        $widgetTitle = !empty($instance['title']) ? strip_tags($instance['title']) : __('Subscribe', 'genoo');
-        $widgetForm = strip_tags($instance['form']);
-        $widgetTheme = strip_tags($instance['theme']);
-        echo '<p>';
-            echo '<label for="'. $this->get_field_id('title') .'">' . __('Genoo form title:', 'genoo') . ' </label>';
-            echo '<input class="widefat" id="'. $this->get_field_id('title') .'" name="'. $this->get_field_name('title') .'" value="'. esc_attr($widgetTitle) .'" type="text" />';
-        echo '</p>';
-        echo '<p>';
-            echo '<label for="'. $this->get_field_id('form') .'">' . __('Form:', 'genoo') . ' </label>';
-            echo '<select name="'. $this->get_field_name('form') .'" id="'. $this->get_field_id('form') .'">';
-                foreach($widgetForms as $value){
-                    echo '<option value="'. $value['id'] .'" '. selected($value['id'], $widgetForm, false) .'>' . $value['name'] . '</option>';
-                }
-            echo '</select>';
-        echo '</p>';
-        echo '<p>';
-            echo '<label for="'. $this->get_field_id('theme') .'">' . __('Form theme:', 'genoo') . ' </label>';
-            echo '<select name="'. $this->get_field_name('theme') .'" id="'. $this->get_field_id('theme') .'">';
-                foreach($widgetThemes as $key => $value){
-                    echo '<option value="'. $key .'" '. selected($key, $widgetTheme, false) .'>' . $value . '</option>';
-                }
-            echo '</select>';
-        echo '</p>';
+        try {
+            // prep stuff
+            $repoSettings = new RepositorySettings();
+            $repoForms = new RepositoryForms(new Cache(GENOO_CACHE), new Api($repoSettings));
+            $widgetThemes = $repoSettings->getSettingsThemes();
+            $widgetForms = array_merge(array(array('id' => 0, 'name' => __('Default subscription form', 'genoo'))), $repoForms->getFormsTable());
+            $instance = wp_parse_args((array) $instance, array('title' => __('Subscribe', 'genoo'), 'form' => 0, 'theme' => 0));
+            $widgetTitle = !empty($instance['title']) ? strip_tags($instance['title']) : __('Subscribe', 'genoo');
+            $widgetButton = !empty($instance['button']) ? strip_tags($instance['button']) : $widgetTitle;
+            $widgetForm = strip_tags($instance['form']);
+            $widgetTheme = strip_tags($instance['theme']);
+            $widgetMsgSuccess = !empty($instance['msgSuccess']) ? $instance['msgSuccess'] : $repoSettings->getSuccessMessage();
+            $widgetMsgFail = !empty($instance['msgFail']) ? $instance['msgFail'] : $repoSettings->getFailureMessage();
+            $formModal = isset($instance['modal']) ? ($instance['modal'] == 1 ? true : false) : false;
+            // widget form
+            echo '<div class="genooParagraph">';
+                echo '<label for="'. $this->get_field_id('title') .'">' . __('Genoo form title:', 'genoo') . ' </label><div class="clear"></div>';
+                echo '<input class="widefat" id="'. $this->get_field_id('title') .'" name="'. $this->get_field_name('title') .'" value="'. esc_attr($widgetTitle) .'" type="text" />';
+            echo '</div>';
+            echo '<div class="genooParagraph">';
+                echo '<label for="'. $this->get_field_id('form') .'">' . __('Form:', 'genoo') . ' </label><div class="clear"></div>';
+                echo '<select name="'. $this->get_field_name('form') .'" id="'. $this->get_field_id('form') .'">';
+                    foreach($widgetForms as $value){
+                        echo '<option value="'. $value['id'] .'" '. selected($value['id'], $widgetForm, false) .'>' . $value['name'] . '</option>';
+                    }
+                echo '</select>';
+            echo '</div>';
+            echo '<div class="genooParagraph">';
+                echo '<label for="'. $this->get_field_id('theme') .'">' . __('Form theme:', 'genoo') . ' </label><div class="clear"></div>';
+                echo '<select name="'. $this->get_field_name('theme') .'" id="'. $this->get_field_id('theme') .'">';
+                    foreach($widgetThemes as $key => $value){
+                        echo '<option value="'. $key .'" '. selected($key, $widgetTheme, false) .'>' . $value . '</option>';
+                    }
+                echo '</select>';
+            echo '</div>';
+            echo '<hr />';
+            echo '<div class="genooParagraph">';
+                echo '<label for="'. $this->get_field_id('msgSuccess') .'">' . __('Form success message:', 'genoo') . '  </label>';
+                echo '<textarea class="widefat" id="'. $this->get_field_id('msgSuccess') .'" name="'. $this->get_field_name('msgSuccess') .'">'. esc_attr($widgetMsgSuccess) .'</textarea>';
+            echo '</div>';
+            echo '<div class="genooParagraph">';
+                echo '<label for="'. $this->get_field_id('msgFail') .'">' . __('Form error message:', 'genoo') . '  </label>';
+                echo '<textarea class="widefat" id="'. $this->get_field_id('msgFail') .'" name="'. $this->get_field_name('msgFail') .'">'. esc_attr($widgetMsgFail) .'</textarea>';
+            echo '</div>';
+            echo '<hr />';
+            echo '<div class="genooParagraph genooOneline">';
+            echo '<label for="'. $this->get_field_id('modal') .'">' . __('Display in pop-up:', 'genoo') . '  </label>';
+            echo '&nbsp;<input onchange="Tool.switchClass(document.getElementById(\'hidden'. $this->get_field_id('button') .'\'), \'genooHidden\');" type="checkbox" value="1" '. checked($formModal, 1, false) .' name="'. $this->get_field_name('modal') .'" id="'. $this->get_field_id('modal') .'">';
+            echo '</div>';
+            // hidden class
+            $paragraphClass = $formModal == 1 ? '' : 'genooHidden';
+            echo '<div id="hidden'. $this->get_field_id('button') .'" class="'. $paragraphClass .'">';
+                echo '<div class="genooParagraph">';
+                echo '<label for="'. $this->get_field_id('button') .'">' . __('Pop-up button text:', 'genoo') . '  </label><div class="clear"></div>';
+                echo '<input class="widefat" id="'. $this->get_field_id('button') .'" name="'. $this->get_field_name('button') .'" value="'. esc_attr($widgetButton) .'" type="text" />';
+                echo '</div>';
+            echo '</div>';
+            echo '<hr />';
+        } catch (\Exception $e){
+            echo '<span class="error">';
+            echo $e->getMessage();
+            echo '</span>';
+        }
     }
 }
 
@@ -152,22 +362,28 @@ class WidgetLumen extends \WP_Widget
 
     public function widget($args, $instance)
     {
-        $repositorySettings = new RepositorySettings();
-        $api =  new Api($repositorySettings);
-        $repositoryLumens = new RepositoryLumens(new Cache(GENOO_CACHE), $api);
-        $formId = !empty($instance['lumen']) && is_numeric($instance['lumen']) ? $instance['lumen'] : null;
-        $formTitle = !empty($instance['title']) ? $instance['title'] : __('Classlist', 'genoo');
-        if(!is_null($formId)){
-            echo $args['before_widget'];
+        try {
+            $repositorySettings = new RepositorySettings();
+            $api =  new Api($repositorySettings);
+            $repositoryLumens = new RepositoryLumens(new Cache(GENOO_CACHE), $api);
+            $formId = !empty($instance['lumen']) && is_numeric($instance['lumen']) ? $instance['lumen'] : null;
+            $formTitle = !empty($instance['title']) ? $instance['title'] : __('Classlist', 'genoo');
+            if(!is_null($formId)){
+                echo $args['before_widget'];
                 echo '<div class="themeResetDefault">';
-                    echo '<div class="genooTitle">' . $args['before_title'] . $formTitle . $args['after_title'] . '</div>';
-                    echo '<div class="clear"></div>';
-                    echo '<div class="genooGuts">';
-                        echo $repositoryLumens->getLumen($formId);
-                    echo '</div>';
-                    echo '<div class="clear"></div>';
+                echo '<div class="genooTitle">' . $args['before_title'] . $formTitle . $args['after_title'] . '</div>';
+                echo '<div class="clear"></div>';
+                echo '<div class="genooGuts">';
+                echo $repositoryLumens->getLumen($formId);
                 echo '</div>';
-            echo $args['after_widget'];
+                echo '<div class="clear"></div>';
+                echo '</div>';
+                echo $args['after_widget'];
+            }
+        } catch (\Exception $e){
+            echo '<span class="error">';
+                echo $e->getMessage();
+            echo '</span>';
         }
     }
 
@@ -178,26 +394,33 @@ class WidgetLumen extends \WP_Widget
      * @param $instance
      */
 
-    function form($instance)
+    public function form($instance)
     {
-        // prep stuff
-        $repoSettings = new RepositorySettings();
-        $repoLumens = new RepositoryLumens(new Cache(GENOO_CACHE), new Api($repoSettings));
-        $widgetLumens = $repoLumens->getLumensTable();
-        $instance = wp_parse_args((array) $instance, array('title' => __('Classlist', 'genoo'), 'lumen' => 0));
-        $widgetTitle = !empty($instance['title']) ? strip_tags($instance['title']) : __('Classlist', 'genoo');
-        $widgetLumen = strip_tags($instance['lumen']);
-        echo '<p>';
-            echo '<label for="'. $this->get_field_id('title') .'">' . __('Genoo form title:', 'genoo') . ' </label>';
-            echo '<input class="widefat" id="'. $this->get_field_id('title') .'" name="'. $this->get_field_name('title') .'" value="'. esc_attr($widgetTitle) .'" type="text" />';
-        echo '</p>';
-        echo '<p>';
-        echo '<label for="'. $this->get_field_id('lumen') .'">' . __('Classlist:', 'genoo') . ' </label>';
-        echo '<select name="'. $this->get_field_name('lumen') .'" id="'. $this->get_field_id('lumen') .'">';
-            foreach($widgetLumens as $value){
-                echo '<option value="'. $value['id'] .'" '. selected($value['id'], $widgetLumen, false) .'>' . $value['name'] . '</option>';
-            }
-        echo '</select>';
-        echo '</p>';
+        try {
+            // prep stuff
+            $repoSettings = new RepositorySettings();
+            $repoLumens = new RepositoryLumens(new Cache(GENOO_CACHE), new Api($repoSettings));
+            $widgetLumens = $repoLumens->getLumensTable();
+            $instance = wp_parse_args((array) $instance, array('title' => __('Classlist', 'genoo'), 'lumen' => 0));
+            $widgetTitle = !empty($instance['title']) ? strip_tags($instance['title']) : __('Classlist', 'genoo');
+            $widgetLumen = strip_tags($instance['lumen']);
+            // widget form
+            echo '<div class="genooParagraph">';
+                echo '<label for="'. $this->get_field_id('title') .'">' . __('Genoo form title:', 'genoo') . ' </label>';
+                echo '<input class="widefat" id="'. $this->get_field_id('title') .'" name="'. $this->get_field_name('title') .'" value="'. esc_attr($widgetTitle) .'" type="text" />';
+            echo '</div>';
+            echo '<div class="genooParagraph">';
+            echo '<label for="'. $this->get_field_id('lumen') .'">' . __('Classlist:', 'genoo') . ' </label>';
+            echo '<select name="'. $this->get_field_name('lumen') .'" id="'. $this->get_field_id('lumen') .'">';
+                foreach($widgetLumens as $value){
+                    echo '<option value="'. $value['id'] .'" '. selected($value['id'], $widgetLumen, false) .'>' . $value['name'] . '</option>';
+                }
+            echo '</select>';
+            echo '</div>';
+        } catch (\Exception $e){
+            echo '<span class="error">';
+            echo $e->getMessage();
+            echo '</span>';
+        }
     }
 }

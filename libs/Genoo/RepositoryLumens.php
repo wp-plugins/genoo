@@ -86,7 +86,9 @@ class RepositoryLumens extends Repository
         $lumensVars = array();
         try{
             $lumens = $this->getLumens();
-            foreach($lumens as $lumen){ $lumensVars[$lumen['id']] = $lumen['name']; }
+            if(!empty($lumens)){
+                foreach($lumens as $lumen){ $lumensVars[$lumen['id']] = $lumen['name']; }
+            }
         } catch(\Exception $e){}
 
         return $lumensVars;
@@ -102,12 +104,15 @@ class RepositoryLumens extends Repository
     public function getLumensTable()
     {
         $forms = array();
-        foreach($this->getLumens() as $form){
-            $form = (object)$form;
-            $forms[] = array(
-                'id' => $form->id,
-                'name' => $form->name,
-            );
+        $lumens = $this->getLumens();
+        if(!empty($lumens)){
+            foreach($lumens as $form){
+                $form = (object)$form;
+                $forms[] = array(
+                    'id' => $form->id,
+                    'name' => $form->name,
+                );
+            }
         }
         return $forms;
     }

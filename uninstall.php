@@ -30,6 +30,8 @@ function genooUninstall()
 
     delete_option('genooApiSettings');
     delete_option('genooApiGeneral');
+    delete_option('genooThemeSettings');
+    delete_option('genooFormMessages');
     delete_option('genooDebug');
     delete_option('genooDebugCheck');
 

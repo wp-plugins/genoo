@@ -22,7 +22,7 @@ class Dummy
 {
 
     /**
-     * Dummy comments
+     * Dummy generated comments for pst
      *
      * @param $postId
      * @param int $count

@@ -23,7 +23,9 @@ use Genoo\RepositorySettings,
     Genoo\Wordpress\Page,
     Genoo\Wordpress\Notice,
     Genoo\Wordpress\Nag,
-    Genoo\Tools;
+    Genoo\Tools,
+    Genoo\Utils\Strings;
+
 
 class Admin
 {
@@ -253,8 +255,7 @@ class Admin
     public function adminPluginMeta($links, $file)
     {
         if ($file == GENOO_FILE){
-            // TODO: add REAL support link when ready
-            array_push($links, '<a href="http://wordpress.org/support/plugin/genoo">'. __('Support forum', 'genoo') .'</a>');
+            array_push($links, '<a target="_blank" href="http://wordpress.org/support/plugin/genoo">'. __('Support forum', 'genoo') .'</a>');
         }
         return $links;
     }
