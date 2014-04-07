@@ -29,7 +29,7 @@ Tool.hasClass = function(el, className)
         return el.classList.contains(className)
     else
         return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className)
-}
+};
 
 
 /**
@@ -45,7 +45,7 @@ Tool.addClass = function(el, className)
         el.classList.add(className);
     else
         el.className += ' ' + className;
-}
+};
 
 
 /**
@@ -61,7 +61,7 @@ Tool.removeClass = function(el, className)
         el.classList.remove(className);
     else
         el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
-}
+};
 
 /**
  * Switch class
@@ -76,7 +76,121 @@ Tool.switchClass = function(element, className)
     } else {
         Tool.addClass(element, className);
     }
-}
+};
+
+
+/**
+ * Switch tab
+ *
+ * @param el
+ * @param id
+ */
+
+Tool.switchTab = function(el, id)
+{
+    var selected = el.options[el.selectedIndex].value;
+    var tabHtml = document.getElementById(id + 'html');
+    var tabImg = document.getElementById(id + 'img');
+    var tabCurrent = document.getElementById(id + selected);
+    Tool.switchClass(tabHtml, 'hidden');
+    Tool.switchClass(tabImg, 'hidden');
+};
+
+
+/*********************************************************************/
+
+/**
+ * Modal
+ * @type {*|Object}
+ */
+
+var Modal = Modal || {};
+
+
+/**
+ * Open modal
+ *
+ * @param e
+ * @param el
+ */
+
+Modal.open = function(e, el)
+{
+    // prevent default
+    e.preventDefault();
+
+    // prep
+    var genooFrame;
+    var genooTarget = el.getAttribute('data-target');
+    var genooTargetInput = el.getAttribute('data-target-input');
+    var genooCurrent = el.getAttribute('data-current-id');
+    var genooTitle = el.getAttribute('data-title');
+    var genooTitleButton = el.getAttribute('data-update-text');
+
+    // if the frame already exists, reopen it
+    if (typeof(genooFrame)!=="undefined"){ genooFrame.close(); }
+
+    // custom uploader
+    genooFrame = wp.media.frames.file_frame = wp.media({ title: genooTitle, button: { text: genooTitleButton }, multiple: false });
+
+    // on select
+    genooFrame.on('select', function(){
+        // empty first
+        document.getElementById(genooTarget).innerHTML = '';
+        var attachment = genooFrame.state().get('selection').first().toJSON();
+        Modal.appendImage(genooTarget, attachment.url);
+        document.getElementById(genooTargetInput).value = attachment.id;
+        el.setAttribute('data-current-id', attachment.id);
+    });
+
+    // on open
+    genooFrame.on('open',function(){
+        // if there's current
+        if(genooCurrent !== null){
+            var selection = genooFrame.state().get('selection');
+            var attachment = wp.media.attachment(genooCurrent);
+            attachment.fetch();
+            selection.add(attachment);
+        }
+    });
+
+    // open
+    genooFrame.open();
+};
+
+
+/**
+ * Empty image
+ *
+ * @param event
+ * @param id
+ * @return {*}
+ */
+
+Modal.emptyImage = function(event, id, img, btn)
+{
+    event.preventDefault();
+    document.getElementById(id).innerHTML = '';
+    document.getElementById(img).value = '';
+    document.getElementById(btn).setAttribute('data-current-id','');
+    return;
+};
+
+
+/**
+ * Append image
+ *
+ * @param target
+ * @param src
+ * @return {XML|Node}
+ */
+
+Modal.appendImage = function(target, src)
+{
+    var elem = document.createElement("img");
+        elem.setAttribute("src", src);
+    return document.getElementById(target).appendChild(elem);
+};
 
 
 /*********************************************************************/
@@ -142,7 +256,7 @@ Admin.buildQuery = function (formdata, numeric_prefix, arg_separator){
         }
     }
     return tmp.join(arg_separator);
-}
+};
 
 
 /**
@@ -209,21 +323,21 @@ Genoo.switchImage = function(to)
     } else {
         Genoo.flush();
     }
-}
+};
 
 
 /**
  * Flush preview image
  */
 
-Genoo.flush = function(){ jQuery('#' + GenooThemePreview).html(''); }
+Genoo.flush = function(){ jQuery('#' + GenooThemePreview).html(''); };
 
 
 /**
  * Switch to init image
  */
 
-Genoo.switchToInitImage = function(){ Genoo.switchImage(Genoo.getCurrentValue(document.getElementById(GenooThemeSwitcher))); }
+Genoo.switchToInitImage = function(){ Genoo.switchImage(Genoo.getCurrentValue(document.getElementById(GenooThemeSwitcher))); };
 
 
 /**
@@ -242,7 +356,7 @@ Genoo.switchToImage = function(elem){ Genoo.switchImage(Genoo.getCurrentValue(el
  * @return {String|Number|String}
  */
 
-Genoo.getCurrentValue = function(elem){ return elem.options[elem.selectedIndex].value; }
+Genoo.getCurrentValue = function(elem){ return elem.options[elem.selectedIndex].value; };
 
 
 /**
@@ -271,7 +385,7 @@ Genoo.inArray = function(needle, haystack, argStrict){
         }
     }
     return false;
-}
+};
 
 
 /**
@@ -285,10 +399,10 @@ Genoo.isArray = function(o)
 {
     if(o != null && typeof o == 'object') {
         return (typeof o.push == 'undefined') ? false : true;
-    }else {
+    } else {
         return false;
     }
-}
+};
 
 
 /**
@@ -384,7 +498,7 @@ Genoo.startImport = function(e)
 
             }
     });
-}
+};
 
 
 /**
@@ -397,8 +511,6 @@ Genoo.startSubscriberImport = function(e)
 {
     // prevent default click
     e.preventDefault();
-
-
 
     /**
      * Step 1: Start import
@@ -483,7 +595,7 @@ Genoo.startSubscriberImport = function(e)
             }());
         }
     });
-}
+};
 
 
 
@@ -495,7 +607,7 @@ Genoo.startSubscriberImport = function(e)
  * @return {Number}
  */
 
-Genoo.logPercentage = function(step, steps){ return (step / steps) * 100; }
+Genoo.logPercentage = function(step, steps){ return (step / steps) * 100; };
 
 
 /**
@@ -508,14 +620,14 @@ Genoo.startEventLog = function()
     jQuery(".metabox-holder").prepend('<div id="genooLog" class="strong update-nag">' +
         '<div id="genooHeader"></div>' +
         '</div>');
-}
+};
 
 
 /**
  * Event log in
  */
 
-Genoo.startEventLogIn = function(){ return jQuery('#genooLog').append('<div id="genooLogIn"></div>'); }
+Genoo.startEventLogIn = function(){ return jQuery('#genooLog').append('<div id="genooLogIn"></div>'); };
 
 
 /**
@@ -531,7 +643,7 @@ Genoo.setProgressBar = function(yes)
         return jQuery("#genooProgressBar").remove();
     }
     return jQuery("#genooLog").append('<div id="genooProgressBar"><span id="genooProgressBarBG" class="button button-primary"></span><span id="genooProgressBarText"></span></div>');
-}
+};
 
 
 /**
@@ -544,7 +656,7 @@ Genoo.progressBar = function(perc)
     var cailed = Math.ceil(perc);
     document.getElementById('genooProgressBarText').innerHTML = cailed + '%';
     document.getElementById('genooProgressBarBG').style.width = cailed + '%';
-}
+};
 
 
 /**
@@ -560,7 +672,7 @@ Genoo.addLogMessage = function(message, type)
         return  jQuery("#genooHeader").append('<h3>' + message + '</h3><div class="clear"></div>');
     }
     return jQuery("#genooLogIn").append('<small>' + message + '</small><div class="clear"></div>');
-}
+};
 
 
 /**
@@ -576,7 +688,7 @@ Genoo.setLog = function(log)
         return jQuery("#genooLoading").remove();
     }
     return jQuery("#genooLog").append('<div id="genooLoading" class="genooLoading"></div>');
-}
+};
 
 
 /**
@@ -588,6 +700,7 @@ Genoo.init = function()
     if(Genoo.elementExists(document.getElementById(GenooThemeSwitcher))){
         Genoo.switchToImage(document.getElementById(GenooThemeSwitcher));
     }
+
 };
 
 
@@ -595,4 +708,6 @@ Genoo.init = function()
  * Jquery document ready (init)
  */
 
-jQuery(document).ready(function(){ Genoo.init(); });
+jQuery(document).ready(function(){
+    Genoo.init();
+});

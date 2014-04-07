@@ -13,6 +13,7 @@ namespace Genoo;
 
 use Genoo\RepositorySettings,
     Genoo\Wordpress\Utils,
+    Genoo\Wordpress\Filter,
     Genoo\ModalWindow,
     Genoo\HtmlForm,
     Genoo\Widgets;
@@ -49,6 +50,7 @@ class Frontend
         });
         add_action('parse_request', function($wp){
             if(array_key_exists('genooMobileWindow', $wp->query_vars)){
+                Filter::removeFrom('wp_head')->everythingExceptLike(array('style', 'script'));
                 Frontend::renderMobileWindow();
             }
         });
@@ -61,10 +63,10 @@ class Frontend
     public function enqueue()
     {
         // frontend css
-        wp_enqueue_style('genooFrontend', GENOO_ASSETS . 'GenooFrontend.css', null, '1.0');
+        wp_enqueue_style('genooFrontend', GENOO_ASSETS . 'GenooFrontend.css', null, '1.6');
         // frontend js, if not a mobile window
         if(!isset($_GET['genooMobileWindow'])){
-            wp_register_script('genooFrontendJs', GENOO_ASSETS . "GenooFrontend.js", false, '1.0', true);
+            wp_register_script('genooFrontendJs', GENOO_ASSETS . "GenooFrontend.js", false, '1.4.5', true);
             wp_enqueue_script('genooFrontendJs');
         }
     }
@@ -135,7 +137,9 @@ class Frontend
     public static function renderMobileWindow()
     {
         // simple template
-        echo '<!DOCTYPE html><html><head><meta charset="utf-8" /><title>Subscribe</title>';
+        echo '<!DOCTYPE html><html class="genooFullPage"><head><meta charset="utf-8" />'
+            .'<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width">'
+            .'<title>Subscribe</title>';
         wp_head();
         echo '</head><body class="genooMobileWindow">';
         wp_footer();

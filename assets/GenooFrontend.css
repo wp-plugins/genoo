@@ -28,14 +28,19 @@ strong.genooSucess, strong.genooError { display: block; padding: 10px 0 !importa
 .genooError { color: #dd3d36; }
 
 /* Mobile window */
-body.genooMobileWindow { width: 100%; position: relative; }
-.genooMobileWindow #genooOverlay { background: transparent; }
+body.genooMobileWindow { width: 100%; max-width: 390px; position: relative; margin: 0 auto; height: 100%; min-height: 100%; }
+.genooMobileWindow #genooOverlay { background: transparent; max-width: 390px; position: relative; top: auto; left: auto; right: auto; bottom: auto; }
 .genooMobileWindow #modalOverlayClose { display: none !important; }
 .genooMobileWindow .genooTitle { font-weight: bold; font-size: 20px; }
 .genooMobileWindow .genooModalClose { right: 8px; top: 8px; height: 30px; min-height: 30px; width: 30px; border-radius: 15px; }
 .genooMobileWindow .genooModalClose { font-size: 22px; line-height: 28px; }
 .genooMobileWindow .genooModal.visible { position: relative; margin: 0; top: auto; left: auto; right: auto; bottom: auto; }
 .genooMobileWindow .genooModal.visible { height: auto; min-height: 0; width: 100%; }
+.genooFullPage { height: 100% !important; min-height: 100% !important; position: relative; }
+.genooFullPage .genooMobileWindow .genooModal.visible { min-height: 100%; }
+.genooFullPage .genooModal .relative { position: static !important; }
+.genooFullPage .genooModal .relative .genooForm { min-height: 100%; position: absolute; width: 100%; }
+.genooFullPage .genooMobileWindow .genooModalClose { z-index: 9999; }
 
 /*
 	Genoo forms
@@ -58,6 +63,13 @@ body.genooMobileWindow { width: 100%; position: relative; }
 .genooButton:hover,
 .genooButton:active { background-color: #e8e8e8; color: #7a7a7a; border: 1px solid #bbbbbb; }
 .genooNoBG { background: none !important; border: none !important; outline: none !important; }
+.genooStripDown input:hover,
+.genooStripDown input:active,
+.genooStripDown input:focus,
+.genooStripDown input { max-width: 100%; background: none; outline: none !important; outline-offset: 0 !important; border-radius: 0 !important; border: none !important; text-shadow: none !important; box-shadow: none !important; color: transparent !important; font: 0.01px !important; text-indent: 120% !important; display: inline; width: auto; height: auto; min-height: 0; padding: 0 !important; }
+.genooWidgetButton { display: block; width: 100%; position: relative; }
+.genooWidgetButton input { max-width: 100% !important; height: auto; }
+.genooWidgetButton input { text-indent: 110%; white-space: nowrap; overflow: hidden; }
 
 /*
 	Reset default styling
@@ -73,7 +85,8 @@ body.genooMobileWindow { width: 100%; position: relative; }
 .themeResetDefault .form-button-submit { -webkit-box-shadow: none; -moz-box-shadow: none; box-shadow: none; }
 .themeResetDefault .form-button-submit:hover,
 .themeResetDefault .form-button-submit:active,
-.themeResetDefault .form-button-submit:focus { box-shadow: none; text-shadow: none; }
+.themeResetDefault .form-button-submit:focus { box-shadow: none; text-shadow: none; outline: none !important; outline-offset: 0; }
+.form-button-submit:focus { box-shadow: none; text-shadow: none; outline: none !important; outline-offset: 0; }
 .genooForm .form-button-submit { margin-top: 10px; }
 
 /*

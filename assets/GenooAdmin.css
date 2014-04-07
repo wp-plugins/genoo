@@ -17,9 +17,9 @@
 	Assets
 */
 
-.genooParagraph { padding: 10px 0 5px 0; }
+.genooParagraph { padding: 2.5px 0; }
 .widget .genooParagraph:last-child { padding-bottom: 10px; }
-.genooParagraph label { margin-bottom: 10px; display: inline-block; }
+.genooParagraph label { margin-bottom: 5px; display: inline-block; line-height: 28px; margin-right: 5px; margin-bottom: 0; }
 .genooOneline label { margin-bottom: 0; }
 .genooHidden { display: none !important; }
 .genooTick { display: inline-block; width: 24px; height: 24px; min-height: 24px; background: url("bgTick.png") bottom left no-repeat transparent; }
@@ -36,6 +36,11 @@
 .strong { font-weight: bold; }
 .descriptionAbsolute { display: block; position: absolute; left: 10px; margin-top: -10px; }
 .genooLoading { display: block; background: url("bgLoading.gif") bottom center no-repeat; padding: 15px 0; }
+.genooWidgetImage,
+.genooUploadSelect { padding: 0; margin: 0; background: #f4f4f4; border-radius: 5px; padding: 5px; padding-top: 0; }
+.genooWidgetImage { text-align: center; }
+.genooWidgetImage img { padding: 3px; margin: 3px; display: inline-block; max-width: 70%; height: auto;  }
+.genooWidgetImage img { border: 2px dashed #c7c7c7; background: #f8f8f8; margin-bottom: 0; margin-top: 5px; }
 #genooLog { width: 45%; min-width: 255px; margin: 10px 0;  -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
 #genooLog h3 { padding: 0; }
 #genooLog small { padding: 5px 0; font-size: 12px; font-weight: normal; }
@@ -74,7 +79,11 @@
 	background-color: #ccc;
 	cursor: pointer;
 }
-/* WordPress should do this automatically, better this way */
+
+/*
+	WordPress should do this automatically, better this way
+*/
+
 #wp_editimgbtn:hover, #wp_gallerybtns:hover,
 #wp_editgallery:hover, #wp_delgallery:hover{ cursor: pointer; }
 

@@ -71,7 +71,7 @@ class Admin
         add_action('current_screen', array($this, 'adminCurrentScreen'));
         add_action('admin_init', array($this, 'adminInit'));
         add_action('admin_menu', array($this, 'adminMenu'));
-        add_action('admin_notices', array($this, 'adminNotices'));
+        add_action('admin_notices', array ($this, 'adminNotices'));
         add_action('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
     }
 
@@ -83,8 +83,8 @@ class Admin
     public function adminEnqueueScripts()
     {
         // scripts
-        wp_enqueue_style('core', GENOO_ASSETS . 'GenooAdmin.css', null, '1.0.2');
-        wp_enqueue_script('Genoo', GENOO_ASSETS . 'Genoo.js', array(), '1.3', true);
+        wp_enqueue_style('core', GENOO_ASSETS . 'GenooAdmin.css', null, '1.4');
+        wp_enqueue_script('Genoo', GENOO_ASSETS . 'Genoo.js', null, '1.4', true);
         wp_localize_script('Genoo', 'GenooVars', array(
             'GenooPluginUrl' => GENOO_ASSETS,
             'GenooMessages'  => array(
@@ -110,6 +110,9 @@ class Admin
                 break;
             case 'genoo_page_GenooLumens':
                 $this->tableLumens = new TableLumens($this->repositaryLumens, $this->repositarySettings);
+                break;
+            case 'widgets':
+                wp_enqueue_media();
                 break;
         }
     }
