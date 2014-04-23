@@ -63,3 +63,5 @@ Some of the features include:
 = 1.3 =
 * Added ability to open widget forms in modal windows.
 * Added custom form success and failure messages.
+= 1.4 =
+* Added ability to use image button and hover image for form pop-up from Widget.
