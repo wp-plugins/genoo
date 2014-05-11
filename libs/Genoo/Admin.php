@@ -83,8 +83,8 @@ class Admin
     public function adminEnqueueScripts()
     {
         // scripts
-        wp_enqueue_style('core', GENOO_ASSETS . 'GenooAdmin.css', null, '1.4');
-        wp_enqueue_script('Genoo', GENOO_ASSETS . 'Genoo.js', null, '1.4', true);
+        wp_enqueue_style('core', GENOO_ASSETS . 'GenooAdmin.css', null, '1.5');
+        wp_enqueue_script('Genoo', GENOO_ASSETS . 'Genoo.js', null, '1.5', true);
         wp_localize_script('Genoo', 'GenooVars', array(
             'GenooPluginUrl' => GENOO_ASSETS,
             'GenooMessages'  => array(

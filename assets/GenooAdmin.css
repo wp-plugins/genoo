@@ -9,7 +9,13 @@
 	Menu icon -> 3.8 fix
 */
 
+.branch-3-9 #toplevel_page_Genoo .wp-menu-image,
+.branch-4   #toplevel_page_Genoo .wp-menu-image,
 .branch-3-8 #toplevel_page_Genoo .wp-menu-image { position: relative; left: 6px; }
+.branch-3-9 #toplevel_page_Genoo .wp-menu-image:before,
+.branch-4   #toplevel_page_Genoo .wp-menu-image:before,
+.branch-3-9 #toplevel_page_Genoo:hover .wp-menu-image:before,
+.branch-4   #toplevel_page_Genoo:hover .wp-menu-image:before,
 .branch-3-8 #toplevel_page_Genoo .wp-menu-image:before,
 .branch-3-8 #toplevel_page_Genoo:hover .wp-menu-image:before { display: none !important; }
 

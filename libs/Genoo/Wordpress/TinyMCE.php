@@ -32,7 +32,7 @@ class TinyMCE
     {
         /** Register external plugins */
         add_filter('mce_external_plugins', function($plugin_array){
-            $plugin_array['genoo'] = GENOO_ASSETS . 'GenooTinyMCE.js';
+            $plugin_array['genoo'] = GENOO_ASSETS . 'GenooTinyMCE.js?ref';
             return $plugin_array;
         });
         /** Register external buttons */

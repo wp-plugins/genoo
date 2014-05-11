@@ -55,6 +55,7 @@ $urlRel = substr($urlPrep, 0, strpos($urlPrep , "wp-content"));
 $edit = (isset($_GET['edit']) && $_GET['edit'] == '1') ? true : false;
 $selected = $edit ? (isset($_GET['selected']) ? parseAtts($_GET['selected']) : array()) : array();
 $title = $edit ? 'Edit' : 'Insert';
+$ver = (isset($_GET['ver4']) && $_GET['ver4'] == 'true') ? true : false;
 ?>
 <!DOCTYPE html>
 <head>
@@ -67,11 +68,11 @@ $title = $edit ? 'Edit' : 'Insert';
 		a:active{ background-color: transparent; }
         body
         {
-            background: #f1f1f1;
+            background: <?php echo $ver ? '#fff' : '#f1f1f1'; ?>;
             font-family: 'Helvetice', 'Arial', 'Tahoma', sans-serif;
             font-size: 13px;
             line-height: 1.2em;
-            padding: 10px 0;
+            padding: <?php echo $ver ? '16px' : '10px 0'; ?>;
         }
         .submit { display: inline-block; float: right; }
         .submit
@@ -126,11 +127,12 @@ $title = $edit ? 'Edit' : 'Insert';
 				var formThemeVal = formTheme.options[formTheme.selectedIndex].value;
 				// output
                 var output = '[genooForm';
-                if(formVal){ output += ' id="'+formVal+'"'; }
-				if(formThemeVal){ output += ' theme="'+formThemeVal+'"'; }
+                if(formVal){ output += ' id=\''+formVal+'\''; }
+				if(formThemeVal){ output += ' theme=\''+formThemeVal+'\''; }
 				output += ']';
 				// bam
                 tinyMCEPopup.execCommand('mceReplaceContent', false, output);
+                tinyMCEPopup.execCommand('genooRefresh');
 				tinyMCEPopup.close();
 			}
 		}
