@@ -60,6 +60,8 @@ Some of the features include:
 == Upgrade Notice ==
 
 == Changelog ==
+= 1.6 =
+* Wp editor plugin now working for latest WordPress and TinyMCE 4
 = 1.3 =
 * Added ability to open widget forms in modal windows.
 * Added custom form success and failure messages.

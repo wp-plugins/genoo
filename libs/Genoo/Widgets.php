@@ -187,6 +187,7 @@ class WidgetForm extends \WP_Widget
     public function getHtml($args, $instance)
     {
         global $is_macIE, $is_winIE, $is_IE;
+
         // default
         $default = array(
             'before_title' => '',
@@ -198,6 +199,7 @@ class WidgetForm extends \WP_Widget
         );
         $args = array_merge($default, $args);
         $html = '';
+
         // prep
         $formTitle = !empty($instance['title']) ? $instance['title'] : __('Subscribe', 'genoo');
         $formClass = !empty($instance['theme']) ? $instance['theme'] : 'themeDefault';

@@ -226,9 +226,8 @@
             // on click
             ed.on('click', function(e){
                 if(jQuery(e.target).hasClass('editGenoo')){
-                    var img = jQuery(e.target).parent().prev();
-                    var finalImg = img.children("img");
-                    ed.execCommand('genooFormEdit', true, finalImg.attr('title'));
+                    var img = jQuery(e.target).closest('body').find('img[data-mce-selected="1"]');
+                    ed.execCommand('genooFormEdit', true, img.attr('title'));
                 } else if (jQuery(e.target).hasClass('removeGenoo')){
                     tinyMCE.activeEditor.windowManager.confirm("Are you sure? Please confirm to delete the form.", function(s) {
                         if (s){
@@ -252,7 +251,7 @@
                 ed.windowManager.open({
                     file : url + '/GenooTinyMCE.php?ver4=true&edit=0&' + Admin.buildQuery(queryVars),
                     width : 200 + parseInt(ed.getLang('example.delta_width', 0)),
-                    height : 225 + parseInt(ed.getLang('example.delta_height', 0)),
+                    height : 375 + parseInt(ed.getLang('example.delta_height', 0)),
                     inline : 1
                 });
             });
@@ -272,7 +271,7 @@
                 ed.windowManager.open({
                     file : url + '/GenooTinyMCE.php?ver4=true&edit=1&' + Admin.buildQuery(queryVars),
                     width : 200 + parseInt(ed.getLang('example.delta_width', 0)),
-                    height : 225 + parseInt(ed.getLang('example.delta_height', 0)),
+                    height : 375 + parseInt(ed.getLang('example.delta_height', 0)),
                     inline : 1
                 });
                 removeToolbar();

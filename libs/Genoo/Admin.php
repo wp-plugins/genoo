@@ -124,7 +124,6 @@ class Admin
 
     public function adminInit()
     {
-
         /**
          * 1. Check and hide user nag, if set + Check tool's requests
          */

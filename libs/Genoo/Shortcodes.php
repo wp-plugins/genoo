@@ -120,6 +120,8 @@ class Shortcodes
             $formId = !empty($atts['id']) && is_numeric($atts['id']) ? $atts['id'] : null;
             $formIdFinal = is_null($formId) ? $repositorySettings->getActiveForm() : $formId;
             $formTheme = !empty($atts['theme']) ? $atts['theme'] : $repositorySettings->getActiveTheme();
+            $formSuccess = !empty($atts['msgsuccess']) ? $atts['msgsuccess'] : null;
+            $formFail = !empty($atts['msgfail']) ? $atts['msgfail'] : null;
             // do we have a form ID?
             if(!empty($formIdFinal)){
                 // prep html
@@ -130,14 +132,16 @@ class Shortcodes
                 $id = $formIdFinal;
                 // inject inputs and message
                 $inject = new HtmlForm($h);
-                $inject->appendHiddenInputs(array('popup' => 'true','returnModalUrl' => self::getReturnUrlShortcode($id)));
+                if(!empty($formSuccess) && !empty($formFail)){
+                    $inject->appendHiddenInputs(array('popup' => 'true','returnModalUrl' => self::getReturnUrlShortcode($id)));
+                }
                 $result = self::shortcoeFormResult($id);
                 // do we have a result?
                 if(($result == true || $result == false) && (!is_null($result))){
                     if($result == false){
-                        $inject->appendMsg($repositorySettings->getFailureMessage(), $result);
+                        $inject->appendMsg($formFail, $result);
                     } elseif($result == true) {
-                        $inject->appendMsg($repositorySettings->getSuccessMessage(), $result);
+                        $inject->appendMsg($formSuccess, $result);
                     }
                 }
                 // return html
