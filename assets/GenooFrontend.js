@@ -97,7 +97,6 @@
 
 /*********************************************************************/
 
-
 /**
  * Tools
  * @type {*|Object}
@@ -120,6 +119,7 @@ Tool.elementExists = function(elem){ if(elem.length > 0){ return true; } else { 
  * Remove active class
  *
  * @param from
+ * @param className
  */
 
 Tool.removeAllClassOf = function(from, className) {
@@ -130,7 +130,7 @@ Tool.removeAllClassOf = function(from, className) {
             Tool.removeClass(elm, className);
         }
     }
-}
+};
 
 
 /**
@@ -146,7 +146,7 @@ Tool.switchDisplay = function(element)
     } else {
         element.style.display = 'none';
     }
-}
+};
 
 
 /**
@@ -160,10 +160,10 @@ Tool.switchDisplay = function(element)
 Tool.hasClass = function(el, className)
 {
     if (el.classList)
-        return el.classList.contains(className)
+        return el.classList.contains(className);
     else
-        return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className)
-}
+        return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
+};
 
 
 /**
@@ -179,7 +179,7 @@ Tool.addClass = function(el, className)
         el.classList.add(className);
     else
         el.className += ' ' + className;
-}
+};
 
 
 /**
@@ -195,12 +195,13 @@ Tool.removeClass = function(el, className)
         el.classList.remove(className);
     else
         el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
-}
+};
 
 /**
  * Switch class
  *
  * @param element
+ * @param className
  */
 
 Tool.switchClass = function(element, className)
@@ -210,7 +211,67 @@ Tool.switchClass = function(element, className)
     } else {
         Tool.addClass(element, className);
     }
-}
+};
+
+
+/**
+ * Get widnow size
+ *
+ * @returns {{x: (Number|number), y: (Number|number)}}
+ */
+
+Tool.windowSize = function()
+{
+    var w = window,
+        d = document,
+        e = d.documentElement,
+        g = d.getElementsByTagName('body')[0],
+        x = w.innerWidth || e.clientWidth || g.clientWidth,
+        y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+    return { x: x, y: y };
+};
+
+
+/*********************************************************************/
+
+/**
+ * Tools
+ * @type {*|Object}
+ */
+
+var Element = Element || {};
+
+
+/**
+ * Element position
+ *
+ * @param element
+ * @return {Object}
+ */
+
+Element.position = function(element){
+    var xPosition = 0;
+    var yPosition = 0;
+    while(element) {
+        xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+        yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
+        element = element.offsetParent;
+    }
+    return { x: xPosition, y: yPosition };
+};
+
+
+/**
+ * Get element heig
+ *
+ * @param element
+ * @returns {number}
+ */
+
+Element.height = function(element)
+{
+    return element.offsetHeight;
+};
 
 
 /*********************************************************************/
@@ -221,6 +282,32 @@ Tool.switchClass = function(element, className)
  */
 
 var Modal = Modal || {};
+
+
+/**
+ * Center modal
+ *
+ * @param modal
+ */
+
+Modal.center = function(modal)
+{
+    var modalHeight = modal.offsetHeight;
+    var windowHeight = Tool.windowSize().y;
+    if(modalHeight > windowHeight){
+        // we're going overflow
+        Tool.addClass(modal, 'genooOverflow');
+        // get guts
+        var modalInsides = document.querySelectorAll('#' + modal.id + ' .genooGuts');
+        var modalInsidesOne = modalInsides[0];
+        // set all needed
+        modalInsidesOne.style.height = (windowHeight - 150) + 'px';
+        modal.style.marginTop= '-' + (modal.offsetHeight / 2) + 'px';
+    } else {
+        // just cebter if no problem with height
+        modal.style.marginTop= '-' + (modalHeight / 2) + 'px';
+    }
+};
 
 
 /**
@@ -242,10 +329,11 @@ Modal.display = function(e, modalId)
             complete: function(){
                 Tool.switchClass(document.getElementById('genooOverlay'), 'visible');
                 Tool.addClass(modal, 'visible');
+                Modal.center(modal);
             }
         });
     }
-}
+};
 
 
 /**
@@ -267,4 +355,4 @@ Modal.close = function(e, modalId)
             Tool.removeAllClassOf('genooOverlay', 'visible');
         }
     });
-}
+};

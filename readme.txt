@@ -5,7 +5,7 @@ Requires at least: 3.3
 Tested up to: 3.9.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.6
+Stable tag: 1.6.6
 
 Genoo Plugin brings seamless marketing automation integration to Genoo users who use WordPress to host their websites and blogs.
 
@@ -60,6 +60,8 @@ Some of the features include:
 == Upgrade Notice ==
 
 == Changelog ==
+= 1.6 =
+* Better modal window handeling.
 = 1.6 =
 * Wp editor plugin now working for latest WordPress and TinyMCE 4
 = 1.3 =
