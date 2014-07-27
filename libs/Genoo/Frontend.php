@@ -16,7 +16,7 @@ use Genoo\RepositorySettings,
     Genoo\Wordpress\Filter,
     Genoo\ModalWindow,
     Genoo\HtmlForm,
-    Genoo\Widgets;
+    Genoo\Wordpress\Widget;
 
 
 class Frontend
@@ -54,7 +54,18 @@ class Frontend
                 Frontend::renderMobileWindow();
             }
         });
+        //Filter::add('the_content', array($this, 'content'), 0);
     }
+
+
+    /**
+     * Content
+     *
+     * @return mixed
+     */
+
+    public function content(){ if(is_single()){} }
+
 
     /**
      * Enqueue
@@ -93,7 +104,7 @@ class Frontend
     public function footerLast()
     {
         // prep
-        $footerWidgets = Widgets::getFooterModals();
+        $footerWidgets = Widget::getFooterModals();
         $footerModals = new ModalWindow();
         // footer widgtes
         if(!empty($footerWidgets)){

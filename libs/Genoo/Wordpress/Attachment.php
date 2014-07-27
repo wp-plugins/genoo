@@ -11,6 +11,8 @@
 
 namespace Genoo\Wordpress;
 
+use Genoo\Utils\CSS;
+
 
 class Attachment
 {
@@ -27,25 +29,36 @@ class Attachment
     {
         $r = '';
 
+        if(!is_null($img)){ $src = wp_get_attachment_image_src($img, $size); }
+        if(!is_null($imgHover)){ $srcHover = wp_get_attachment_image_src($imgHover, $size); }
+
+        $css = new CSS();
         if(!is_null($img)){
-            $src = wp_get_attachment_image_src($img, $size);
+            $css->addRule('#' . $id.  ' input')
+                ->add('background', 'url(\'' . $src[0] . '\') top left no-repeat transparent')
+                ->add('display', 'inline-block')
+                ->add('width', 'auto')
+                ->add('height', 'auto')
+                ->add('width', $src[1] . 'px')
+                ->add('height', $src[2] . 'px')
+                ->add('min-height', $src[2] . 'px')
+                ->add('max-width', '100%');
         }
         if(!is_null($imgHover)){
-            $srcHover = wp_get_attachment_image_src($imgHover, $size);
+            $css->addRule('#' . $id . ' input:hover, ' . '#' . $id . ' input:focus, ' . '#' . $id . ' input:active')
+                ->add('background', 'url(\'' . $srcHover[0] . '\') top left no-repeat transparent')
+                ->add('width', $srcHover[1] . 'px')
+                ->add('height', $srcHover[2] . 'px')
+                ->add('min-height', $srcHover[2] . 'px')
+                ->add('max-width', '100%');
         }
 
-        $r = '<style type="text/css" scoped>';
-            if(!is_null($img)){
-                $r .='#' . $id . ' input { display: inline-block; width: auto; height: auto; width: '. $src[1] .'px; height: '. $src[2] .'px; min-height: '. $src[2] .'px; }';
-                $r .= '#' . $id . ' input { background: url(\''. $src[0] .'\') top left no-repeat transparent; }';
-            }
-            if(!is_null($imgHover)){
-                $r .= '#' . $id . ' input:hover, ';
-                $r .= '#' . $id . ' input:focus, ';
-                $r .= '#' . $id . ' input:active { background: url(\''. $srcHover[0] .'\') top left no-repeat transparent; width: '. $srcHover[1] .'px; height: '. $srcHover[2] .'px; min-height: '. $srcHover[2] .'px; }';
-            }
-        $r .= '</style>';
+        // clean up theme styles
+        $css->addRule('#' . $id.  ' input')
+            ->add('box-shadow', 'none !important')
+            ->add('border', 'none !important')
+            ->add('border-radius', '0 !important');
 
-        return $r;
+        return $css;
     }
 }

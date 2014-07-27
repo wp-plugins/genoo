@@ -4,6 +4,7 @@
 
 #toplevel_page_Genoo .wp-menu-image { background: url('bgMenuIcon.png') no-repeat 6px -17px !important; }
 #toplevel_page_Genoo:hover .wp-menu-image, #toplevel_page_Genoo.current .wp-menu-image, #toplevel_page_Genoo.wp-menu-open .wp-menu-image { background-position: 6px 7px !important; }
+#toplevel_page_Genoo:hover .wp-menu-image, #toplevel_page_Genoo.current .wp-menu-image, #toplevel_page_Genoo.wp-menu-open .wp-menu-image { height: 31px; min-height: 31px; }
 
 /*
 	Menu icon -> 3.8 fix
@@ -103,3 +104,29 @@
 	.genooPostbox { width: 100%; }
 	.descriptionAbsolute { margin-top: -35px; }
 }
+
+/* Metabox */
+.themeMetaboxRow { clear: both; margin: 10px 0; }
+.themeMetaboxRow .genooUploadSelect { width: 200px; float: left; }
+.themeMetaboxRow:last-child { margin-bottom: 0; }
+.themeMetaboxRow .radio,
+.themeMetaboxRow .label,
+.themeMetaboxRow label,
+.themeMetaboxRow input,
+.themeMetaboxRow select,
+.themeMetaboxRow textarea
+{
+	display: inline-block;
+	width: 60%;
+}
+.themeMetaboxRow input[type='radio'] { width: auto; display: inline; }
+.themeMetaboxRow input[type='checkbox'] { width: auto; display: inline; }
+.themeMetaboxRow .radio { display: inline-block; float: left; width: 500px; }
+.themeMetaboxRow .label,
+.themeMetaboxRow label { width: 150px; float: left; margin-right: 20px; font-weight: bold; }
+.themeMetaboxRow input,
+.themeMetaboxRow select,
+.themeMetaboxRow textarea {
+	float: left;
+}
+.clear { clear: both; }

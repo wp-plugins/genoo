@@ -11,19 +11,24 @@
 
 namespace Genoo;
 
-use Genoo\Api;
+use Genoo\Api,
+    Genoo\Wordpress\Post;
 
 
 class RepositorySettings extends Repository
 {
     /** settings key */
     const KEY_SETTINGS = 'genooApiSettings';
+    /** settings leads */
+    const KEY_LEADS = 'genooLeads';
     /** general - used only by plugin calls */
     const KEY_GENERAL = 'genooApiGeneral';
     /** theme */
     const KEY_THEME = 'genooThemeSettings';
-    /** theme */
+    /** form messages */
     const KEY_MSG = 'genooFormMessages';
+    /** CTA settings */
+    const KEY_CTA = 'genooCTA';
     /** @var get_option key */
     var $key;
 
@@ -176,6 +181,27 @@ class RepositorySettings extends Repository
 
 
     /**
+     * Get saved roles guide
+     *
+     * @return null
+     */
+
+    public function getSavedRolesGuide()
+    {
+        $r = null;
+        $guide = $this->getOptions(self::KEY_LEADS);
+        if($guide){
+            foreach($guide as $key => $value){
+                if($value !== 0){
+                    $r[str_replace('genooLeadUser', '', $key)] = $value;
+                }
+            }
+        }
+        return $r;
+    }
+
+
+    /**
      * Get lead types
      *
      * @return array
@@ -188,8 +214,11 @@ class RepositorySettings extends Repository
         $arr[] = __('- Select commenter lead type', 'genoo');
         if(GENOO_PART_SETUP){
             try{
-                foreach($api->getLeadTypes() as $lead){
-                    $arr[$lead->id] = $lead->name;
+                $leadTypes = $api->getLeadTypes();
+                if($leadTypes){
+                    foreach($api->getLeadTypes() as $lead){
+                        $arr[$lead->id] = $lead->name;
+                    }
                 }
             } catch (\Exception $e){}
             return array(
@@ -317,12 +346,20 @@ class RepositorySettings extends Repository
                     'title' => __('API settings', 'genoo')
                 ),
                 array(
+                    'id' => 'genooLeads',
+                    'title' => __('Leads', 'genoo')
+                ),
+                array(
                     'id' => 'genooFormMessages',
                     'title' => __('Form messages', 'genoo')
                 ),
                 array(
                     'id' => 'genooThemeSettings',
                     'title' => __('Form themes', 'genoo')
+                ),
+                array(
+                    'id' => 'genooCTA',
+                    'title' => __('CTA', 'genoo')
                 )
             );
         } else {
@@ -362,6 +399,107 @@ class RepositorySettings extends Repository
 
 
     /**
+     * Get post tpyes
+     *
+     * @return array
+     */
+
+    public static function getPostTypes()
+    {
+        $r = array();
+        $types = Post::getTypes();
+        foreach($types as $key => $type){
+            if($key !== 'attachment'){
+                $r[$key] = $type->labels->singular_name;
+            }
+        }
+        return $r;
+    }
+
+
+    /**
+     * Get CTA post types
+     *
+     * @return array|null
+     */
+
+    public function getCTAPostTypes()
+    {
+        $postTypes = $this->getOption('genooCTAPostTypes', self::KEY_CTA);
+        if(!empty($postTypes)){
+            return array_keys($postTypes);
+        }
+        return null;
+    }
+
+
+    /**
+     * Get CTA's
+     * TODO: move, not suppose to be here
+     *
+     * @return array
+     */
+
+    public function getCTAs()
+    {
+        $r = array(0 =>  __('Select CTA -', 'genoo'));
+        $ctas = get_posts(array('posts_per_page'   => -1, 'post_type' => 'cta', ));
+        if($ctas){
+            foreach($ctas as $cta){
+                $r[$cta->ID] = $cta->post_title;
+            }
+        }
+        return $r;
+    }
+
+
+
+    public function getUserRolesDropdonws()
+    {
+        // wp roles
+        global $wp_roles;
+        // return
+        $r = array();
+        // first
+        $r[] = array(
+            'desc' => __('Set default lead types for newly registered user roles.', 'genoo'),
+            'type' => 'desc',
+            'name' => 'genooLeads',
+            'label' => '',
+        );
+
+        // oh, return this boy
+        if(!is_object($wp_roles) && (!$wp_roles instanceof \WP_Roles)) return;
+
+        // prep
+        $roles = $wp_roles->get_names();
+        $api = new Api($this);
+        $arr = array();
+        $arr[] = __('- Don\'t save', 'genoo');
+        try{
+            $leadTypes = $api->getLeadTypes();
+            if($leadTypes){
+                foreach($api->getLeadTypes() as $lead){
+                    $arr[$lead->id] = $lead->name;
+                }
+            }
+        } catch (\Exception $e){}
+
+        // finalize
+        foreach($roles as $key => $role){
+            $r[] = array(
+                'name' => 'genooLeadUser' . $key,
+                'label' => $role,
+                'type' => 'select',
+                'options' => $arr
+            );
+        }
+
+        return $r;
+    }
+
+
+    /**
      * Gets settings page fields
      *
      * @return array
@@ -386,6 +524,7 @@ class RepositorySettings extends Repository
                 ),
                 $this->getSettingsFieldLeadTypes()
             ),
+            'genooLeads' => $this->getUserRolesDropdonws(),
             'genooFormMessages' => array(
                 array(
                     'name' => 'sucessMessage',
@@ -423,7 +562,15 @@ class RepositorySettings extends Repository
                     'type' => 'html',
                     'label' => __('Form preview', 'genoo'),
                 ),
-            )
+            ),
+            'genooCTA' => array(
+                array(
+                    'name' => 'genooCTAPostTypes',
+                    'label' => __('Enable CTA for', 'genoo'),
+                    'type' => 'multicheck',
+                    'options' => $this->getPostTypes()
+                ),
+            ),
         );
     }
 

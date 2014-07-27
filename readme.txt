@@ -60,12 +60,15 @@ Some of the features include:
 == Upgrade Notice ==
 
 == Changelog ==
+= 1.7 =
+* Added ability to create dynamic CTA in sidebar for pages and posts with Genoo CTA Widget.
+* Added ability to create a CTA library for use on pages and posts.
+* Added ability to dynamically link User Roles to Genoo LeadTypes to update Genoo in real time as new users are added to a user role.
 = 1.6 =
-* Better modal window handeling.
-= 1.6 =
+* Better modal window handling.
 * Wp editor plugin now working for latest WordPress and TinyMCE 4
+= 1.4 =
+* Added ability to use image button and hover image for form pop-up from Widget.
 = 1.3 =
 * Added ability to open widget forms in modal windows.
 * Added custom form success and failure messages.
-= 1.4 =
-* Added ability to use image button and hover image for form pop-up from Widget.

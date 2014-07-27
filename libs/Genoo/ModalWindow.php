@@ -68,7 +68,7 @@ class ModalWindow
         $modalWindow->visibility = $visible ? true : $this->isModalVisible($id);
         $modalWindow->aria = $modalWindow->visibility ? '' : 'hidden aria-hidden="true"';
         $modalWindow->id = self::getModalId($id);
-        $modalWindow->class = $modalWindow->visibility ? 'visible ' : '';
+        $modalWindow->class = $modalWindow->visibility ? 'visible renderedVisible' : '';
         $modalWindow->class .= $class;
         $modalWindow->tabIndex = $this->countModals() + 1;
         $modalWindow->guts = $guts;

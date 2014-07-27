@@ -25,17 +25,24 @@ class Users
         add_action('user_register', function($user_id){
             $user = get_userdata($user_id);
             $settings = new RepositorySettings();
-            try{
-                $api = new Api($settings);
-                $api->setLead(
-                    $settings->getLeadType(),
-                    $user->user_email,
-                    $user->first_name,
-                    '',
-                    $user->user_url
-                );
-            } catch (\Exception $e){
-                $settings->addSavedNotice('error', __('Error adding Genoo lead while registering a new user: ', 'genoo') . $e->getMessage());
+            $roles = $settings->getSavedRolesGuide();
+            // check user role and add
+            foreach($roles as $key => $leadId){
+                if(Users::checkRole($key, $user_id)){
+                    try{
+                        $api = new Api($settings);
+                        $api->setLead(
+                            $leadId,
+                            $user->user_email,
+                            $user->first_name,
+                            $user->last_name,
+                            $user->user_url
+                        );
+                    } catch (\Exception $e){
+                        $settings->addSavedNotice('error', __('Error adding Genoo lead while registering a new user: ', 'genoo') . $e->getMessage());
+                    }
+                    break;
+                }
             }
         }, 10, 1);
     }
@@ -81,5 +88,26 @@ class Users
             'offset' => (int)$offest,
             'number' => (int)$per,
         ));
+    }
+
+
+    /**
+     * Checks if a particular user has a role.
+     * Returns true if a match was found.
+     *
+     * @param string $role Role name.
+     * @param int $user_id (Optional) The ID of a user. Defaults to the current user.
+     * @return bool
+     */
+
+    public static function checkRole($role, $user_id = null)
+    {
+        if (is_numeric($user_id))
+            $user = get_userdata($user_id);
+        else
+            $user = wp_get_current_user();
+        if (empty($user))
+            return false;
+        return in_array($role, (array)$user->roles);
     }
 }

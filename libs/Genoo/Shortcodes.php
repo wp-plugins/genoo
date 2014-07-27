@@ -14,6 +14,7 @@ namespace Genoo;
 use Genoo\RepositorySettings,
     Genoo\RepositoryForms,
     Genoo\RepositoryLumens,
+    Genoo\WidgetCTA,
     Genoo\Cache,
     Genoo\Api,
     Genoo\ModalWindow,
@@ -36,6 +37,8 @@ class Shortcodes
     {
         add_shortcode('genooForm',  array(__CLASS__, 'form'));
         add_shortcode('genooLumen', array(__CLASS__, 'lumen'));
+        add_shortcode('genooCTA',   array(__CLASS__, 'cta'));
+        add_shortcode('genooCta',   array(__CLASS__, 'cta'));
     }
 
 
@@ -171,6 +174,22 @@ class Shortcodes
             }
         } catch (\Exception $e){
             return null;
+        }
+    }
+
+
+    /**
+     * Genoo CTA
+     *
+     * @param $atts
+     */
+
+    public static function cta($atts)
+    {
+        global $post;
+        if($post instanceof \Wp_Post){
+            $widget = new WidgetCTA(false);
+            $widget->widget(array(), array());
         }
     }
 };
