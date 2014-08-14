@@ -37,8 +37,8 @@ class Shortcodes
     {
         add_shortcode('genooForm',  array(__CLASS__, 'form'));
         add_shortcode('genooLumen', array(__CLASS__, 'lumen'));
-        add_shortcode('genooCTA',   array(__CLASS__, 'cta'));
-        add_shortcode('genooCta',   array(__CLASS__, 'cta'));
+        //add_shortcode('genooCTA',   array(__CLASS__, 'cta'));
+        //add_shortcode('genooCta',   array(__CLASS__, 'cta'));
     }
 
 

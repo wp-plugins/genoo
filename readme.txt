@@ -5,7 +5,7 @@ Requires at least: 3.3
 Tested up to: 3.9.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.7
+Stable tag: 1.8.5
 
 Genoo Plugin brings seamless marketing automation integration to Genoo users who use WordPress to host their websites and blogs.
 
@@ -60,7 +60,10 @@ Some of the features include:
 == Upgrade Notice ==
 
 == Changelog ==
-= 1.7 =
+= 1.8.5 =
+* Fixed issue with CTA drop down in Page/Post add/edit
+* Added Success Message option on CTA objects when using pop-up form.
+= 1.8 =
 * Added ability to create dynamic CTA in sidebar for pages and posts with Genoo CTA Widget.
 * Added ability to create a CTA library for use on pages and posts.
 * Added ability to dynamically link User Roles to Genoo LeadTypes to update Genoo in real time as new users are added to a user role.
