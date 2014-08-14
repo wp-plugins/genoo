@@ -60,7 +60,7 @@ Some of the features include:
 == Upgrade Notice ==
 
 == Changelog ==
-= 1.8.5.1 =
+= 1.8.5.2 =
 * Fixed issue with CTA drop down in Page/Post add/edit
 * Fixed issue with Form pulled for CTA being the default form rather than the specified form.
 = 1.8 =
