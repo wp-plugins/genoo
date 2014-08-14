@@ -1,0 +1,132 @@
+/*
+	Menu icon
+*/
+
+#toplevel_page_Genoo .wp-menu-image { background: url('bgMenuIcon.png') no-repeat 6px -17px !important; }
+#toplevel_page_Genoo:hover .wp-menu-image, #toplevel_page_Genoo.current .wp-menu-image, #toplevel_page_Genoo.wp-menu-open .wp-menu-image { background-position: 6px 7px !important; }
+#toplevel_page_Genoo:hover .wp-menu-image, #toplevel_page_Genoo.current .wp-menu-image, #toplevel_page_Genoo.wp-menu-open .wp-menu-image { height: 31px; min-height: 31px; }
+
+/*
+	Menu icon -> 3.8 fix
+*/
+
+.branch-3-9 #toplevel_page_Genoo .wp-menu-image,
+.branch-4   #toplevel_page_Genoo .wp-menu-image,
+.branch-3-8 #toplevel_page_Genoo .wp-menu-image { position: relative; left: 6px; }
+.branch-3-9 #toplevel_page_Genoo .wp-menu-image:before,
+.branch-4   #toplevel_page_Genoo .wp-menu-image:before,
+.branch-3-9 #toplevel_page_Genoo:hover .wp-menu-image:before,
+.branch-4   #toplevel_page_Genoo:hover .wp-menu-image:before,
+.branch-3-8 #toplevel_page_Genoo .wp-menu-image:before,
+.branch-3-8 #toplevel_page_Genoo:hover .wp-menu-image:before { display: none !important; }
+
+/*
+	Assets
+*/
+
+.genooParagraph { padding: 2.5px 0; }
+.widget .genooParagraph:last-child { padding-bottom: 10px; }
+.genooParagraph label { margin-bottom: 5px; display: inline-block; line-height: 28px; margin-right: 5px; margin-bottom: 0; }
+.genooOneline label { margin-bottom: 0; }
+.genooHidden { display: none !important; }
+.genooTick { display: inline-block; width: 24px; height: 24px; min-height: 24px; background: url("bgTick.png") bottom left no-repeat transparent; }
+.genooTick { margin: 0 auto; }
+.genooTick.active { background-position: top left; }
+.genooPostbox { width: 45%; float: left; margin-right: 15px; margin-bottom: 15px; }
+.genooPostbox h3 { cursor: default !important; }
+.genooPostbox .form-table td,
+.genooPostbox .form-table th { padding: 5px 10px; vertical-align: middle; }
+.genooPostbox .button.button-primary { margin: 10px 0; }
+.genooError { border: 1px solid #dd3d36; }
+.genooDescriptionError { color: #dd3d36; font-weight: bold; }
+.genooAdminImage { width: 300px; height: auto; padding: 2px; border: 1px solid #ddd; box-shadow: inset 0 1px 2px rgba(0,0,0,.07); }
+.strong { font-weight: bold; }
+.descriptionAbsolute { display: block; position: absolute; left: 10px; margin-top: -10px; }
+.genooLoading { display: block; background: url("bgLoading.gif") bottom center no-repeat; padding: 15px 0; }
+.genooWidgetImage,
+.genooUploadSelect { padding: 0; margin: 0; background: #f4f4f4; border-radius: 5px; padding: 5px; padding-top: 0; }
+.genooWidgetImage { text-align: center; }
+.genooWidgetImage img { padding: 3px; margin: 3px; display: inline-block; max-width: 70%; height: auto;  }
+.genooWidgetImage img { border: 2px dashed #c7c7c7; background: #f8f8f8; margin-bottom: 0; margin-top: 5px; }
+#genooLog { width: 45%; min-width: 255px; margin: 10px 0;  -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+#genooLog h3 { padding: 0; }
+#genooLog small { padding: 5px 0; font-size: 12px; font-weight: normal; }
+#genooLogIn { max-height: 100px; padding: 15px; margin: 5px 0; border: 1px solid #dadada; overflow: auto; }
+#genooProgressBar { margin-top: 10px; position: relative; height: 25px; overflow: hidden; border-radius: 4px; }
+#genooProgressBar { background: #d6d6d6; }
+#genooProgressBarText { display: block; position: absolute; top: 0; left: 0; z-index: 400; height: 100%; text-align: center; }
+#genooProgressBarText { width: 100%; line-height: 25px; }
+#genooProgressBarBG { position: absolute; z-index: 300; display: block; left: 0; height: 100%; }
+
+/* prevent flickering */
+#genooThemeSettings-genooFormPrev { width: auto; max-width: 260px; }
+#genooThemeSettings-genooFormPrev img { display: block; width: 100%; height: auto; min-height: 0; }
+
+/*
+	Genoo Editor outer styles
+*/
+
+#genooButtons { padding: 2px; position: absolute; display: none; z-index: 155000; }
+#genooEditForm,
+#genooDeleteForm
+{
+	border-color: #999;
+	background-color: #eee;
+	margin: 2px;
+	padding: 2px;
+	border-width: 1px;
+	border-style: solid;
+	-webkit-border-radius: 3px;
+	border-radius: 3px
+}
+#genooEditForm:hover,
+#genooDeleteForm:hover
+{
+	border-color: #555;
+	background-color: #ccc;
+	cursor: pointer;
+}
+
+/*
+	WordPress should do this automatically, better this way
+*/
+
+#wp_editimgbtn:hover, #wp_gallerybtns:hover,
+#wp_editgallery:hover, #wp_delgallery:hover{ cursor: pointer; }
+
+/*
+	Mobile
+*/
+
+@media screen and (max-width: 782px)
+{
+	#genooLog,
+	.genooPostbox { width: 100%; }
+	.descriptionAbsolute { margin-top: -35px; }
+}
+
+/* Metabox */
+.themeMetaboxRow { clear: both; margin: 10px 0; }
+.themeMetaboxRow .genooUploadSelect { width: 200px; float: left; }
+.themeMetaboxRow:last-child { margin-bottom: 0; }
+.themeMetaboxRow .radio,
+.themeMetaboxRow .label,
+.themeMetaboxRow label,
+.themeMetaboxRow input,
+.themeMetaboxRow select,
+.themeMetaboxRow textarea
+{
+	display: inline-block;
+	width: 60%;
+}
+.themeMetaboxRow input[type='radio'] { width: auto; display: inline; }
+.themeMetaboxRow input[type='checkbox'] { width: auto; display: inline; }
+.themeMetaboxRow .radio { display: inline-block; float: left; width: 500px; }
+.themeMetaboxRow .label,
+.themeMetaboxRow label { width: 150px; float: left; margin-right: 20px; font-weight: bold; }
+.themeMetaboxRow input,
+.themeMetaboxRow select,
+.themeMetaboxRow textarea {
+	float: left;
+}
+.clear { clear: both; }
