@@ -120,7 +120,6 @@ class ModalWindow
             return null;
         }
         return null;
-
     }
 
 

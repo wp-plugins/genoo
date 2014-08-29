@@ -36,7 +36,7 @@ function genooUninstall()
     delete_option('genooDebugCheck');
 
     /**
-     * 2. Go thru users, and delete user nag meta
+     * 2. Go through users, and delete user nag meta
      */
 
     $users = get_users(array('who' => array('administrator')));

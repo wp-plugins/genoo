@@ -29,7 +29,7 @@ class WidgetForm extends \WP_Widget
 {
 
     /**
-     * Constructor registers widget in wordpress
+     * Constructor registers widget in WordPress
      *
      * @param bool $constructParent
      */
@@ -86,6 +86,8 @@ class WidgetForm extends \WP_Widget
         $formChoice = !empty($instance['choice']) ? $instance['choice'] : 'html';
         $formImg = !empty($instance['img']) ? $instance['img'] : null;
         $formImgHover = !empty($instance['imgHover']) ? $instance['imgHover'] : null;
+        $formHSkipMobileButton = isset($instance['skipMobileButton']) ? $instance['skipMobileButton'] : false;
+        $formAlign = isset($instance['shortcodeAtts']['align']) ? $instance['shortcodeAtts']['align'] : false;
 
         // if form is not in modal window
         if($formModal == false){
@@ -104,6 +106,8 @@ class WidgetForm extends \WP_Widget
         // form?
         if(isset($formIdFinal) && $formModal == false){
             // html
+            // Might be shortcode block
+            $html .= $formAlign != false ? '<div class="genooInlineBlock '. $formAlign .'">' : null;
             $html .= $formModal ? '<div id="'. $this->id .'" class="genooModal">' : '';
             $html .= $args['before_widget'];
             $html .= '<div class="genooForm themeResetDefault '. $formClass .'">';
@@ -117,7 +121,11 @@ class WidgetForm extends \WP_Widget
             $html .= '</div>';
             $html .= $args['after_widget'];
             $html .= $formModal ? '</div>' : '';
+            // Close shortcode block
+            $html .= $formAlign != false ? '</div>' : null;
         } elseif ($formModal == true){
+            // Might be a shortcode
+            $html .= $formAlign != false ? '<div class="genooInlineBlock '. $formAlign .'">' : null;
             $html .= $args['before_widget'];
             $html .= '<div class="'. $formClass .' genooNoBG">';
             if(isset($instance['displayTitle']) && $instance['displayTitle'] == true){ $html .= '<div class="genooTitle">' . $args['before_title'] . $instance['title'] . $args['after_title'] . '</div>'; }
@@ -126,13 +134,18 @@ class WidgetForm extends \WP_Widget
             if($formChoice == 'img' && (!is_null($formImg))){
                 $buttonId = "genooGeneratedButton" . $this->id;
                 $html .= '<span id="'. $buttonId .'" class="genooStripDown genooWidgetButton">';
-                $html .= '<span class="genooDisplayDesktop">' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
-                $html .= '<span class="genooDisplayMobile">' . ModalWindow::button($formButton, $this->id, false, 'genooButton form-button-submit', true) . '<div class="clear"></div></span>';
+                // Skipping mobile button? Shortcodes cant deal with mobile button now
+                if($formHSkipMobileButton){
+                    $html .= '<span>' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
+                } else {
+                    $html .= '<span class="genooDisplayDesktop">' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
+                    $html .= '<span class="genooDisplayMobile">' . ModalWindow::button($formButton, $this->id, false, 'genooButton form-button-submit', true) . '<div class="clear"></div></span>';
+                }
                 $html .= '<div class="clear"></div></span>';
                 $html .= Attachment::generateCss($formImg, $formImgHover, $buttonId);
             } else {
                 // classic html button
-                if($is_macIE || $is_winIE || $is_IE){
+                if($is_macIE || $is_winIE || $is_IE || $formHSkipMobileButton){
                     $html .= '<span>' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '</span>';
                 } else {
                     $html .= '<span class="genooDisplayDesktop">' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '</span>';
@@ -141,6 +154,8 @@ class WidgetForm extends \WP_Widget
             }
             $html .= '</div>';
             $html .= $args['after_widget'];
+            // Close if shortcode
+            $html .= $formAlign != false ? '</div>' : null;
         }
 
         return $html;

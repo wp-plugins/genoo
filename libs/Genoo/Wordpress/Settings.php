@@ -305,7 +305,7 @@ class Settings
                         Notice::type('error')->text($err['message']);
                     }
                 }
-                // go thru sections
+                // go through sections
                 foreach($this->sections as $form){
                     echo '<div id="'. $form['id'] .'" class="group">';
                         echo '<form method="post" action="options.php">';

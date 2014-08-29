@@ -2,10 +2,10 @@
 Contributors: Genoo,latorante
 Tags: marketing automation, email marketing, centralized lead database, lead capture forms
 Requires at least: 3.3
-Tested up to: 3.9.1
+Tested up to: 3.9.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.8.5.1
+Stable tag: 1.9.5
 
 Genoo Plugin brings seamless marketing automation integration to Genoo users who use WordPress to host their websites and blogs.
 
@@ -60,18 +60,27 @@ Some of the features include:
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.9.5 =
+* Ability to place CTA’s in main page content using WYSIWYG editor.
+* Allows pop-up forms to be embedded in-line with your content, increasing your lead generation success.
+
 = 1.8.5.2 =
 * Fixed issue with CTA drop down in Page/Post add/edit
 * Fixed issue with Form pulled for CTA being the default form rather than the specified form.
+
 = 1.8 =
 * Added ability to create dynamic CTA in sidebar for pages and posts with Genoo CTA Widget.
 * Added ability to create a CTA library for use on pages and posts.
 * Added ability to dynamically link User Roles to Genoo LeadTypes to update Genoo in real time as new users are added to a user role.
+
 = 1.6 =
 * Better modal window handling.
 * Wp editor plugin now working for latest WordPress and TinyMCE 4
+
 = 1.4 =
 * Added ability to use image button and hover image for form pop-up from Widget.
+
 = 1.3 =
 * Added ability to open widget forms in modal windows.
 * Added custom form success and failure messages.

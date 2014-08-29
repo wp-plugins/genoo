@@ -29,7 +29,7 @@ class WidgetLumen extends \WP_Widget
 {
 
     /**
-     * Constructor registers widget in wordpress
+     * Constructor registers widget in WordPress
      */
 
     function __construct()

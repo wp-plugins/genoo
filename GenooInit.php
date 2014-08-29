@@ -13,7 +13,7 @@ use Genoo\RepositorySettings,
     Genoo\RepositoryUser,
     Genoo\Api,
     Genoo\Cache,
-    Genoo\Wordpress\Widget,
+    Genoo\Wordpress\Widgets,
     Genoo\Shortcodes,
     Genoo\Users,
     Genoo\Frontend,
@@ -94,7 +94,7 @@ class Genoo
             Ajax::register();
             Comments::register();
             Users::register();
-            Widget::register();
+            Widgets::register();
             Shortcodes::register();
             TinyMCE::register();
         }

@@ -15,12 +15,14 @@ use Genoo\RepositorySettings,
     Genoo\RepositoryForms,
     Genoo\RepositoryLumens,
     Genoo\WidgetCTA,
+    Genoo\CTA,
     Genoo\Cache,
     Genoo\Api,
     Genoo\ModalWindow,
     Genoo\HtmlForm,
     Genoo\Wordpress\Utils,
-    Genoo\Utils\Strings;
+    Genoo\Utils\Strings,
+    Genoo\Wordpress\Post;
 
 
 class Shortcodes
@@ -37,8 +39,8 @@ class Shortcodes
     {
         add_shortcode('genooForm',  array(__CLASS__, 'form'));
         add_shortcode('genooLumen', array(__CLASS__, 'lumen'));
-        //add_shortcode('genooCTA',   array(__CLASS__, 'cta'));
-        //add_shortcode('genooCta',   array(__CLASS__, 'cta'));
+        add_shortcode('genooCTA',   array(__CLASS__, 'cta'));
+        add_shortcode('genooCta',   array(__CLASS__, 'cta'));
     }
 
 
@@ -186,10 +188,101 @@ class Shortcodes
 
     public static function cta($atts)
     {
+        // get post
         global $post;
-        if($post instanceof \Wp_Post){
-            $widget = new WidgetCTA(false);
-            $widget->widget(array(), array());
+        // set static counter
+        static $count = 1;
+        try {
+            if($post instanceof \Wp_Post){
+                if($atts['id'] && is_numeric($atts['id']) && Post::exists($atts['id'])){
+                    // get CTA
+                    $cta = new WidgetCTA();
+                    $cta->setThroughShortcode($count, $atts['id'], $atts);
+                    // increase id
+                    $count++;
+                    return $cta->getHtmlInner(array(), $cta->getInnerInstance());
+                }
+            }
+        } catch (\Exception $e){
+            return null; // nice catching
         }
+    }
+
+
+    /**
+     * Get Shortcodes From Content
+     *
+     * @param $content
+     * @param null $shortcode
+     * @return array|bool
+     */
+
+    public static function getFromContent($content, $shortcode = null)
+    {
+        // Dont give back null
+        $matches = array();
+        $r = array();
+        // Check if in post
+        if (false === strpos($content, '[')){ return false; }
+        // Parse Shortcodes from content
+        preg_match_all('/' . get_shortcode_regex() . '/s', $content, $matches, PREG_SET_ORDER);
+        // Purify the result
+        $count = 1;
+        if($matches){
+            foreach($matches as $match){
+                // Arguments
+                $actualShortcode = $match[0];
+                $args = shortcode_parse_atts(str_replace(array('[',']'),'', $actualShortcode));
+                // is shortcode set?
+                if($shortcode){
+                    // is it here?
+                    if(Strings::contains(Strings::lower($args[0]), Strings::lower($shortcode))){
+                        $r[$count] = $args;
+                        ++$count;
+                    }
+                } else {
+                    $r[$count] = $args;
+                    ++$count;
+                }
+            }
+        }
+
+        return $r;
+    }
+
+
+    /**
+     * Get footer CTA modals for current post
+     *
+     * @return array
+     */
+
+    public static function getFooterCTAs()
+    {
+        global $post;
+        $r = array();
+        // Do we have a post?
+        if($post){
+            // Get shortcodes from content
+            $shorcodes = self::getFromContent($post->post_content, 'genooCTA');
+            if($shorcodes){
+                // Go through shortcodes
+                foreach($shorcodes as $id => $atts){
+                    // Do we have CTA ID and does it exist?
+                    if($atts['id'] && is_numeric($atts['id']) && Post::exists($atts['id'])){
+                        // get CTA
+                        $cta = new WidgetCTA();
+                        $cta->setThroughShortcode($id, $atts['id']);
+                        // PUt in array if it is form CTA
+                        if($cta->cta->isForm){
+                            $r[$cta->id] = new \stdClass();
+                            $r[$cta->id]->widget = $cta;
+                            $r[$cta->id]->instance = $cta->getInnerInstance();
+                        }
+                    }
+                }
+            }
+        }
+        return $r;
     }
 };

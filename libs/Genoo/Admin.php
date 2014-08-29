@@ -41,6 +41,8 @@ class Admin
     var $repositaryForms;
     /** @var \Genoo\RepositoryLumens */
     var $repositaryLumens;
+    /** @var \Genoo\RepositoryCTA  */
+    var $repositaryCTAs;
     /** @var \Genoo\RepositoryUser */
     var $user;
     /** @var \Genoo\Api */
@@ -67,6 +69,7 @@ class Admin
         $this->api = $api ? $api : new Api($this->repositarySettings);
         $this->repositaryForms = new RepositoryForms($this->cache, $this->api);
         $this->repositaryLumens = new RepositoryLumens($this->cache, $this->api);
+        $this->repositaryCTAs = new RepositoryCTA($this->cache);
         $this->user = new RepositoryUser();
         $this->settings = new Settings($this->repositarySettings, $this->api);
         // admin constructor
@@ -96,11 +99,12 @@ class Admin
             wp_localize_script('Genoo', 'GenooVars', array(
                 'GenooPluginUrl' => GENOO_ASSETS,
                 'GenooMessages'  => array(
-                    'importing'  => __('Importing...', 'genoo')
+                    'importing'  => __('Importing...', 'genoo'),
                 ),
                 'GenooTinyMCE' => array(
                     'themes' => $this->repositarySettings->getSettingsThemes(),
-                    'forms'  => $this->repositaryForms->getFormsArray()
+                    'forms'  => $this->repositaryForms->getFormsArray(),
+                    'ctas'   => $this->repositaryCTAs->getArray()
                 )
             ));
         }
@@ -219,17 +223,17 @@ class Admin
     public function adminPostTypes()
     {
         if(GENOO_SETUP){
-            // Post type
+            // Post Type
             new PostType('cta',
                 array(
                     'supports' => array('title'),
-                    'label' =>  'CTA\'s',
+                    'label' => __('CTA\'s', 'genoo'),
                     'labels' => array(
-                        'add_new' => 'New CTA',
-                        'not_found' =>  'No CTA\'s found',
-                        'not_found_in_trash' => 'No CTA\'s found in Trash',
-                        'edit_item' => 'Edit CTA',
-                        'add_new_item' => 'Add Call-to-Action (CTA)',
+                        'add_new' => __('New CTA', 'genoo'),
+                        'not_found' => __('No CTA\'s found', 'genoo'),
+                        'not_found_in_trash' => __('No CTA\'s found in Trash', 'genoo'),
+                        'edit_item' => __('Edit CTA', 'genoo'),
+                        'add_new_item' => __('Add Call-to-Action (CTA)', 'genoo'),
                     ),
                     'public' => false,
                     'exclude_from_search' => false,
@@ -240,6 +244,10 @@ class Admin
                     'show_in_admin_bar' => false,
                 )
             );
+            // Add Post Type Columns
+            PostType::columns('cta', array('cta_type' => 'Type'));
+            // Add Post Type Columns Content
+            PostType::columnsContent('cta', array('cta_type'));
         }
     }
 
@@ -287,6 +295,14 @@ class Admin
                         'options' => ($this->repositarySettings->getSettingsThemes())
                     ),
                     array(
+                        'type' => 'textarea',
+                        'label' => __('Form success message', 'genoo'),
+                    ),
+                    array(
+                        'type' => 'textarea',
+                        'label' => __('Form error message', 'genoo'),
+                    ),
+                    array(
                         'type' => 'text',
                         'label' => __('Button URL', 'genoo'),
                     ),
@@ -329,11 +345,6 @@ class Admin
                     'options' => $this->repositarySettings->getCTAs(),
                     'atts' => array('onChange' => 'Metabox.changeCTALink(this.options[this.selectedIndex].value)',)
                 ),
-                //array(
-                //    'type' => 'html',
-                //    'id' => 'html',
-                //    'label' => 'or <a target="_blank" href="'. admin_url('post-new.php?post_type=cta') .'" class="button tagadd">Add new CTA</a>'
-                //),
             )
         );
 

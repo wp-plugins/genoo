@@ -109,4 +109,20 @@ class Utils
      */
 
     public static function toUnderscore($string){ return strtolower(preg_replace('/([a-z])([A-Z])/','$1_$2', $string)); }
+
+
+    /**
+     * Debug to console
+     *
+     * @param $data
+     */
+
+    public static function debugConsole($data){
+        if (is_array($data)){
+            $output = "<script>console.log( 'Debug Objects: " . implode( ',', $data) . "' );</script>";
+        } else {
+            $output = "<script>console.log( 'Debug Objects: " . $data . "' );</script>";
+        }
+        echo $output;
+    }
 }

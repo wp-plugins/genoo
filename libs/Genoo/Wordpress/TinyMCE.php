@@ -32,15 +32,17 @@ class TinyMCE
     {
         /** Register external plugins */
         add_filter('mce_external_plugins', function($plugin_array){
-            $plugin_array['genoo'] = GENOO_ASSETS . 'GenooTinyMCE.js?ref';
+            $plugin_array['genoo'] = GENOO_ASSETS . 'GenooTinyMCEForm.js?refresh=8';
+            $plugin_array['genooCTA'] = GENOO_ASSETS . 'GenooTinyMCECTA.js?refres=8';
             return $plugin_array;
         });
         /** Register external buttons */
         add_filter('mce_buttons', function($buttons){
             $buttons[] = 'genooForm';
+            $buttons[] = 'genooCTA';
             return $buttons;
         });
         /** Add editor style */
-        add_editor_style(GENOO_ASSETS . 'GenooEditor.css');
+        add_editor_style(GENOO_ASSETS . 'GenooEditor.css?refresh=8');
     }
 }

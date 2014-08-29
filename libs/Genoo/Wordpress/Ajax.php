@@ -24,7 +24,7 @@ class Ajax
 
     /**
      * Ajax register hook,
-     * done automatically thru auto-wiring.
+     * done automatically through auto-wiring.
      */
 
     public static function register()

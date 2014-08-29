@@ -172,35 +172,44 @@ class PostType
      * Manage columns
      *
      * @param $postType
+     * @param array $columnsCustom
      */
 
-    public static function columns($postType){
+    public static function columns($postType, $columnsCustom = array()){
         $postType = self::purify($postType);
-        add_filter('manage_edit-'. $postType .'_columns', function($columns){
-            return array_merge(
-                array(
+        add_filter('manage_edit-'. $postType .'_columns', function($columns) use ($columnsCustom){
+            $columnsStart = array(
                 'cb' => '<input type="checkbox" />',
-                'title' => 'Title',
-            ), AdminUI::getColumns());
+                'title' => __('CTA Title', 'genoo')
+            );
+            $columnsEnd = array(
+                'date' => __('Date', 'genoo')
+            );
+            return array_merge($columnsStart, $columnsCustom,$columnsEnd);
         });
     }
 
 
     /**
-     * Simple helper
+     * Simple helper with columsn content
      *
      * @param $postType
+     * @param array $keys
+     * @param $callback
      */
 
-    public static function columnsContent($postType){
+    public static function columnsContent($postType, $keys = array(), $callback = null){
         $postType = self::purify($postType);
-        add_action('manage_'. $postType .'_posts_custom_column', function($column, $post_id){
+        add_action('manage_'. $postType .'_posts_custom_column', function($column, $post_id) use ($keys, $callback) {
             global $post;
-            $keys = AdminUI::getColumnsContent();
             switch($column){
                 default:
-                    if(array_key_exists($column, $keys)){
-                        echo get_post_meta($post->ID, $keys[$column], true);
+                    if(in_array($column, $keys)){
+                        if(!empty($callback) && is_callable($callback)){
+                            call_user_func_array($callback, $column);
+                        } else {
+                            echo Strings::firstUpper(get_post_meta($post->ID, $column, true));
+                        }
                     }
                     break;
             }

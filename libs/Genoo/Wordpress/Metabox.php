@@ -128,7 +128,7 @@ class Metabox
         wp_nonce_field($this->id, $this->nonceKey);
         $metaboxForm = '<div class="themeMetabox">';
         $metaboxClear = '<div class="clear"></div>';
-        // go thru fields
+        // go through fields
         if(is_array($this->fields) && !empty($this->fields)){
             foreach($this->fields as $field){
                 $fieldId = isset($field['id']) ? $field['id'] : str_replace('-', '_', Strings::lower(Strings::webalize($field['label'])));

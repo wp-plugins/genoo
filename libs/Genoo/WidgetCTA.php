@@ -14,7 +14,8 @@ namespace Genoo;
 use Genoo\CTA,
     Genoo\Utils\Strings,
     Genoo\WidgetForm,
-    Genoo\Wordpress\Attachment;
+    Genoo\Wordpress\Attachment,
+    Genoo\Wordpress\Post;
 
 
 /**
@@ -30,10 +31,16 @@ class WidgetCTA extends \WP_Widget
     var $widgetForm;
     /** @var bool */
     var $isSingle = false;
+    /** @var bool  */
+    var $skipSet = false;
+    /** @var bool  */
+    var $skipMobileButton = false;
+    /** @var array  */
+    var $shortcodeAtts = array();
 
 
     /**
-     * Constructor registers widget in wordpress
+     * Constructor registers widget in WordPress
      *
      * @param bool $constructParent
      */
@@ -64,6 +71,28 @@ class WidgetCTA extends \WP_Widget
 
 
     /**
+     * Set Widget Through Shortcode
+     *
+     * @param $id
+     * @param $posr
+     * @param $atts
+     */
+
+    public function setThroughShortcode($id, $post, $atts = array())
+    {
+        $this->isSingle = true;
+        $this->skipSet = true;
+        $this->cta = new CTA();
+        $this->cta->setCta($post);
+        $this->id = $this->id_base . 'Shortcode' . $id;
+        $this->widgetForm = new WidgetForm(false);
+        $this->widgetForm->id = $this->id;
+        $this->skipMobileButton = true;
+        $this->shortcodeAtts = $atts;
+    }
+
+
+    /**
      * Front-end display of widget.
      *
      * @see WP_Widget::widget()
@@ -90,41 +119,58 @@ class WidgetCTA extends \WP_Widget
 
 
     /**
-     * Get html
+     * Get HTML
      *
      * @param $a
      * @param $i
+     * @return null|string
      */
 
     public function getHtml($a, $i)
     {
-        $r = '';
-        echo 'aaaa';
+        $instance = $this->getInnerInstance();
+        if(is_object($this->widgetForm) && method_exists($this->widgetForm, 'getHtml')){
+            return $this->widgetForm->getHtml(array(), $instance);
+        }
+        return null;
+    }
+
+
+    /**
+     * Get Inner Instance - for modal window processing.
+     *
+     * @param bool $skip
+     * @return array
+     */
+
+    public function getInnerInstance()
+    {
+        $instance = array();
         if($this->isSingle){
-            $this->set();
+            if($this->skipSet == false) $this->set();
             if($this->cta->has){
-                if($this->cta->isForm){
-                    $instance = array();
-                    $instance['modal'] = 0;
-                    $instance['choice'] = $this->cta->isHtml ? 'html' : 'img';
-                    if($this->cta->isImage){
-                        $instance['img'] = $this->cta->image;
-                        $instance['imgHover'] = $this->cta->imageHover;
-                    } else {
-                        $instance['button'] = $this->cta->linkText;
-                    }
-                    $instance['form'] = $this->cta->formId;
-                    $instance['theme'] = $this->cta->formTheme;
-                    $instance['desc'] = $this->cta->desc;
-                    $instance['title'] = $this->cta->title;
-                    $instance['displayTitle'] = $this->cta->displayTitle;
-                    $instance['displayDesc'] = $this->cta->displayDesc;
-                    $r = $this->widgetForm->getHtml(array(), $instance);
+                $instance = array();
+                $instance['modal'] = 0;
+                $instance['choice'] = $this->cta->isHtml ? 'html' : 'img';
+                if($this->cta->isImage){
+                    $instance['img'] = $this->cta->image;
+                    $instance['imgHover'] = $this->cta->imageHover;
+                } else {
+                    $instance['button'] = $this->cta->linkText;
                 }
+                $instance['form'] = $this->cta->formId;
+                $instance['theme'] = $this->cta->formTheme;
+                $instance['desc'] = $this->cta->desc;
+                $instance['title'] = $this->cta->title;
+                $instance['displayTitle'] = $this->cta->displayTitle;
+                $instance['displayDesc'] = $this->cta->displayDesc;
+                $instance['msgSuccess'] = $this->cta->messageSuccess;
+                $instance['msgFail'] = $this->cta->messageError;
+                $instance['skipMobileButton'] = $this->skipMobileButton;
+                $instance['shortcodeAtts'] = $this->shortcodeAtts;
             }
         }
-
-        return $r;
+        return $instance;
     }
 
 
@@ -157,12 +203,15 @@ class WidgetCTA extends \WP_Widget
                 $instance['title'] = $this->cta->title;
                 $instance['displayTitle'] = $this->cta->displayTitle;
                 $instance['displayDesc'] = $this->cta->displayDesc;
+                $instance['skipMobileButton'] = $this->skipMobileButton;
+                $instance['shortcodeAtts'] = $this->shortcodeAtts;
                 if($this->cta->isForm){
                     $r .= $this->widgetForm->getHtml($args, $instance);
                 } elseif($this->cta->isLink){
                     if(isset($instance['displayTitle']) && $instance['displayTitle'] == true){ $r .= '<div class="genooTitle">' . $args['before_title'] . $instance['title'] . $args['after_title'] . '</div>'; }
                     if(isset($instance['displayDesc']) && $instance['displayDesc'] == true){ $r .= '<div class="genooGuts"><p class="genooPadding">' . $instance['desc'] . '</p></div>'; }
-                    $r .= '<form target="_blank" action="'. $this->cta->link .'">';
+                    $blank = $this->cta->isNewWindow ? 'target="_blank"'  : '';
+                    $r .= '<form '. $blank .' action="'. $this->cta->link .'">';
                         $r .= '<span id="'. $bid .'">';
                         $r .= '<input type="submit" value="'. $this->cta->linkText .'" />';
                         $r .= '</span>';

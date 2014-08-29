@@ -22,6 +22,8 @@ class Users
 
     public static function register()
     {
+        // TODO: update role if role changes
+        // update_user_meta HOOK
         add_action('user_register', function($user_id){
             $user = get_userdata($user_id);
             $settings = new RepositorySettings();

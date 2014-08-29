@@ -31,7 +31,7 @@ class Post
 
     public static function set($id)
     {
-        if(is_numeric($id)){
+        if(is_numeric($id) || is_string($id)){
             $i = $id;
             $post = get_post($id);
         } elseif (is_object($id) && ($id instanceof \WP_Post)){
@@ -40,7 +40,6 @@ class Post
         } else {
             throw new \InvalidArgumentException('ID or Post object needs to be provided.');
         }
-
         self::$id = $i;
         self::$post = $post;
         return new static;

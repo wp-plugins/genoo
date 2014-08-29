@@ -2,6 +2,7 @@
 	Genoo Editor styles
 */
 
+.genooCTAShortcode,
 .genooFormShortcode
 {
 	border: 1px dashed #888;
@@ -10,3 +11,8 @@
 	width: 100%;
 	height: 60px;
 }
+.genooCTAShortcode { background-color: #d3e8ea; }
+.genooLeft,
+.genooRight { display: inline-block; width: 45% }
+.genooLeft { padding: 20px; padding-left: 0; float: left;  }
+.genooRight { padding: 20px; padding-right: 0; float: right; }

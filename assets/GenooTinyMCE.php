@@ -99,15 +99,17 @@ $urlRel = substr($urlPrep, 0, strpos($urlPrep , "wp-content"));
  */
 
 $edit = (isset($_GET['edit']) && $_GET['edit'] == '1') ? true : false;
-$selected = $edit ? (isset($_GET['selected']) ? parseAtts($_GET['selected']) : array()) : array();
-$selectedRaw = $edit ? (isset($_GET['selected']) ? $_GET['selected'] : array()) : array();
+$selected = (isset($_GET['selected']) ? parseAtts($_GET['selected']) : array());
+$selectedRaw = (isset($_GET['selected']) ? $_GET['selected'] : array());
 $title = $edit ? 'Edit' : 'Insert';
 $ver = (isset($_GET['ver4']) && $_GET['ver4'] == 'true') ? true : false;
 $visible = isset($selected['msgsuccess']) && isset($selected['msgfail']) ? true : false;
+$cta = (isset($_GET['cta']) && $_GET['cta'] == 'true') ? true : false;
+$ctas = !empty($_GET['ctas']) ? $_GET['ctas'] : array();
 ?>
 <!DOCTYPE html>
 <head>
-    <title><?php echo $title; ?> Genoo Form</title>
+    <title><?php echo $title; ?> <?php echo $cta ? 'Genoo CTA' : 'Genoo Form'; ?></title>
     <script type="text/javascript" src="<?php echo $urlRel; ?>wp-includes/js/tinymce/tiny_mce_popup.js"></script>
     <script type="text/javascript">
     </script>
@@ -163,7 +165,6 @@ $visible = isset($selected['msgsuccess']) && isset($selected['msgfail']) ? true 
         .hidden { display: none; }
     </style>
     <script type="text/javascript">
-        //function addSlashes(text){ return text.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0'); }
         function toggleClass(el, className){
             if (el.classList) {
                 el.classList.toggle(className);
@@ -174,12 +175,10 @@ $visible = isset($selected['msgsuccess']) && isset($selected['msgfail']) ? true 
                     if (classes[i] === className)
                         existingIndex = i;
                 }
-
                 if (existingIndex >= 0)
                     classes.splice(existingIndex, 1);
                 else
                     classes.push(className);
-
                 el.className = classes.join(' ');
             }
         }
@@ -202,26 +201,41 @@ $visible = isset($selected['msgsuccess']) && isset($selected['msgfail']) ? true 
                 tinyMCEPopup.resizeToInnerSize();
             },
             insert: function createGenooShortcode(e){
-                // get vals
-                var form = document.getElementById("form");
-                var formTheme = document.getElementById("formTheme");
-                var formVal = form.options[form.selectedIndex].value;
-                var formThemeVal = formTheme.options[formTheme.selectedIndex].value;
-                <?php if($ver){ ?>
-                var themeConfirm = document.getElementById("themeConfirm").value;
-                var themeError = document.getElementById("themeError").value;
+                // Output
+                var output = '';
+                <?php if($cta){ ?>
+                    // get vals
+                    var cta = document.getElementById("cta");
+                    var ctaVal = cta.options[cta.selectedIndex].value;
+                    var align = document.getElementById("align");
+                    var alignVal = align.options[align.selectedIndex].value;
+                    // output
+                    output += '[genooCTA';
+                    if(ctaVal){ output += ' id=\''+ctaVal+'\''; }
+                    if(alignVal){ output += ' align=\''+alignVal+'\''; }
+                    output += ']';
+                <?php } else { ?>
+                    // get vals
+                    var form = document.getElementById("form");
+                    var formTheme = document.getElementById("formTheme");
+                    var formVal = form.options[form.selectedIndex].value;
+                    var formThemeVal = formTheme.options[formTheme.selectedIndex].value;
+                    <?php if($ver){ ?>
+                    var themeConfirm = document.getElementById("themeConfirm").value;
+                    var themeError = document.getElementById("themeError").value;
+                    <?php } ?>
+                    // output
+                    output += '[genooForm';
+                    if(formVal){ output += ' id=\''+formVal+'\''; }
+                    if(formThemeVal){ output += ' theme=\''+formThemeVal+'\''; }
+                    <?php if($ver){ ?>
+                    if(document.getElementById("formInternal").checked){
+                        if(themeConfirm){ output += ' msgSuccess=\''+addSlashes(themeConfirm)+'\''; }
+                        if(themeError){ output += ' msgFail=\''+addSlashes(themeError)+'\''; }
+                    }
+                    <?php } ?>
+                    output += ']';
                 <?php } ?>
-                // output
-                var output = '[genooForm';
-                if(formVal){ output += ' id=\''+formVal+'\''; }
-                if(formThemeVal){ output += ' theme=\''+formThemeVal+'\''; }
-                <?php if($ver){ ?>
-                if(document.getElementById("themeInternal").checked){
-                    if(themeConfirm){ output += ' msgSuccess=\''+addSlashes(themeConfirm)+'\''; }
-                    if(themeError){ output += ' msgFail=\''+addSlashes(themeError)+'\''; }
-                }
-                <?php } ?>
-                output += ']';
                 // bam
                 tinyMCEPopup.execCommand('mceReplaceContent', false, output);
                 tinyMCEPopup.execCommand('genooRefresh');
@@ -234,6 +248,31 @@ $visible = isset($selected['msgsuccess']) && isset($selected['msgfail']) ? true 
 <html>
 <body>
 <form id="formShortcode">
+    <?php if($cta){ // is this CTA window? ?>
+    <p>
+        <label for="cta">CTA:</label><br/>
+        <?php if(isset($ctas) && !empty($ctas)){ ?>
+        <select name="cta" id="cta">
+            <?php
+            foreach($ctas as $key => $value){
+                $selectedVal = in_array($key, $selected) ? ' selected' : '';
+                echo '<option value="'. $key .'" '. $selectedVal .'>'. $value .'</option>';
+            }
+            ?>
+        </select>
+        <?php } else { ?>
+        <strong>You don't have any CTA's in your WordPress installation.</strong>
+        <?php } ?>
+    </p>
+    <p>
+        <label for="align">Align:</label><br/>
+            <select name="align" id="align">
+                <option value="">None</option>
+                <option value="left" <?php echo in_array('left', $selected) ? 'selected' : '' ?>>Left</option>
+                <option value="right" <?php echo in_array('right', $selected) ? 'selected' : '' ?>>Right</option>
+            </select>
+        </p>
+    <?php } else { // Form window ?>
     <p>
         <label for="form">Form:</label><br/>
         <select name="form" id="form">
@@ -264,7 +303,7 @@ $visible = isset($selected['msgsuccess']) && isset($selected['msgfail']) ? true 
     </p>
     <?php if($ver){ ?>
         <p>
-            <label for="formInternal">Internal form? <input onchange="checkChecked(this);" type="checkbox" id="themeInternal" name="formInternal" <?php if($visible){ echo 'checked'; } ?>/></label>
+            <label for="formInternal">Internal form? <input onchange="checkChecked(this);" type="checkbox" id="formInternal" name="formInternal" <?php if($visible){ echo 'checked'; } ?>/></label>
             <br />
             <br />
         </p>
@@ -278,6 +317,7 @@ $visible = isset($selected['msgsuccess']) && isset($selected['msgfail']) ? true 
                 <input class="text" type="text" id="themeError" name="msgFail" value="<?php if(isset($selected['msgfail'])){ echo $selected['msgfail']; } ?>" />
             </p>
         </div>
+    <?php } ?>
     <?php } ?>
     <p><a class="submit" href="javascript:GenooForm.insert(GenooForm.e)"><?php echo $title; ?></a></p>
 </form>

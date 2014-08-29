@@ -5,7 +5,7 @@
     Author:  Genoo, LLC
     Author URI: http://www.genoo.com/
     Author Email: info@genoo.com
-    Version: 1.8.5.2
+    Version: 1.9.5
     License: GPLv2
     Text Domain: genoo
 */
@@ -35,7 +35,7 @@ if (!defined('ABSPATH')) { exit; }
 /**
  * 2. Check minimum requirements (wp version, php version)
  * Reason behind this is, we just need PHP 5.3.1 at least,
- * and wordpress 3.3 or higher. We just can't run the show
+ * and WordPress 3.3 or higher. We just can't run the show
  * on some outdated installation.
  */
 

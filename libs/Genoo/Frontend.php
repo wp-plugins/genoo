@@ -16,7 +16,7 @@ use Genoo\RepositorySettings,
     Genoo\Wordpress\Filter,
     Genoo\ModalWindow,
     Genoo\HtmlForm,
-    Genoo\Wordpress\Widget;
+    Genoo\Wordpress\Widgets;
 
 
 class Frontend
@@ -49,22 +49,14 @@ class Frontend
             return $query_vars;
         });
         add_action('parse_request', function($wp){
+            // If is mobile window
             if(array_key_exists('genooMobileWindow', $wp->query_vars)){
+                // Only when query parsed do this
                 Filter::removeFrom('wp_head')->everythingExceptLike(array('style', 'script'));
                 Frontend::renderMobileWindow();
             }
         });
-        //Filter::add('the_content', array($this, 'content'), 0);
     }
-
-
-    /**
-     * Content
-     *
-     * @return mixed
-     */
-
-    public function content(){ if(is_single()){} }
 
 
     /**
@@ -74,10 +66,10 @@ class Frontend
     public function enqueue()
     {
         // frontend css
-        wp_enqueue_style('genooFrontend', GENOO_ASSETS . 'GenooFrontend.css', null, '1.6');
+        wp_enqueue_style('genooFrontend', GENOO_ASSETS . 'GenooFrontend.css', null, '1.9');
         // frontend js, if not a mobile window
         if(!isset($_GET['genooMobileWindow'])){
-            wp_register_script('genooFrontendJs', GENOO_ASSETS . "GenooFrontend.js", false, '1.4.5', true);
+            wp_register_script('genooFrontendJs', GENOO_ASSETS . "GenooFrontend.js", false, '1.9', true);
             wp_enqueue_script('genooFrontendJs');
         }
     }
@@ -104,12 +96,14 @@ class Frontend
     public function footerLast()
     {
         // prep
-        $footerWidgets = Widget::getFooterModals();
+        $footerWidgetForms = Widgets::getFooterModals();
+        $footerShortcodeForms = Shortcodes::getFooterCTAs();
+        $footerForms = $footerWidgetForms + $footerShortcodeForms;
         $footerModals = new ModalWindow();
         // footer widgtes
-        if(!empty($footerWidgets)){
-            // go thru widgers
-            foreach($footerWidgets as $id => $widget){
+        if(!empty($footerForms)){
+            // go through widgers
+            foreach($footerForms as $id => $widget){
                 if(method_exists($widget->widget, 'getHtml')){
                     // prep
                     $modalGuts = $widget->widget->getHtml(array(), $widget->instance);
@@ -136,6 +130,7 @@ class Frontend
                     }
                 }
             }
+            // print it out
             echo $footerModals;
         }
     }
@@ -155,7 +150,7 @@ class Frontend
         echo '</head><body class="genooMobileWindow">';
         wp_footer();
         echo '</body></html>';
-        // kill it before WordPress displays his stuff
+        // Kill it before WordPress does his shenanigans
         exit();
     }
 }

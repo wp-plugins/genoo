@@ -14,6 +14,7 @@ namespace Genoo;
 use Genoo\Wordpress\Http,
     Genoo\Wordpress\Utils,
     Genoo\Utils\Strings,
+    Genoo\Utils\Url,
     Genoo\Utils\Json;
 
 

@@ -5,7 +5,7 @@
  * Copyright (c) 2014 Martin Pícha (http://latorante.name)
  *
  * These handful of tools has been created to help to carve
- * and amend wordpress core to achieve a lot better Wordpress experience,
+ * and amend WordPress core to achieve a lot better Wordpress experience,
  * cleaner code, more theming flexibility and overall better code.
  *
  * If you're even reading this, it means you're not me, the guy who created it,
@@ -136,11 +136,11 @@ class Filter
     {
         $filters = self::get(self::$tag);
         if($filters){
-            // hooks, go thru
+            // hooks, go through
             foreach($filters as $priority => $hooks){
                 // functions
                 if(is_array($hooks)){
-                    // go thru hooked functions
+                    // go through hooked functions
                     foreach($hooks as $hook){
                         // do we have a winner here?
                         // hook that is not like excpected one? is it string / array arg?
@@ -179,10 +179,10 @@ class Filter
     {
         $filters = self::get(self::$tag);
         if($filters){
-            // hooks, go thru
+            // hooks, go through
             foreach($filters as $priority => $hooks){
                 if(is_array($hooks)){
-                    // go thru hooked functions
+                    // go through hooked functions
                     foreach($hooks as $hook){
                         if(Strings::contains((string)$hook['function'], (string)$function)){
                             // remove hook
@@ -204,11 +204,11 @@ class Filter
     {
         $filters = self::get(self::$tag);
         if($filters){
-            // hooks, go thru
+            // hooks, go through
             foreach($filters as $priority => $hooks){
                 // functions
                 if(is_array($hooks)){
-                    // go thru hooked functions
+                    // go through hooked functions
                     foreach($hooks as $hook){
                         // do we have a winner here?
                         // hook that is not like excpected one? is it string / array arg?

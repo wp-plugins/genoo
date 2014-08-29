@@ -12,6 +12,8 @@
 namespace Genoo;
 
 
+use Genoo\Wordpress\Post;
+
 class RepositoryCTA extends Repository
 {
     /** @var \Genoo\Cache */
@@ -86,6 +88,27 @@ class RepositoryCTA extends Repository
             return false;
         }
     }
+
+
+    /**
+     * Get array of ctas for JS
+     *
+     * @return array
+     */
+
+    public function getArray()
+    {
+        $r = array();
+        $ctas = get_posts(array('post_type' => 'cta', 'posts_per_page' => -1));
+        if($ctas){
+            foreach($ctas as $cta){
+                $r[$cta->ID] = $cta->post_title;
+            }
+        }
+
+        return $r;
+    }
+
 
     /**
      * @return bool

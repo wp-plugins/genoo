@@ -55,19 +55,28 @@ class CTA
     public $image = null;
     /** @var null  */
     public $imageHover = null;
+    /** @var null  */
+    public $messageSuccess = null;
+    /** @var null  */
+    public $messageError = null;
 
 
     /**
      * Constructor
+     *
+     * @param null $post
      */
 
     public function __construct($post = null)
     {
-        $this->post = Post::set($post);
-        $this->repositarySettings = new RepositorySettings();
-        $this->postObject = $this->post->getPost();
-        if($this->has()){
-            $this->resolve();
+        // Don't override
+        if($post != false){
+            $this->post = Post::set($post);
+            $this->repositarySettings = new RepositorySettings();
+            $this->postObject = $this->post->getPost();
+            if($this->has()){
+                $this->resolve();
+            }
         }
         return $this;
     }
@@ -98,6 +107,22 @@ class CTA
 
 
     /**
+     * Set CTA post
+     *
+     * @param $postIs
+     * @return $this
+     */
+
+    public function setCta($postId)
+    {
+        $this->post = Post::set($postId);
+        $this->has = true;
+        $this->resolve();
+        return $this;
+    }
+
+
+    /**
      * Resolves current CTA
      */
 
@@ -115,12 +140,14 @@ class CTA
         $i = $this->post->getMeta('form_theme'); // form id
         $j = $this->post->getMeta('description'); // desc
         $z = $this->post->getMeta('display_cta_s');
-        $k = ($h == '0' || empty($h)) ? false : true;
+        $k = ($z == '0' || empty($z)) ? false : true;
+        $this->messageSuccess = $this->post->getMeta('form_success_message');
+        $this->messageError = $this->post->getMeta('form_error_message');
         $this->isForm = $a == 'form' ? true : false;
         $this->formId = $h;
         $this->formTheme = $i;
         $this->isLink = $this->isForm ? false : true;
-        $this->isNewWindow = $c == 'true' ? true : false;
+        $this->isNewWindow = ($c == 'true') ? true : false;
         $this->isImage = $d == 'image' ? true : false;
         $this->isHtml = $this->isImage ? false : true;
         $this->linkText = $e;

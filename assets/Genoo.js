@@ -428,7 +428,13 @@ var GenooImportingMessage = GenooVars.GenooMessages.importing;
  * @return {Boolean}
  */
 
-Genoo.elementExists = function(elem){ if(elem.length > 0){ return true; } else { return false; } };
+Genoo.elementExists = function(elem)
+{
+    if(elem != 'undefined' && elem != null){
+        return true;
+    }
+    return false;
+};
 
 
 /**
@@ -574,7 +580,7 @@ Genoo.startImport = function(e)
                 var msgStep = 0;
 
                 /**
-                 * Step 3: Loop thru steps, catch response
+                 * Step 3: Loop through steps, catch response
                  */
 
                 Genoo.startEventLogIn();
@@ -671,7 +677,7 @@ Genoo.startSubscriberImport = function(e)
             var msgStep = 0;
 
             /**
-             * Step 3: Loop thru steps, catch response
+             * Step 3: Loop through steps, catch response
              */
 
             Genoo.startEventLogIn();

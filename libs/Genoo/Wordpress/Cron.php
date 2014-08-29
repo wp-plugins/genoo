@@ -121,7 +121,7 @@ class Cron
 
 
     /**
-     * Get wordpress cron events
+     * Get WordPress cron events
      *
      * @return mixed
      */

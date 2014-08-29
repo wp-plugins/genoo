@@ -30,6 +30,8 @@ class HtmlForm
 
     public function __construct($html)
     {
+        // suppress warnings of invalid html
+        libxml_use_internal_errors(true);
         // prep
         $this->html = $html;
         $this->dom = new \DOMDocument;
@@ -86,7 +88,7 @@ class HtmlForm
             }
             if(!empty($this->msg)){
                 // html
-                $html .= '<strong class="'.$strongClass.'">' . $msg . '</strong>';
+                $html .= '<strong class="'.$strongClass.'">' . htmlspecialchars($msg) . '</strong>';
                 $fragment = $this->dom->createDocumentFragment();
                 $fragment->appendXML($html);
                 $this->msg->appendChild($fragment);
@@ -105,4 +107,11 @@ class HtmlForm
     {
         return preg_replace('~<(?:!DOCTYPE|/?(?:html|body))[^>]*>\s*~i', '', $this->dom->saveHTML());
     }
+
+
+    /**
+     * Destructor to clean errors.
+     */
+
+    public function __destruct(){ libxml_clear_errors(); }
 }

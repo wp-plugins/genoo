@@ -407,15 +407,6 @@ class Url
 
 
     /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getAbsoluteUrl();
-    }
-
-
-    /**
      * Similar to rawurldecode, but preserve reserved chars encoded.
      * @param  string to decode
      * @param  string reserved characters
@@ -435,6 +426,28 @@ class Url
         }
         return $s;
     }
+
+
+    /**
+     * Is localhost?
+     *
+     * @return bool
+     */
+    public static function isLocalhost()
+    {
+        $hosts = array('localhost', '127.0.0.1', '::1');
+        return in_array($_SERVER['HTTP_HOST'], $hosts);
+    }
+
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getAbsoluteUrl();
+    }
+
 }
 
 
