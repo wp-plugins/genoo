@@ -1,20 +1,16 @@
 <?php
-
 /**
- * This file is part of the Genoo plugin.
- *
- * Copyright (c) 2014 Genoo, LLC (http://www.genoo.com/)
- *
- * For the full copyright and license information, please view
- * the Genoo.php file in root directory of this plugin.
+ * Created by PhpStorm.
+ * User: latorante
+ * Date: 27.5.14
+ * Time: 19:54
  */
-
 namespace Genoo\Wordpress;
 
 use Genoo\Utils\Strings,
     Genoo\CTA;
 
-class Widgets
+class Widget
 {
 
     /**
@@ -26,8 +22,7 @@ class Widgets
         add_action('widgets_init', function () {
             register_widget('\Genoo\WidgetForm');
             register_widget('\Genoo\WidgetCTA');
-            // If lumens are set up.
-            if (GENOO_LUMENS){
+            if (GENOO_LUMENS) {
                 register_widget('\Genoo\WidgetLumen');
             }
         });
@@ -47,7 +42,7 @@ class Widgets
         global $wp_widget_factory;
         // vars
         $arr = array();
-        // go through
+        // go thru
         if ($wp_widget_factory->widgets) {
             foreach ($wp_widget_factory->widgets as $class => $widget) {
                 // congratulations, we have a Genoo widget
@@ -74,11 +69,11 @@ class Widgets
         $sidebarWidgets = wp_get_sidebars_widgets();
         // not empty?
         if (is_array($sidebarWidgets) && !empty($sidebarWidgets)) {
-            // go through areas
+            // go thru areas
             foreach ($sidebarWidgets as $sidebarKey => $sidebarWidget) {
                 // not empty array?
                 if (is_array(($sidebarWidget)) && !empty($sidebarWidget)) {
-                    // go through
+                    // go thru
                     foreach ($sidebarWidget as $key => $value) {
                         // is it our widget-like?
                         if (Strings::contains($value, $name)) {
@@ -119,7 +114,7 @@ class Widgets
         $widgets = self::get('genoo');
         $widgetsArray = self::getArrayOfWidgets();
         $widgetsObj = array();
-        // go through them
+        // go thru them
         if ($widgets){
             foreach ($widgets as $widget){
                 // get instances
@@ -136,10 +131,6 @@ class Widgets
                                 $widgetsObj[$currId] = new \stdClass();
                                 $widgetsObj[$currId]->widget = $widget;
                                 $widgetsObj[$currId]->instance = $widgetInstances[$id];
-                                // Can we get inner instance? (cta widget)
-                                if(method_exists($widget, 'getInnerInstance')){
-                                    $widgetsObj[$currId]->instance = $widgetsObj[$currId]->instance + $widget->getInnerInstance();
-                                }
                             }
                         }
                     }

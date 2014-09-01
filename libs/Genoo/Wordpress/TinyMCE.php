@@ -18,28 +18,25 @@ class TinyMCE
      * Register, extends TinyMCE
      */
 
-    public static function register()
+    public static function register($postTypes = array())
     {
-        add_action('init', array(__CLASS__, 'extend'));
-    }
+        global $typenow, $pagenow, $wp_screen;
+        if(empty($typenow) && !empty($_GET['post'])){
+            $post = get_post( $_GET['post'] );
+            $typenow = $post->post_type;
+        }
+        $cta = in_array($typenow, $postTypes);
 
-
-    /**
-     * Extend
-     */
-
-    public static function extend()
-    {
         /** Register external plugins */
-        add_filter('mce_external_plugins', function($plugin_array){
+        add_filter('mce_external_plugins', function($plugin_array) use($cta){
             $plugin_array['genoo'] = GENOO_ASSETS . 'GenooTinyMCEForm.js?refresh=8';
-            $plugin_array['genooCTA'] = GENOO_ASSETS . 'GenooTinyMCECTA.js?refres=8';
+            if($cta) $plugin_array['genooCTA'] = GENOO_ASSETS . 'GenooTinyMCECTA.js?refres=8';
             return $plugin_array;
         });
         /** Register external buttons */
-        add_filter('mce_buttons', function($buttons){
+        add_filter('mce_buttons', function($buttons) use($cta){
             $buttons[] = 'genooForm';
-            $buttons[] = 'genooCTA';
+            if($cta) $buttons[] = 'genooCTA';
             return $buttons;
         });
         /** Add editor style */

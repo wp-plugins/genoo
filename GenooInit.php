@@ -21,7 +21,6 @@ use Genoo\RepositorySettings,
     Genoo\Wordpress\Ajax,
     Genoo\Wordpress\Debug,
     Genoo\Wordpress\Comments,
-    Genoo\Wordpress\TinyMCE,
     Genoo\Wordpress\Cron;
 
 class Genoo
@@ -96,7 +95,6 @@ class Genoo
             Users::register();
             Widgets::register();
             Shortcodes::register();
-            TinyMCE::register();
         }
 
         /**

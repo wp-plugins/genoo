@@ -25,6 +25,7 @@ use Genoo\RepositorySettings,
     Genoo\Wordpress\Nag,
     Genoo\Wordpress\Metabox,
     Genoo\Wordpress\PostType,
+    Genoo\Wordpress\TinyMCE,
     Genoo\Tools,
     Genoo\Utils\Strings;
 
@@ -104,9 +105,12 @@ class Admin
                 'GenooTinyMCE' => array(
                     'themes' => $this->repositarySettings->getSettingsThemes(),
                     'forms'  => $this->repositaryForms->getFormsArray(),
-                    'ctas'   => $this->repositaryCTAs->getArray()
+                    'ctas'   => $this->repositaryCTAs->getArray(),
+                    'cta-pt' => $this->repositarySettings->getCTAPostTypes()
                 )
             ));
+            // register editor styles
+            TinyMCE::register($this->repositarySettings->getCTAPostTypes());
         }
     }
 

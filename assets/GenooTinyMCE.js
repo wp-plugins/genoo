@@ -9,27 +9,92 @@
  *
  * Genoo TinyMCE plugin
  *
- * @version 1.3.1
+ * @version 1.2
  * @author latorante.name
  */
 
 
 (function(){
 
-
     /**
-     * Version Compare
-     *
-     * @param h
-     * @param g
-     * @param c
-     * @returns {*}
+     * Fucntions
      */
 
-    function versionCompare(h,g,c){
-        this.php_js=this.php_js||{};this.php_js.ENV=this.php_js.ENV||{};var d=0,b=0,f=0,e={dev:-6,alpha:-5,a:-5,beta:-4,b:-4,RC:-3,rc:-3,"#":-2,p:1,pl:1},a=function(i){i=(""+i).replace(/[_\-+]/g,".");i=i.replace(/([^.\d]+)/g,".$1.").replace(/\.{2,}/g,".");return(!i.length?[-8]:i.split("."))};numVersion=function(i){return !i?0:(isNaN(i)?e[i]||-7:parseInt(i,10))};h=a(h);g=a(g);b=Math.max(h.length,g.length);for(d=0;d<b;d++){if(h[d]==g[d]){continue}h[d]=numVersion(h[d]);g[d]=numVersion(g[d]);if(h[d]<g[d]){f=-1;break}else{if(h[d]>g[d]){f=1;break}}}if(!c){return f}switch(c){case">":case"gt":return(f>0);case">=":case"ge":return(f>=0);case"<=":case"le":return(f<=0);case"==":case"=":case"eq":return(f===0);case"<>":case"!=":case"ne":return(f!==0);case"":case"<":case"lt":return(f<0);default:return null}
-    }
+    function versionCompare (v1, v2, operator){
+        this.php_js = this.php_js || {};
+        this.php_js.ENV = this.php_js.ENV || {};
+        var i = 0,
+            x = 0,
+            compare = 0,
+            vm = {
+                'dev': -6,
+                'alpha': -5,
+                'a': -5,
+                'beta': -4,
+                'b': -4,
+                'RC': -3,
+                'rc': -3,
+                '#': -2,
+                'p': 1,
+                'pl': 1
+            },
+            prepVersion = function(v) {
+                v = ('' + v)
+                    .replace(/[_\-+]/g, '.');
+                v = v.replace(/([^.\d]+)/g, '.$1.')
+                    .replace(/\.{2,}/g, '.');
+                return (!v.length ? [-8] : v.split('.'));
+            };
+        numVersion = function(v) {
+            return !v ? 0 : (isNaN(v) ? vm[v] || -7 : parseInt(v, 10));
+        };
+        v1 = prepVersion(v1);
+        v2 = prepVersion(v2);
+        x = Math.max(v1.length, v2.length);
+        for (i = 0; i < x; i++) {
+            if (v1[i] == v2[i]) {
+                continue;
+            }
+            v1[i] = numVersion(v1[i]);
+            v2[i] = numVersion(v2[i]);
+            if (v1[i] < v2[i]) {
+                compare = -1;
+                break;
+            } else if (v1[i] > v2[i]) {
+                compare = 1;
+                break;
+            }
+        }
+        if (!operator) {
+            return compare;
+        }
 
+        switch (operator) {
+            case '>':
+            case 'gt':
+                return (compare > 0);
+            case '>=':
+            case 'ge':
+                return (compare >= 0);
+            case '<=':
+            case 'le':
+                return (compare <= 0);
+            case '==':
+            case '=':
+            case 'eq':
+                return (compare === 0);
+            case '<>':
+            case '!=':
+            case 'ne':
+                return (compare !== 0);
+            case '':
+            case '<':
+            case 'lt':
+                return (compare < 0);
+            default:
+                return null;
+        }
+    }
 
     /**
      * Vars
@@ -45,10 +110,8 @@
     if(versionCompare(tinyMCEVer, '4', '>=')){
 
         /**
-         * Genoo Form Shortcode
+         * Version 4 code
          */
-
-        /****************************************************/
 
         tinymce.PluginManager.add('genoo', function(ed, url){
 
@@ -154,7 +217,7 @@
                     node = event.target,
                     dom = ed.dom;
                 if (event.button && event.button > 1){ return; }
-                function unselect() { dom.removeClass( dom.select('img.wp-media-selected'), 'wp-media-selected'); }
+                function unselect() { dom.removeClass( dom.select( 'img.wp-media-selected' ), 'wp-media-selected' ); }
                 if(jQuery(node).hasClass('genooFormShortcode')){
                     addToolbar(node);
                 }
@@ -166,11 +229,10 @@
                     var img = jQuery(e.target).closest('body').find('img[data-mce-selected="1"]');
                     ed.execCommand('genooFormEdit', true, img.attr('title'));
                 } else if (jQuery(e.target).hasClass('removeGenoo')){
-                    tinyMCE.activeEditor.windowManager.confirm("Are you sure? Please confirm to delete the form.", function(s){
+                    tinyMCE.activeEditor.windowManager.confirm("Are you sure? Please confirm to delete the form.", function(s) {
                         if (s){
-                            var img = jQuery(e.target).closest('body').find('img[data-mce-selected="1"]');
-                            img.parent().remove();
-                            //data-wp-imgselect="1" data-mce-selected="1"
+                            var img = jQuery(e.target).parent().prev();
+                            img.remove();
                             removeToolbar();
                         }
                     });
@@ -216,7 +278,6 @@
             });
 
         });
-
 
     } else if(versionCompare(tinyMCEVer, '3', '>=')){
 
@@ -387,7 +448,6 @@
                 };
             }
         });
-
         // Register plugin
         tinymce.PluginManager.add('genoo', tinymce.plugins.Genoo);
     }

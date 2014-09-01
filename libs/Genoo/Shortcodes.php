@@ -225,20 +225,30 @@ class Shortcodes
         // Check if in post
         if (false === strpos($content, '[')){ return false; }
         // Parse Shortcodes from content
-        preg_match_all('/' . get_shortcode_regex() . '/s', $content, $matches, PREG_SET_ORDER);
+        $matches = self::findShortcodes($content);
         // Purify the result
         $count = 1;
         if($matches){
             foreach($matches as $match){
                 // Arguments
+                array_filter($match);
+                $match = array_map('trim', $match);
+                $matchLast = end($match);
                 $actualShortcode = $match[0];
                 $args = shortcode_parse_atts(str_replace(array('[',']'),'', $actualShortcode));
                 // is shortcode set?
                 if($shortcode){
-                    // is it here?
+                    // Is it here?
                     if(Strings::contains(Strings::lower($args[0]), Strings::lower($shortcode))){
                         $r[$count] = $args;
                         ++$count;
+                    } else if (Strings::contains($matchLast, $shortcode)){
+                        // Might be wrapped in another Shortcode
+                        $tryFinding = self::findRecrusively($matchLast, $shortcode);
+                        if(is_array($tryFinding)){
+                            $r[$count] = $tryFinding;
+                            ++$count;
+                        }
                     }
                 } else {
                     $r[$count] = $args;
@@ -246,8 +256,66 @@ class Shortcodes
                 }
             }
         }
-
         return $r;
+    }
+
+
+    /**
+     * Find inside shortcodes
+     *
+     * @param $shortCodeData
+     * @param $shortcodeSearch
+     * @return null
+     */
+
+    public static function findRecrusively($shortCodeData, $shortcodeSearch)
+    {
+        $matches = self::findShortcodes($shortCodeData);
+        // Prep data
+        $shortcodeActual = $matches[0][0];
+        $shortcodeActualParsed = shortcode_parse_atts(str_replace(array('[',']'),'', $shortcodeActual));
+        reset($matches[0]);
+        $shortcodeLast = end($matches[0]);
+        if(is_array($shortcodeActualParsed)){
+            // Presuming this has the shortcode.
+            $shortcode = $shortcodeActualParsed[0];
+            if(Strings::contains(Strings::lower($shortcode), Strings::lower($shortcodeSearch))){
+                return $shortcodeActualParsed;
+            } elseif (Strings::contains($shortcodeLast, $shortcodeSearch)){
+                return self::findRecrusively($shortcodeLast, $shortcodeSearch);
+            }
+            return null;
+        }
+        return null;
+    }
+
+
+    /**
+     * Remove empty arrays
+     *
+     * @param $sr
+     * @return mixed
+     */
+
+    public static function findShortcodes($sr)
+    {
+        preg_match_all('/' . get_shortcode_regex() . '/s', $sr, $arr, PREG_SET_ORDER);
+        if(is_array($arr)){
+            foreach($arr as $key => $value){
+                if(is_array($value)){
+                    foreach($value as $keyIn => $valueIn){
+                        if(strlen($valueIn) == 0 || empty($valueIn) || $valueIn == '0'){
+                            unset($arr[$key][$keyIn]);
+                        }
+                    }
+                } else {
+                    if(strlen($value) == 0 || empty($value) || $value == '0'){
+                        unset($arr[$key]);
+                    }
+                }
+            }
+        }
+        return $arr;
     }
 
 
