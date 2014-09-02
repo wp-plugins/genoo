@@ -5,7 +5,7 @@ Requires at least: 3.3
 Tested up to: 3.9.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.9.7
+Stable tag: 1.9.8
 
 Genoo Plugin brings seamless marketing automation integration to Genoo users who use WordPress to host their websites and blogs.
 
@@ -60,6 +60,9 @@ Some of the features include:
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 1.9.8 =
+* CTA shortcode can be now placed in a different nested shortcode.
 
 = 1.9.5 =
 * Ability to place CTA’s in main page content using WYSIWYG editor.

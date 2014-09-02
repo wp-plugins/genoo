@@ -271,22 +271,27 @@ class Shortcodes
     public static function findRecrusively($shortCodeData, $shortcodeSearch)
     {
         $matches = self::findShortcodes($shortCodeData);
+        $r = null;
         // Prep data
-        $shortcodeActual = $matches[0][0];
-        $shortcodeActualParsed = shortcode_parse_atts(str_replace(array('[',']'),'', $shortcodeActual));
-        reset($matches[0]);
-        $shortcodeLast = end($matches[0]);
-        if(is_array($shortcodeActualParsed)){
-            // Presuming this has the shortcode.
-            $shortcode = $shortcodeActualParsed[0];
-            if(Strings::contains(Strings::lower($shortcode), Strings::lower($shortcodeSearch))){
-                return $shortcodeActualParsed;
-            } elseif (Strings::contains($shortcodeLast, $shortcodeSearch)){
-                return self::findRecrusively($shortcodeLast, $shortcodeSearch);
+        if(is_array($matches)){
+            foreach($matches as $match){
+                array_filter($match);
+                $match = array_map('trim', $match);
+                $shortcodeActual = $match[0];
+                $shortcodeActualParsed = shortcode_parse_atts(str_replace(array('[',']'),'', $shortcodeActual));
+                $shortcodeLast = end($match);
+                if(is_array($shortcodeActualParsed)){
+                    // Presuming this has the shortcode.
+                    $shortcode = $shortcodeActualParsed[0];
+                    if(Strings::contains(Strings::lower($shortcode), Strings::lower($shortcodeSearch))){
+                        $r = $shortcodeActualParsed;
+                    } elseif (Strings::contains($shortcodeLast, $shortcodeSearch)){
+                        $r = self::findRecrusively($shortcodeLast, $shortcodeSearch);
+                    }
+                }
             }
-            return null;
         }
-        return null;
+        return $r;
     }
 
 
