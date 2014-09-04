@@ -25,7 +25,11 @@ class TinyMCE
             $post = get_post( $_GET['post'] );
             $typenow = $post->post_type;
         }
-        $cta = in_array($typenow, $postTypes);
+
+        $cta = false;
+        if(is_array($postTypes) && !empty($typenow)){
+            $cta = in_array($typenow, $postTypes);
+        }
 
         /** Register external plugins */
         add_filter('mce_external_plugins', function($plugin_array) use($cta){
