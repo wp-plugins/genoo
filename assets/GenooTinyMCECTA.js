@@ -101,11 +101,11 @@
              */
 
             function removeToolbar(){
-                var toolbar = ed.dom.get('wp-image-toolbar');
+                var toolbar = ed.dom.get('wp-image-toolbar-g');
                 if (toolbar){ ed.dom.remove( toolbar ); }
-                ed.dom.setAttrib( ed.dom.select('img[data-wp-imgselect]'), 'data-wp-imgselect', null );
-                toolbarActive = false;
+                ed.dom.setAttrib( ed.dom.select('img[data-genoo-imgselect]'), 'data-genoo-imgselect', null );
             }
+
 
             /**
              * Add toolbar
@@ -122,15 +122,15 @@
                 // Don't add to placeholders
                 if (!node || node.nodeName !== 'IMG') { return; }
 
-                dom.setAttrib(node, 'data-wp-imgselect', 1 );
+                dom.setAttrib(node, 'data-genoo-imgselect', 1 );
                 rectangle = dom.getRect(node);
 
-                toolbarHtml = '<div class="dashicons dashicons-edit editGenooCTA" data-mce-bogus="1"></div>' +
-                    '<div class="dashicons dashicons-no-alt removeGenooCTA" data-mce-bogus="1"></div>';
+                toolbarHtml = '<div class="dashicons dashicons-edit editGenooCTA" data-mce-bogus="all"></div>' +
+                    '<div class="dashicons dashicons-no-alt removeGenooCTA" data-mce-bogus="all"></div>';
 
                 toolbar = dom.create( 'div', {
-                    'id': 'wp-image-toolbar',
-                    'data-mce-bogus': '1',
+                    'id': 'wp-image-toolbar-g',
+                    'data-mce-bogus': 'all',
                     'contenteditable': false
                 }, toolbarHtml );
 
@@ -138,14 +138,13 @@
 
                 ed.getBody().appendChild( toolbar );
                 dom.setStyles( toolbar, { top: rectangle.y, left: left });
-                toolbarActive = true;
             }
 
             /**
              * EVENTS
              */
 
-                // on start and insert
+            // on start and insert
             ed.on('BeforeSetContent', function(event){
                 event.content = replaceGenooShortcodes(event.content);
             });
@@ -161,21 +160,27 @@
                     node = event.target,
                     dom = ed.dom;
                 if (event.button && event.button > 1){ return; }
-                function unselect() { dom.removeClass( dom.select('img.wp-media-selected'), 'wp-media-selected'); }
                 if(jQuery(node).hasClass('genooCTAShortcode')){
                     addToolbar(node);
+                } else if(jQuery(event.target).hasClass('editGenooCTA') || jQuery(event.target).hasClass('removeGenooCTA')){
+                } else {
+                    removeToolbar();
                 }
             });
 
             // on click
             ed.on('click', function(e){
                 if(jQuery(e.target).hasClass('editGenooCTA')){
-                    var img = jQuery(e.target).closest('body').find('img[data-mce-selected="1"]');
-                    ed.execCommand('genooCTAEdit', true, img.attr('title'));
+                    var img = jQuery(e.target).closest('body').find('img[data-genoo-imgselect="1"]');
+                    ed.execCommand('genooCTAEdit', false, img.attr('title'));
+                    // but back selected attribute
+                    img.attr('data-genoo-imgselect', '1');
+                    // select imaga back ...
+                    ed.execCommand("mceSelectNode", false, ed.dom.select('[data-genoo-imgselect="1"]')[0]);
                 } else if (jQuery(e.target).hasClass('removeGenooCTA')){
-                    tinyMCE.activeEditor.windowManager.confirm("Are you sure? Please confirm to delete the cta.", function(s) {
+                    ed.windowManager.confirm("Are you sure? Please confirm to delete the cta.", function(s){
                         if (s){
-                            var img = jQuery(e.target).closest('body').find('img[data-mce-selected="1"]');
+                            var img = jQuery(e.target).closest('body').find('img[data-genoo-imgselect="1"]');
                             img.parent().remove();
                             removeToolbar();
                         }
@@ -208,6 +213,10 @@
                 ed.setContent(contentos);
             });
 
+            ed.addCommand('genooReplaceContent', function(output){
+
+            });
+
             // edit command
             ed.addCommand('genooCTAEdit', function(ui, string){
                 // add selected
@@ -220,7 +229,6 @@
                 });
                 removeToolbar();
             });
-
         });
 
 

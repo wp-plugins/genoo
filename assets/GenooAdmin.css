@@ -58,6 +58,7 @@
 #genooProgressBarText { width: 100%; line-height: 25px; }
 #genooProgressBarBG { position: absolute; z-index: 300; display: block; left: 0; height: 100%; }
 
+
 /* prevent flickering */
 #genooThemeSettings-genooFormPrev { width: auto; max-width: 260px; }
 #genooThemeSettings-genooFormPrev img { display: block; width: 100%; height: auto; min-height: 0; }

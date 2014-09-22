@@ -202,6 +202,7 @@ $ctas = !empty($_GET['ctas']) ? $_GET['ctas'] : array();
             },
             insert: function createGenooShortcode(e){
                 // Output
+                var which = '<?php echo $cta ? 'cta' : 'form'; ?>';
                 var output = '';
                 <?php if($cta){ ?>
                     // get vals
@@ -238,7 +239,11 @@ $ctas = !empty($_GET['ctas']) ? $_GET['ctas'] : array();
                 <?php } ?>
                 // bam
                 tinyMCEPopup.execCommand('mceReplaceContent', false, output);
+                <?php if($cta){ ?>
+                tinyMCEPopup.execCommand('genooCTARefresh');
+                <?php } else { ?>
                 tinyMCEPopup.execCommand('genooRefresh');
+                <?php } ?>
                 tinyMCEPopup.close();
             }
         }

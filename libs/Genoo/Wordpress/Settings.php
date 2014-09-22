@@ -168,7 +168,7 @@ class Settings
     {
         // prep
         $fieldHtml = '';
-        $fieldValue = esc_attr($this->settingsRepo->getOption($args['id'], $args['section'], $args['std']));
+        $fieldValue = @esc_attr($this->settingsRepo->getOption($args['id'], $args['section'], $args['std'])); // had to silence the inner wp function here
         $fieldValueUn = $this->settingsRepo->getOption($args['id'], $args['section'], $args['std']);
         $fieldClass = $this->hasError($args['id']) ? ' genooError' : '';
         $fieldError = $this->hasError($args['id']) ? $this->getError($args['id']) : false;

@@ -94,10 +94,9 @@
              */
 
             function removeToolbar(){
-                var toolbar = ed.dom.get('wp-image-toolbar');
+                var toolbar = ed.dom.get('wp-image-toolbar-c');
                 if (toolbar){ ed.dom.remove( toolbar ); }
-                ed.dom.setAttrib( ed.dom.select( 'img[data-wp-imgselect]' ), 'data-wp-imgselect', null );
-                toolbarActive = false;
+                ed.dom.setAttrib( ed.dom.select( 'img[data-genoo-form-imgselect]' ), 'data-genoo-form-imgselect', null );
             }
 
             /**
@@ -115,14 +114,14 @@
                 // Don't add to placeholders
                 if (!node || node.nodeName !== 'IMG') { return; }
 
-                dom.setAttrib( node, 'data-wp-imgselect', 1 );
+                dom.setAttrib( node, 'data-genoo-form-imgselect', 1 );
                 rectangle = dom.getRect( node );
 
                 toolbarHtml = '<div class="dashicons dashicons-edit editGenoo" data-mce-bogus="1"></div>' +
                     '<div class="dashicons dashicons-no-alt removeGenoo" data-mce-bogus="1"></div>';
 
                 toolbar = dom.create( 'div', {
-                    'id': 'wp-image-toolbar',
+                    'id': 'wp-image-toolbar-c',
                     'data-mce-bogus': '1',
                     'contenteditable': false
                 }, toolbarHtml );
@@ -131,7 +130,6 @@
 
                 ed.getBody().appendChild( toolbar );
                 dom.setStyles( toolbar, { top: rectangle.y, left: left });
-                toolbarActive = true;
             }
 
             /**
@@ -154,23 +152,28 @@
                     node = event.target,
                     dom = ed.dom;
                 if (event.button && event.button > 1){ return; }
-                function unselect() { dom.removeClass( dom.select('img.wp-media-selected'), 'wp-media-selected'); }
                 if(jQuery(node).hasClass('genooFormShortcode')){
                     addToolbar(node);
+                } else if(jQuery(event.target).hasClass('editGenoo') || jQuery(event.target).hasClass('removeGenoo')){
+                } else {
+                    removeToolbar();
                 }
             });
 
             // on click
             ed.on('click', function(e){
                 if(jQuery(e.target).hasClass('editGenoo')){
-                    var img = jQuery(e.target).closest('body').find('img[data-mce-selected="1"]');
+                    var img = jQuery(e.target).closest('body').find('img[data-genoo-form-imgselect="1"]');
                     ed.execCommand('genooFormEdit', true, img.attr('title'));
+                    // put back selected attribute
+                    img.attr('data-genoo-form-imgselect', '1');
+                    // select image back ...
+                    ed.execCommand("mceSelectNode", false, ed.dom.select('[data-genoo-form-imgselect="1"]')[0]);
                 } else if (jQuery(e.target).hasClass('removeGenoo')){
                     tinyMCE.activeEditor.windowManager.confirm("Are you sure? Please confirm to delete the form.", function(s){
                         if (s){
-                            var img = jQuery(e.target).closest('body').find('img[data-mce-selected="1"]');
+                            var img = jQuery(e.target).closest('body').find('img[data-genoo-form-imgselect="1"]');
                             img.parent().remove();
-                            //data-wp-imgselect="1" data-mce-selected="1"
                             removeToolbar();
                         }
                     });

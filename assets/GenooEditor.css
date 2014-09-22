@@ -16,3 +16,31 @@
 .genooRight { display: inline-block; width: 45% }
 .genooLeft { padding: 20px; padding-left: 0; float: left;  }
 .genooRight { padding: 20px; padding-right: 0; float: right; }
+
+
+/*
+	WordPress 4 Bene
+*/
+
+#wp-image-toolbar-c,
+#wp-image-toolbar-g { position: absolute; }
+#wp-image-toolbar-c div,
+#wp-image-toolbar-g div {
+	margin-top: 7px;
+	margin-left: 7px;
+	padding: 2px;
+	width: 30px;
+	height: 30px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+	background-color: #000;
+	background-color: rgba(0,0,0,0.9);
+	cursor: pointer;
+	color: white;
+	font-size: 30px;
+}
+#wp-image-toolbar-c div:hover,
+#wp-image-toolbar-g div:hover {
+	box-shadow: 0 1px 3px rgba(0,0,0,0.8);
+	background-color: #000;
+	color: #2ea2cc;
+}

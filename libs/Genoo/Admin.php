@@ -91,10 +91,10 @@ class Admin
     public function adminEnqueueScripts($hook)
     {
         // scripts
-        wp_enqueue_style('core', GENOO_ASSETS . 'GenooAdmin.css', null, '1.5');
-        wp_enqueue_script('Genoo', GENOO_ASSETS . 'Genoo.js', null, '1.5', true);
+        wp_enqueue_style('core', GENOO_ASSETS . 'GenooAdmin.css', null, GENOO_REFRESH);
+        wp_enqueue_script('Genoo', GENOO_ASSETS . 'Genoo.js', null, GENOO_REFRESH, true);
         // if post edit or add screeen
-        if ($hook == 'post-new.php' || $hook == 'post.php'){ wp_enqueue_script('GenooEditPost', GENOO_ASSETS . 'GenooEditPost.js', array('jquery'), rand(1,255)); }
+        if ($hook == 'post-new.php' || $hook == 'post.php'){ wp_enqueue_script('GenooEditPost', GENOO_ASSETS . 'GenooEditPost.js', array('jquery'), GENOO_REFRESH); }
         // if setup up add vars
         if(GENOO_SETUP){
             wp_localize_script('Genoo', 'GenooVars', array(

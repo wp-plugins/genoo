@@ -33,8 +33,8 @@ class TinyMCE
 
         /** Register external plugins */
         add_filter('mce_external_plugins', function($plugin_array) use($cta){
-            $plugin_array['genoo'] = GENOO_ASSETS . 'GenooTinyMCEForm.js?refresh=8';
-            if($cta) $plugin_array['genooCTA'] = GENOO_ASSETS . 'GenooTinyMCECTA.js?refres=8';
+            $plugin_array['genoo'] = GENOO_ASSETS . 'GenooTinyMCEForm.js?v=' . GENOO_REFRESH;
+            if($cta) $plugin_array['genooCTA'] = GENOO_ASSETS . 'GenooTinyMCECTA.js?v=' . GENOO_REFRESH;
             return $plugin_array;
         });
         /** Register external buttons */
@@ -44,6 +44,6 @@ class TinyMCE
             return $buttons;
         });
         /** Add editor style */
-        add_editor_style(GENOO_ASSETS . 'GenooEditor.css?refresh=8');
+        add_editor_style(GENOO_ASSETS . 'GenooEditor.css?v=' . GENOO_REFRESH);
     }
 }
