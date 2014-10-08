@@ -21,6 +21,17 @@ class Post
     /** @var \WP_Post object */
     public static $post;
 
+
+    /**
+     * Is Post Id?
+     *
+     * @param $postId
+     * @return mixed
+     */
+
+    public static function is($postId){ return is_post($postId); }
+
+
     /**
      * Set post
      *

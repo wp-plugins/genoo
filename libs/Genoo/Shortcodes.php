@@ -22,6 +22,7 @@ use Genoo\RepositorySettings,
     Genoo\HtmlForm,
     Genoo\Wordpress\Utils,
     Genoo\Utils\Strings,
+    Genoo\Tracer,
     Genoo\Wordpress\Post;
 
 
@@ -194,11 +195,15 @@ class Shortcodes
         static $count = 1;
         try {
             if($post instanceof \Wp_Post){
-                if($atts['id'] && is_numeric($atts['id']) && Post::exists($atts['id'])){
-                    // get CTA
+                // We don't want the shortcode to be excecuted from header.php of footer.php
+                $ranFromHeader = Tracer::ranFrom('header.php');
+                $ranFromFooter = Tracer::ranFrom('footer.php');
+                // Check if ID is set, if CTA with that ID exists, and if it didnt run from header or footer.
+                if(($atts['id'] && is_numeric($atts['id']) && Post::exists($atts['id'])) && ($ranFromHeader === false && $ranFromFooter == false)){
+                    // Get CTA
                     $cta = new WidgetCTA();
                     $cta->setThroughShortcode($count, $atts['id'], $atts);
-                    // increase id
+                    // Increase counter
                     $count++;
                     return $cta->getHtmlInner(array(), $cta->getInnerInstance());
                 }
