@@ -61,7 +61,7 @@ class Genoo
         // helper constants
         define('GENOO_PART_SETUP', $this->api->isSetup());
         define('GENOO_SETUP', $this->api->isSetupFull());
-        define('GENOO_LUMENS', false); // for now, before $this->api->isLumensSetup()
+        define('GENOO_LUMENS', $this->api->isLumensSetup()); // for now, before
         // wp init
         add_action('plugins_loaded', array($this, 'init'));
     }
