@@ -20,9 +20,9 @@ class Cron
      * Run Cron
      */
 
-    public static function cron($args)
+    public static function cron($args = null)
     {
-        if($args && is_array($args) && isset($args['action'])){
+        if(!is_null($args) && is_array($args) && isset($args['action'])){
             switch($args['action']){
                 case '':
                     break;
