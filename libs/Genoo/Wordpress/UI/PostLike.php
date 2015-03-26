@@ -13,7 +13,7 @@ namespace Genoo\Wordpress\UI;
 
 class PostLike
 {
-
+    /** @var string */
     var $title = '';
 
 

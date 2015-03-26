@@ -14,10 +14,8 @@ namespace Genoo;
 
 class RepositoryUser
 {
-
     /** @var  */
     var $user;
-
 
     /**
      * Constructor

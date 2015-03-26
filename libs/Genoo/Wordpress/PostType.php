@@ -11,7 +11,10 @@
 
 namespace Genoo\Wordpress;
 
-use Genoo\Utils\Strings;
+use Genoo\Utils\Strings,
+    Genoo\Wordpress\Filter,
+    Genoo\Wordpress\Action;
+
 
 class PostType
 {
@@ -177,7 +180,7 @@ class PostType
 
     public static function columns($postType, $columnsCustom = array()){
         $postType = self::purify($postType);
-        add_filter('manage_edit-'. $postType .'_columns', function($columns) use ($columnsCustom){
+        Filter::add('manage_edit-'. $postType .'_columns', function($columns) use ($columnsCustom){
             $columnsStart = array(
                 'cb' => '<input type="checkbox" />',
                 'title' => __('CTA Title', 'genoo')
@@ -186,7 +189,7 @@ class PostType
                 'date' => __('Date', 'genoo')
             );
             return array_merge($columnsStart, $columnsCustom,$columnsEnd);
-        });
+        }, 10, 1);
     }
 
 
@@ -200,7 +203,7 @@ class PostType
 
     public static function columnsContent($postType, $keys = array(), $callback = null){
         $postType = self::purify($postType);
-        add_action('manage_'. $postType .'_posts_custom_column', function($column, $post_id) use ($keys, $callback) {
+        Action::add('manage_'. $postType .'_posts_custom_column', function($column, $post_id) use ($keys, $callback) {
             global $post;
             switch($column){
                 default:

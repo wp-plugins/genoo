@@ -12,7 +12,8 @@
 namespace Genoo\Wordpress;
 
 use Genoo\Api,
-    Genoo\RepositorySettings;
+    Genoo\RepositorySettings,
+    Genoo\Wordpress\Action;
 
 class Cron
 {
@@ -47,7 +48,7 @@ class Cron
      * @param $cron
      */
 
-    public static function register($cron){ add_action($cron, array(__CLASS__, 'cron')); }
+    public static function register($cron){ Action::add($cron, array(__CLASS__, 'cron')); }
 
 
     /**

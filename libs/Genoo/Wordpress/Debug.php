@@ -11,6 +11,8 @@
 
 namespace Genoo\Wordpress;
 
+use Genoo\Wordpress\Action;
+
 class Debug
 {
     /** debug key */
@@ -21,7 +23,7 @@ class Debug
      * Hooks check function
      */
 
-    public function __construct(){ add_action('shutdown', array(__CLASS__, 'checkFiredHooks')); }
+    public function __construct(){ Action::add('shutdown', array(__CLASS__, 'checkFiredHooks')); }
 
 
     /**

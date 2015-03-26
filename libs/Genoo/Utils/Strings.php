@@ -251,7 +251,10 @@ class Strings
 
 	public static function lower($s)
 	{
-		return mb_strtolower($s, 'UTF-8');
+		if(function_exists('mb_strtoupper')){
+			return mb_strtolower($s, 'UTF-8');
+		}
+		return strtolower($s);
 	}
 
 
@@ -263,7 +266,10 @@ class Strings
 
 	public static function upper($s)
 	{
-		return mb_strtoupper($s, 'UTF-8');
+		if(function_exists('mb_strtoupper')){
+			return mb_strtoupper($s, 'UTF-8');
+		}
+		return strtoupper($s);
 	}
 
 
@@ -287,7 +293,10 @@ class Strings
 
 	public static function capitalize($s)
 	{
-		return mb_convert_case($s, MB_CASE_TITLE, 'UTF-8');
+		if(function_exists('mb_convert_case')){
+			return mb_convert_case($s, MB_CASE_TITLE, 'UTF-8');
+		}
+		return $s;
 	}
 
 

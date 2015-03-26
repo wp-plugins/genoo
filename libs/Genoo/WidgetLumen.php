@@ -32,9 +32,15 @@ class WidgetLumen extends \WP_Widget
      * Constructor registers widget in WordPress
      */
 
-    function __construct()
+    function __construct($constructParent = true)
     {
-        parent::__construct('genooLumen', 'Genoo Class List', array('description' => __('Genoo widget class list.', 'genoo')));
+        if($constructParent){
+            parent::__construct(
+                'genoolumen',
+                'Genoo Class List',
+                array('description' => __('Genoo widget class list.', 'genoo'))
+            );
+        }
     }
 
 
@@ -45,9 +51,10 @@ class WidgetLumen extends \WP_Widget
      *
      * @param array $args     Widget arguments.
      * @param array $instance Saved values from database.
+     * @param array $echo
      */
 
-    public function widget($args, $instance)
+    public function widget($args, $instance, $echo = true)
     {
         try {
             $repositorySettings = new RepositorySettings();
@@ -55,23 +62,46 @@ class WidgetLumen extends \WP_Widget
             $repositoryLumens = new RepositoryLumens(new Cache(GENOO_CACHE), $api);
             $formId = !empty($instance['lumen']) && is_numeric($instance['lumen']) ? $instance['lumen'] : null;
             $formTitle = !empty($instance['title']) ? $instance['title'] : __('Classlist', 'genoo');
+            $r = '';
             if(!is_null($formId)){
-                echo $args['before_widget'];
-                echo '<div class="themeResetDefault">';
-                echo '<div class="genooTitle">' . $args['before_title'] . $formTitle . $args['after_title'] . '</div>';
-                echo '<div class="clear"></div>';
-                echo '<div class="genooGuts">';
-                echo $repositoryLumens->getLumen($formId);
-                echo '</div>';
-                echo '<div class="clear"></div>';
-                echo '</div>';
-                echo $args['after_widget'];
+                $r .= $args['before_widget'];
+                $r .= '<div class="themeResetDefault">';
+                $r .= '<div class="genooTitle">' . $args['before_title'] . $formTitle . $args['after_title'] . '</div>';
+                if(isset($instance['displayDesc']) && $instance['displayDesc'] == true){
+                    $r .= '<div class="genooGuts"><p class="genooPadding">' . $instance['desc'] . '</p></div>';
+                }
+                $r .= '<div class="clear"></div>';
+                $r .= '<div class="genooGuts">';
+                $r .= $repositoryLumens->getLumen($formId);
+                $r .= '</div>';
+                $r .= '<div class="clear"></div>';
+                $r .= '</div>';
+                $r .= $args['after_widget'];
             }
         } catch (\Exception $e){
-            echo '<span class="error">';
-            echo $e->getMessage();
-            echo '</span>';
+            $r .= '<span class="error">';
+            $r .= $e->getMessage();
+            $r .= '</span>';
         }
+        if($echo){
+            echo $r;
+            return true;
+        }
+        return $r;
+    }
+
+
+    /**
+     * Get HTML
+     *
+     * @param $args
+     * @param $instance
+     * @return string
+     */
+
+    public function getHtml($args, $instance)
+    {
+        return $this->widget($args, $instance, false);
     }
 
 

@@ -5,7 +5,7 @@
     Author:  Genoo, LLC
     Author URI: http://www.genoo.com/
     Author Email: info@genoo.com
-    Version: 2.0.8
+    Version: 2.6
     License: GPLv2
     Text Domain: genoo
 */

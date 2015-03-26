@@ -11,7 +11,8 @@
 
 namespace Genoo\Wordpress;
 
-use Genoo\Import;
+use Genoo\Import,
+    Genoo\Wordpress\Action;
 
 
 class Comments
@@ -35,9 +36,9 @@ class Comments
 
     public static function register()
     {
-        add_action('preprocess_comment', array(__CLASS__, 'preProcess'));
-        add_action('transition_comment_status', array(__CLASS__, 'postProcess'), 10, 3);
-        add_action('pre_comment_approved', array(__CLASS__, 'preApproved'), '99', 2);
+        Action::add('preprocess_comment', array(__CLASS__, 'preProcess'));
+        Action::add('transition_comment_status', array(__CLASS__, 'postProcess'), 10, 3);
+        Action::add('pre_comment_approved', array(__CLASS__, 'preApproved'), '99', 2);
     }
 
 

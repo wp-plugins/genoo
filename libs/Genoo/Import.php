@@ -186,7 +186,7 @@ class Import
         } catch(\Exception $e){
             // oops, just show it in admin i guess
             $settins = new RepositorySettings();
-            $settins->addSavedNotice('error', __('Error while imoprting a lead:', 'genoo') . ' ' . $e->getMessage());
+            $settins->addSavedNotice('error', __('Error while importing a lead:', 'genoo') . ' ' . $e->getMessage());
         }
     }
 }

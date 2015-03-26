@@ -5,7 +5,7 @@
  * @author Genoo LLC
  */
 
-/*********************************************************************
+/*********************************************************************/
 
  /**
  * Tools
@@ -26,9 +26,9 @@ var Tool = Tool || {};
 Tool.hasClass = function(el, className)
 {
     if (el.classList)
-        return el.classList.contains(className)
+        return el.classList.contains(className);
     else
-        return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className)
+        return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
 };
 
 
@@ -67,6 +67,7 @@ Tool.removeClass = function(el, className)
  * Switch class
  *
  * @param element
+ * @param className
  */
 
 Tool.switchClass = function(element, className)
@@ -123,8 +124,8 @@ Tool.versionCompare = function(v1, v2, operator){
     //        example 4: version_compare('4.1.0.52','4.01.0.51');
     //        returns 4: 1
 
-    this.php_js = this.php_js || {};
-    this.php_js.ENV = this.php_js.ENV || {};
+    this.compare = this.compare || {};
+    this.compare.ENV = this.compare.ENV || {};
     // END REDUNDANT
     // Important: compare must be initialized at 0.
     var i = 0,
@@ -221,7 +222,7 @@ Tool.versionCompare = function(v1, v2, operator){
         default:
             return null;
     }
-}
+};
 
 /*********************************************************************/
 
@@ -299,7 +300,7 @@ Modal.emptyImage = function(event, id, img, btn)
     document.getElementById(id).innerHTML = '';
     document.getElementById(img).value = '';
     document.getElementById(btn).setAttribute('data-current-id','');
-    return;
+    return false;
 };
 
 
@@ -332,42 +333,47 @@ var Admin = Admin || {};
 
 
 /**
- * Build query
+ * Urlencdoe
+ */
+Admin.urlencode = function(str){
+    str = (str+'').toString();
+    return encodeURIComponent(str).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
+};
+
+
+/**
+ * Build Query
  *
  * @param formdata
  * @param numeric_prefix
  * @param arg_separator
- * @return {String}
+ * @returns {string}
  */
-
 Admin.buildQuery = function (formdata, numeric_prefix, arg_separator){
-    var value, key, tmp = [],
-        that = this;
+    var value, key, tmp = [], that = this;
+
     var _http_build_query_helper = function (key, val, arg_separator) {
         var k, tmp = [];
         if (val === true) {
             val = "1";
-        } else if (val === false) {
+        } else if (val === false){
             val = "0";
         }
-        if (val != null) {
-            if(typeof val === "object") {
-                for (k in val) {
-                    if (val[k] != null) {
-                        tmp.push(_http_build_query_helper(key + "[" + k + "]", val[k], arg_separator));
-                    }
+        if (val !== null && typeof(val) === "object") {
+            for (k in val) {
+                if (val[k] !== null) {
+                    tmp.push(_http_build_query_helper(key + "[" + k + "]", val[k], arg_separator));
                 }
-                return tmp.join(arg_separator);
-            } else if (typeof val !== "function") {
-                return encodeURIComponent(key) + "=" + encodeURIComponent(val);
-            } else {
-                throw new Error('There was an error processing for Admin.buildQuery().');
             }
-        } else {
+            return tmp.join(arg_separator);
+        } else if (typeof(val) !== "function") {
+            return Admin.urlencode(key) + "=" + Admin.urlencode(val);
+        } else if (typeof(val) == "function") {
             return '';
+        } else {
+            throw new Error('There was an error processing for http_build_query().');
         }
     };
-
     if (!arg_separator) {
         arg_separator = "&";
     }
@@ -376,10 +382,7 @@ Admin.buildQuery = function (formdata, numeric_prefix, arg_separator){
         if (numeric_prefix && !isNaN(key)) {
             key = String(numeric_prefix) + key;
         }
-        var query=_http_build_query_helper(key, value, arg_separator);
-        if(query !== '') {
-            tmp.push(query);
-        }
+        tmp.push(_http_build_query_helper(key, value, arg_separator));
     }
     return tmp.join(arg_separator);
 };
@@ -632,6 +635,7 @@ Genoo.startImport = function(e)
     });
 };
 
+/*********************************************************************/
 
 /**
  * Start subscriber import
@@ -843,3 +847,520 @@ Genoo.init = function()
 jQuery(document).ready(function(){
     Genoo.init();
 });
+
+
+/*********************************************************************/
+
+/**
+ * Genoo TinyMCE plugin
+ *
+ * @version 2.5
+ * @author latorante.name
+ */
+
+/**
+ * Genoo TinyMCE object
+ *
+ * @type {GenooTinyMCE|*|{}}
+ */
+var GenooTinyMCE = GenooTinyMCE || {};
+
+
+/**
+ * Get Attributes
+ *
+ * @param s
+ * @param n
+ * @param tinymce
+ */
+GenooTinyMCE.getAttributes = function(s, n, tinymce)
+{
+    n = new RegExp(n + '=\"([^\"]+)\"', 'g').exec(s);
+    return n ? tinymce.DOM.decode(n[1]) : '';
+};
+
+
+GenooTinyMCE.trim = function(str, charlist)
+{
+    var whitespace, l = 0,
+        i = 0;
+    str += '';
+    if (!charlist) {
+        // default list
+        whitespace =
+            ' \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000';
+    } else {
+        // preg_quote custom list
+        charlist += '';
+        whitespace = charlist.replace(/([\[\]\(\)\.\?\/\*\{\}\+\$\^\:])/g, '$1');
+    }
+    l = str.length;
+    for (i = 0; i < l; i++) {
+        if (whitespace.indexOf(str.charAt(i)) === -1) {
+            str = str.substring(i);
+            break;
+        }
+    }
+    l = str.length;
+    for (i = l - 1; i >= 0; i--) {
+        if (whitespace.indexOf(str.charAt(i)) === -1) {
+            str = str.substring(0, i + 1);
+            break;
+        }
+    }
+    return whitespace.indexOf(str.charAt(0)) === -1 ? str : '';
+};
+
+
+/**
+ * Remove Toolbar
+ *
+ * @param ed
+ * @param selected
+ * @param buttonToolbar
+ */
+GenooTinyMCE.removeToolbar = function (ed, selected, buttonToolbar)
+{
+    var toolbar = ed.dom.get('wp-image-toolbar-g');
+    var toolbars = ed.dom.select('div[data-toolbar-id="'+ buttonToolbar +'"]');
+    var toolbarId = null;
+    if(toolbar !== undefined && toolbar !== null){
+        toolbarId = toolbar.getAttribute('data-toolbar-id');
+    }
+    if ((toolbar !== undefined && toolbar !== null) && (toolbarId !== null && toolbarId !== undefined && toolbarId == buttonToolbar)){
+        ed.dom.remove(toolbar);
+    }
+    ed.dom.setAttrib(ed.dom.select('img['+ selected +']'), selected, null);
+};
+
+
+/**
+ * Remove Toolbar
+ *
+ * @param ed
+ * @param evenCurrent
+ */
+GenooTinyMCE.removeToolbarAll = function (ed, evenCurrent)
+{
+    GenooTinyMCE.addPlugin.log('Removing toolbars');
+    GenooTinyMCE.addPlugin.log('Removing genoo-selected attr.');
+    var toolbars = jQuery(ed.getBody()).find('.genoo-toolbar');
+    var selected = jQuery(ed.getBody()).find('.genooFormTemp > img[data-mce-selected="1"]');
+    //data-genooform-image-select
+    if(toolbars !== undefined && toolbars !== null && toolbars.length){
+        if(evenCurrent === true){
+            GenooTinyMCE.addPlugin.log('Removing toolbars - Even selected.');
+            GenooTinyMCE.clenseSelected(ed);
+            toolbars.remove();
+        }
+        if(selected !== undefined && selected !== null && selected.length){
+            var uniqueid = selected.attr('data-genoo-id');
+            GenooTinyMCE.addPlugin.log('Removing toolbars - Selected found:');
+            GenooTinyMCE.addPlugin.log(selected);
+            GenooTinyMCE.addPlugin.log('Removing toolbars - Selected unique id:');
+            GenooTinyMCE.addPlugin.log(uniqueid);
+            toolbars.not('[data-genoo-id=' + uniqueid + ']').remove();
+            GenooTinyMCE.addPlugin.log('Removing toolbars - All gone except prev ID.');
+        } else {
+            GenooTinyMCE.addPlugin.log('Removing toolbars - No selected found.');
+            toolbars.remove();
+        }
+    } else {
+        GenooTinyMCE.addPlugin.log('No toolbars found.');
+    }
+};
+
+
+/**
+ * Clense
+ * @param ed
+ */
+GenooTinyMCE.clenseSelected = function(ed)
+{
+    GenooTinyMCE.addPlugin.log('Cleansing all selected ids');
+    jQuery(ed.getBody())
+        .find('img[data-genooform-image-select]')
+        .removeData('data-genooform-image-select');
+};
+
+
+/**
+ * Remove Deselected itesm
+ *
+ * @param ed
+ * @param selected
+ */
+GenooTinyMCE.removeDeselect = function (ed, selected)
+{
+    ed.dom.setAttrib(ed.dom.select('img['+ selected +']'), selected, null);
+};
+
+
+/**
+ * Unique id
+ *
+ * @returns {string}
+ */
+GenooTinyMCE.uniqueID  = function()
+{
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
+};
+
+
+
+/**
+ * Encode
+ *
+ * @param text
+ */
+GenooTinyMCE.encode = function(text)
+{
+    var charsRegex = /[<>&\"\']/g;
+    var charsEntites = {
+        '\"': '&quot;',
+        "'": '&#39;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '&': '&amp;',
+        '\u0060': '&#96;'
+    };
+    return ('' + text).replace(charsRegex, function(chr){
+        return charsEntites[chr] || chr;
+    });
+};
+
+
+/**
+ * Merge Defaults
+ *
+ * @param obj1
+ * @param obj2
+ * @returns {*}
+ */
+GenooTinyMCE.mergeDefaults = function(obj1, obj2){
+    for (var p in obj2) {
+        try {
+            // Property in destination object set; update its value.
+            if (obj2[p].constructor == Object) {
+                obj1[p] = MergeRecursive(obj1[p], obj2[p]);
+            } else {
+                obj1[p] = obj2[p];
+            }
+        } catch (e) {
+            // Property in destination object not set; create it and set its value.
+            obj1[p] = obj2[p];
+        }
+    }
+    return obj1;
+};
+
+
+/**
+ * Add toolbar
+ *
+ * @param ed
+ * @param node
+ * @param selected
+ * @param buttonEdit
+ * @param buttonRemove
+ * @param buttonToolbar
+ * @param uniqueId
+ */
+GenooTinyMCE.addToolbar = function(ed, node, selected, buttonEdit, buttonRemove, buttonToolbar, uniqueId)
+{
+    // Log
+    GenooTinyMCE.addPlugin.log('Adding toolbar ID: ' + uniqueId);
+    // Remove toolbars
+    GenooTinyMCE.removeToolbarAll(ed, true);
+    // Vars
+    var rectangle,
+        toolbarHtml,
+        toolbar,
+        left,
+        dom = ed.dom;
+
+    // Don't add to placeholders
+    if (!node || node.nodeName !== 'IMG') { return; }
+
+    dom.setAttrib(node, selected, 1 );
+    rectangle = dom.getRect(node);
+
+    // Toolbar inner
+    toolbarHtml = '<div class="dashicons toolbar-bogus dashicons-edit '+ buttonEdit +'" data-mce-bogus="all"></div>' +
+    '<div class="dashicons toolbar-bogus dashicons-no-alt '+ buttonRemove +'" data-mce-bogus="all"></div>';
+
+    // Toolbar
+    toolbar = dom.create(
+        'div', {
+            'id': buttonToolbar,
+            'class': 'genoo-toolbar genoo-toolbar-current',
+            'data-mce-bogus': 'all',
+            'data-toolbar-id': buttonToolbar,
+            'data-genoo-id': uniqueId,
+            'contenteditable': false
+        },
+        toolbarHtml
+    );
+
+    // Rtl
+    if (ed.rtl){
+        left = rectangle.x + rectangle.w - 82;
+    } else {
+        left = rectangle.x;
+    }
+
+    // Append toolbar
+    ed.getBody().appendChild(toolbar);
+    // Set
+    dom.setStyles(toolbar, { top: rectangle.y, left: left});
+};
+
+
+/**
+ * Add the main plugin, this is where the magic happens
+ *
+ * @param varVersion
+ * @param varFile
+ * @param varCommand
+ * @param varTitle
+ * @param varImage
+ * @param varAligned
+ * @param varMessage
+ * @param varOptions
+ */
+GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, varTitle, varAligned, varMessage, varOptions)
+{
+    // Set up variables
+    var debug = false;
+    var TinyMCEVersion = varVersion;
+    var query = GenooVars.GenooTinyMCE ? GenooVars.GenooTinyMCE : '';
+    var aligned = varAligned;
+    var buttonTitle = varTitle;
+    var pluginFile = varFile;
+    var buttonCommand = varCommand;
+    var buttonCommandEdit = buttonCommand + 'Edit';
+    var buttonCommandRefresh = buttonCommand + 'Refresh';
+    var buttonCommandReplace = buttonCommand + 'Replace';
+    var buttonToolbar = buttonCommand + 'Toolbar';
+    var buttonImage = varImage;
+    var buttonCommandSelected = 'data-' + buttonCommand + '-image-select';
+        buttonCommandSelected.toLowerCase();
+
+    // Keywords play
+    var buttonEdit = buttonCommand + 'Edit';
+    var buttonRemove = buttonCommand + 'Remove';
+    var buttonShortcode = buttonCommand + 'Shortcode';
+    var buttonRemoveConfirmMessage = varMessage;
+    var Self = this;
+    var optionsDefaults = {
+        width: 200,
+        height: 200
+    };
+    var options  = GenooTinyMCE.mergeDefaults(optionsDefaults, varOptions);
+
+
+    /**
+     * Log
+     * @param msg
+     */
+    GenooTinyMCE.addPlugin.log = function(msg){
+        if(debug == true){
+            console.log(msg);
+        }
+    };
+
+
+    GenooTinyMCE.addPlugin.log('Plugin initiated:');
+    GenooTinyMCE.addPlugin.log('Button: ' + buttonTitle);
+
+
+    /**
+     * Replace Shortcode
+     *
+     * @param tinymce
+     * @param content
+     * @param buttonCommand
+     * @param buttonShortcode
+     */
+    GenooTinyMCE.addPlugin.contentReplaceShortcode = function(tinymce, content, buttonCommand, buttonShortcode)
+    {
+        var regex = new RegExp('\\\['+ buttonCommand +'([^\\\]]*)\\\]', 'g');
+        return content.replace(regex, function(a,b){
+            var title = GenooTinyMCE.encode(b);
+                title = title ? title : '';
+                title = buttonCommand + ' ' + GenooTinyMCE.trim(title);
+            var elClass = '';
+            // Can be aligned?
+            if(aligned){
+                if(title.indexOf('left') >= 0){
+                    elClass = 'genooLeft';
+                } else if (title.indexOf('right') >= 0){
+                    elClass = 'genooRight';
+                }
+            }
+            var buttonShortcodeClass = '';
+            return "<div class='genooFormTemp mceItem mceNonEditable "+ elClass + " " + buttonShortcodeClass + "' contenteditable='false'><img src='" + tinymce.Env.transparentSrc + "' data-mce-resize='false' contenteditable='false' data-mce-placeholder='1' class='" + buttonShortcode + "' title='"  + title + "' /></div> ";
+        });
+    };
+
+
+    /**
+     * Restore Shortcode
+     *
+     * @param tinymce
+     * @param content
+     * @param buttonCommand
+     * @param buttonShortcode
+     */
+    GenooTinyMCE.addPlugin.contentRestoreShortcode = function(tinymce, content, buttonCommand, buttonShortcode)
+    {
+        return content.replace(/(?:<div[^>]*>)*(<img[^>]+>)(?:<\/div>)*/g, function(a,im){
+            var cls = GenooTinyMCE.getAttributes(im, 'class', tinymce);
+            if (cls.indexOf(buttonShortcode) != -1)
+                return '<p>['+tinymce.trim(GenooTinyMCE.getAttributes(im, 'title', tinymce))+']</p>';
+            return a;
+        });
+    };
+
+
+    /**
+     * Restore and Replace Shortcode
+     *
+     * @param tinymce
+     * @param content
+     * @param buttonCommand
+     * @param buttonShortcode
+     */
+    GenooTinyMCE.addPlugin.contentRestoreAndReplaceShortcode = function(tinymce, content, buttonCommand, buttonShortcode){
+        var contentNew;
+        contentNew = this.contentReplaceShortcode(tinymce, content, buttonCommand, buttonShortcode);
+        contentNew = this.contentRestoreShortcode(tinymce, contentNew, buttonCommand, buttonShortcode);
+        return contentNew;
+    };
+
+
+    // Version 4 and above
+    if(Tool.versionCompare(TinyMCEVersion, '4', '>='))
+    {
+        // Add Plugin
+        tinymce.PluginManager.add(buttonCommand, function(ed, url){
+            // On start and insert
+            ed.on('BeforeSetContent', function(event){ event.content = GenooTinyMCE.addPlugin.contentReplaceShortcode(tinymce, event.content, buttonCommand, buttonShortcode); });
+            // On post process
+            ed.on('PostProcess', function(event){ if (event.get){ event.content = GenooTinyMCE.addPlugin.contentRestoreShortcode(tinymce, event.content, buttonCommand, buttonShortcode); }});
+            // Mouseup
+            ed.on('mouseup', function(event){
+                var image,
+                    node = event.target,
+                    selected = jQuery(ed.getBody()).find('.genooFormTemp > img[data-mce-selected="1"]');
+                if(event.button && event.button > 1){ return; }
+                if(jQuery(node).hasClass(buttonShortcode)){
+                    var uniqueId = GenooTinyMCE.uniqueID();
+                    GenooTinyMCE.clenseSelected(ed);
+                    GenooTinyMCE.addPlugin.log('Setting image unique ID: ' +  uniqueId);
+                    jQuery(node).attr('data-genoo-id', uniqueId);
+                    GenooTinyMCE.addToolbar(ed, node, buttonCommandSelected, buttonEdit, buttonRemove, buttonToolbar, uniqueId);
+                } else if(jQuery(event.target).hasClass(buttonEdit) || jQuery(event.target).hasClass(buttonRemove)){
+                    event.preventDefault();
+                    // Nope, we don't do anything here
+                    GenooTinyMCE.addPlugin.log('Clicking edit or remove button from toolbar, doing nothing.');
+                } else if(jQuery(event.target).hasClass('toolbar-bogus')){
+                    //event.preventDefault();
+                    // Nope, nothing
+                    GenooTinyMCE.addPlugin.log('Clicking toolbar bogus, doing nothing.');
+                } else if(jQuery(event.target).hasClass('genooFormShortcode')){
+                    event.preventDefault();
+                    ed.selection.setCursorLocation(ed.getBody().firstChild, 1);
+                    GenooTinyMCE.addPlugin.log('Clicking genooFormShortode, doing nothing.');
+                    // Nope, nothing, just move
+                } else if(jQuery(event.target).parent().hasClass('genooFormTemp') || jQuery(event.target).hasClass('genooFormTemp')){
+
+                } else {
+                    // Else
+                    GenooTinyMCE.removeToolbarAll(ed, true);
+                }
+            });
+            // On click
+            ed.on('click', function(e){
+                GenooTinyMCE.addPlugin.log('Clicking event.');
+                if(jQuery(e.target).hasClass(buttonEdit)){
+                    var img = jQuery(e.target).closest('body').find('img['+ buttonCommandSelected +'="1"]');
+                    ed.execCommand(buttonCommandEdit, false, img.attr('title'));
+                    // but back selected attribute
+                    img.attr(buttonCommandSelected, '1');
+                    // select imaga back ...
+                    ed.execCommand("mceSelectNode", false, ed.dom.select('['+ buttonCommandSelected +'="1"]')[0]);
+                } else if (jQuery(e.target).hasClass(buttonRemove)){
+                    ed.windowManager.confirm(buttonRemoveConfirmMessage, function(s){
+                        if (s){
+                            var img = jQuery(e.target).closest('body').find('img['+ buttonCommandSelected +'="1"]');
+                            img.parent().remove();
+                            GenooTinyMCE.removeToolbarAll(ed, true);
+                        }
+                    });
+                }
+            });
+            // On Keyup
+            ed.on('keyup', function(e){
+                // delete Keys
+                if (jQuery(ed.selection.getNode()).hasClass('mceNonEditable')){
+                    //ed.selection.setCursorLocation(ed.selection.getNode(), 0);
+                    //ed.selection.setCursorLocation(ed.selection.getNode(), 0);
+                    e.preventDefault();
+                }
+            });
+            // Add button
+            ed.addButton(buttonCommand, { title : buttonTitle, cmd : buttonCommand, image : url + '/' + buttonImage });
+            // Add command {add shortcode)
+            ed.addCommand(buttonCommand, function(){
+                query['edit'] = '0';
+                query['version'] = TinyMCEVersion;
+                query['commandRefresh'] = buttonCommandRefresh;
+                ed.windowManager.open({
+                    file : url + '/' + pluginFile + '?' + Admin.buildQuery(query),
+                    width : options.width + parseInt(ed.getLang('example.delta_width', 0)),
+                    height : options.height + parseInt(ed.getLang('example.delta_height', 0)),
+                    inline : 1
+                });
+            });
+            // Add command (edit)
+            ed.addCommand(buttonCommandEdit, function(ui, string){
+                // add selected
+                query['version'] = TinyMCEVersion;
+                query['edit'] = '1';
+                query['selected'] = string;
+                query['commandRefresh'] = buttonCommandRefresh;
+                ed.windowManager.open({
+                    file : url + '/' + pluginFile + '?' + Admin.buildQuery(query),
+                    width : options.width + parseInt(ed.getLang('example.delta_width', 0)),
+                    height : options.height + parseInt(ed.getLang('example.delta_height', 0)),
+                    inline : 1
+                });
+                GenooTinyMCE.removeToolbarAll(ed, true);
+            });
+            // Refresh content correctly ... :)
+            ed.addCommand(buttonCommandRefresh, function(){
+                ed.setContent(
+                    GenooTinyMCE.addPlugin.contentRestoreAndReplaceShortcode(
+                        tinymce,
+                        ed.getContent(),
+                        buttonCommand,
+                        buttonShortcode
+                    )
+                );
+                ed.focus();
+            });
+            // Replace Content
+            ed.addCommand(buttonCommandReplace, function(output){});
+        });
+        // Version 3
+    } else if(Tool.versionCompare(TinyMCEVersion, '3', '>=')){
+        // Todo add version 3
+    }
+};

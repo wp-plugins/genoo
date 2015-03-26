@@ -11,7 +11,8 @@
 
 namespace Genoo\Wordpress;
 
-use Genoo\Utils\Strings;
+use Genoo\Utils\Strings,
+    Genoo\Wordpress\Action;
 
 class Metabox
 {
@@ -48,9 +49,9 @@ class Metabox
         $this->postType = $postType;
         $this->fields = $fields;
         $this->nonceKey = GENOO_KEY . $this->id . 'Nonce';
-        add_action('add_meta_boxes',    array($this, 'register'));
-        add_action('save_post',         array($this, 'save'));
-        add_action('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
+        Action::add('add_meta_boxes',    array($this, 'register'));
+        Action::add('save_post',         array($this, 'save'));
+        Action::add('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
     }
 
 

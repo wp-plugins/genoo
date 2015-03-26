@@ -36,4 +36,37 @@ class Tracer
         }
         return false;
     }
+
+
+    /**
+     * Debug
+     *
+     * @param $stuff
+     * @return mixed
+     */
+
+    public static function debug($stuff)
+    {
+        if(class_exists('\Tracy\Debugger')){
+            return \Tracy\Debugger::dump($stuff);
+        }
+        return false;
+    }
+
+
+    /**
+     * Debug bar
+     *
+     * @param $stuff
+     * @param null $title
+     * @return bool
+     */
+
+    public static function debugBar($stuff, $title = null)
+    {
+        if(class_exists('\Tracy\Debugger')){
+            return \Tracy\Debugger::barDump($stuff, $title);
+        }
+        return false;
+    }
 }

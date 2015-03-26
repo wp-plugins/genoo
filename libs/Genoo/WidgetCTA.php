@@ -37,6 +37,8 @@ class WidgetCTA extends \WP_Widget
     var $skipMobileButton = false;
     /** @var array  */
     var $shortcodeAtts = array();
+    /** @var bool */
+    var $canHaveMobile = false;
 
 
     /**
@@ -48,8 +50,27 @@ class WidgetCTA extends \WP_Widget
     function __construct($constructParent = true)
     {
         if($constructParent){
-            parent::__construct('genooCTA', 'Genoo CTA', array('description' => __('Genoo Call-To-Action widget is empty widget, that displays CTA when its set up on single post / page.', 'genoo')));
+            parent::__construct(
+                'genoocta',
+                'Genoo CTA',
+                array('description' => __('Genoo Call-To-Action widget is empty widget, that displays CTA when its set up on single post / page.', 'genoo'))
+            );
         }
+    }
+
+
+    /**
+     * Construct Dynamic Widget
+     *
+     * @param $id_base
+     * @param $name
+     * @param array $widget_options
+     * @param array $control_options
+     */
+
+    function __constructDynamic($id_base, $name, $widget_options = array(), $control_options = array())
+    {
+        parent::__construct($id_base, $name, $widget_options, $control_options);
     }
 
 
@@ -57,7 +78,7 @@ class WidgetCTA extends \WP_Widget
      * Set
      */
 
-    private function set()
+    public function set()
     {
         global $post;
         if(is_object($post) && ($post instanceof \WP_Post)){
@@ -82,6 +103,7 @@ class WidgetCTA extends \WP_Widget
     {
         $this->isSingle = true;
         $this->skipSet = true;
+        $this->canHaveMobile = false;
         $this->cta = new CTA();
         $this->cta->setCta($post);
         $this->id = $this->id_base . 'Shortcode' . $id;
@@ -198,6 +220,7 @@ class WidgetCTA extends \WP_Widget
                     $instance['button'] = $this->cta->linkText;
                 }
                 $instance['form'] = $this->cta->formId;
+                $instance['lumen'] = $this->cta->classList;
                 $instance['theme'] = '';
                 $instance['desc'] = $this->cta->desc;
                 $instance['title'] = $this->cta->title;
@@ -205,20 +228,30 @@ class WidgetCTA extends \WP_Widget
                 $instance['displayDesc'] = $this->cta->displayDesc;
                 $instance['skipMobileButton'] = $this->skipMobileButton;
                 $instance['shortcodeAtts'] = $this->shortcodeAtts;
-                if($this->cta->isForm){
+                $instance['canHaveMobile'] = $this->canHaveMobile;
+                if($this->cta->isForm || $this->cta->isClasslist){
                     $r .= $this->widgetForm->getHtml($args, $instance);
                 } elseif($this->cta->isLink){
+                    // before widget
+                    $r .= isset($args['before_widget']) ? $args['before_widget'] : '';
+                    // title and data
                     if(isset($instance['displayTitle']) && $instance['displayTitle'] == true){ $r .= '<div class="genooTitle">' . $args['before_title'] . $instance['title'] . $args['after_title'] . '</div>'; }
                     if(isset($instance['displayDesc']) && $instance['displayDesc'] == true){ $r .= '<div class="genooGuts"><p class="genooPadding">' . $instance['desc'] . '</p></div>'; }
-                    $blank = $this->cta->isNewWindow ? 'target="_blank"'  : '';
-                    $r .= '<form '. $blank .' action="'. $this->cta->link .'">';
-                        $r .= '<span id="'. $bid .'">';
-                        $r .= '<input type="submit" value="'. $this->cta->linkText .'" />';
-                        $r .= '</span>';
-                    $r .= '</form>';
-                    if($this->cta->isImage && (!empty($this->cta->image) || !empty($this->cta->imageHover))){
-                        $r .= Attachment::generateCss($this->cta->image, $this->cta->imageHover, $bid);
+                    // only links
+                    if($this->cta->isLink){
+                        $blank = $this->cta->isNewWindow ? 'target="_blank"'  : '';
+                        $r .= '<form '. $blank .' action="'. $this->cta->link .'">';
+                            $r .= '<span id="'. $bid .'">';
+                            $r .= '<input type="submit" value="'. $this->cta->linkText .'" />';
+                            $r .= '</span>';
+                        $r .= '</form>';
+                        if($this->cta->isImage && (!empty($this->cta->image) || !empty($this->cta->imageHover))){
+                            $r .= Attachment::generateCss($this->cta->image, $this->cta->imageHover, $bid);
+                        }
+                    } elseif($this->cta->isClasslist){
+                        $r .= print_r($this->cta);
                     }
+                    $r .= isset($args['after_widget']) ? $args['after_widget'] : '';
                 }
             }
         }

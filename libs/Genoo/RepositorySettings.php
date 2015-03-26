@@ -215,8 +215,8 @@ class RepositorySettings extends Repository
         if(GENOO_PART_SETUP){
             try{
                 $leadTypes = $api->getLeadTypes();
-                if($leadTypes){
-                    foreach($api->getLeadTypes() as $lead){
+                if($leadTypes && is_array($leadTypes)){
+                    foreach($leadTypes as $lead){
                         $arr[$lead->id] = $lead->name;
                     }
                 }
@@ -435,14 +435,13 @@ class RepositorySettings extends Repository
 
     /**
      * Get CTA's
-     * TODO: move, not suppose to be here
      *
      * @return array
      */
 
     public function getCTAs()
     {
-        $r = array(0 =>  __('Select CTA -', 'genoo'));
+        $r = array(0 => __('Select CTA', 'genoo'));
         $ctas = get_posts(array('posts_per_page'   => -1, 'post_type' => 'cta', ));
         if($ctas){
             foreach($ctas as $cta){
@@ -591,6 +590,51 @@ class RepositorySettings extends Repository
             'themeBlackGreen' => 'Black &amp; Green',
             'themeGreeny' => 'Greeny',
         );
+    }
+
+
+    /**
+     * Get CTA Dropdown types
+     *
+     * @return array
+     */
+
+    public function getCTADropdownTypes()
+    {
+        $r = array(
+            'link' => __('Link', 'genoo'),
+            'form' => __('Form in Pop-up', 'genoo'),
+        );
+        if(GENOO_LUMENS){
+            $r['class'] = __('Class List', 'genoo');
+        }
+        return $r;
+    }
+
+
+    /**
+     * Get Lumens Dropdown
+     *
+     * @param RepositoryLumens $repo
+     * @return array|null
+     */
+
+    public function getLumensDropdown(\Genoo\RepositoryLumens $repo)
+    {
+        if(GENOO_LUMENS && isset($repo)){
+            try {
+                $lumensPlaceohlder = array('' =>  __('-- Select Class List', 'genoo'));
+                $lumens = $repo->getLumensArray();
+                return array(
+                    'type' => 'select',
+                    'label' => __('Class List', 'genoo'),
+                    'options' => $lumensPlaceohlder + $lumens
+                );
+            } catch(\Exception $e){
+                $this->addSavedNotice('error', 'Lumens Repository error:' . $e->getMessage());
+            }
+        }
+        return null;
     }
 
 

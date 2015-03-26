@@ -87,7 +87,11 @@ class RepositoryLumens extends Repository
         try{
             $lumens = $this->getLumens();
             if(!empty($lumens)){
-                foreach($lumens as $lumen){ $lumensVars[$lumen['id']] = $lumen['name']; }
+                foreach($lumens as $lumen){
+                    if(is_array($lumen) && !empty($lumen)){
+                        $lumensVars[$lumen['id']] = $lumen['name'];
+                    }
+                }
             }
         } catch(\Exception $e){}
 

@@ -22,7 +22,6 @@ use Genoo\RepositorySettings,
     Genoo\HtmlForm,
     Genoo\Wordpress\Utils,
     Genoo\Utils\Strings,
-    Genoo\Tracer,
     Genoo\Wordpress\Post;
 
 
@@ -38,10 +37,10 @@ class Shortcodes
 
     public static function register()
     {
-        add_shortcode('genooForm',  array(__CLASS__, 'form'));
-        add_shortcode('genooLumen', array(__CLASS__, 'lumen'));
-        add_shortcode('genooCTA',   array(__CLASS__, 'cta'));
-        add_shortcode('genooCta',   array(__CLASS__, 'cta'));
+        add_shortcode('genooForm',   array(__CLASS__, 'form'));
+        add_shortcode('genooLumens', array(__CLASS__, 'lumens'));
+        add_shortcode('genooCTA',    array(__CLASS__, 'cta'));
+        add_shortcode('genooCta',    array(__CLASS__, 'cta'));
     }
 
 
@@ -166,7 +165,7 @@ class Shortcodes
      * @return null|string
      */
 
-    public static function lumen($atts)
+    public static function lumens($atts)
     {
         try {
             $repositorySettings = new RepositorySettings();
@@ -230,7 +229,7 @@ class Shortcodes
         // Check if in post
         if (false === strpos($content, '[')){ return false; }
         // Parse Shortcodes from content
-        $matches = self::findShortcodes($content);
+        $matches = self::findShortcodes($content, $shortcode);
         // Purify the result
         $count = 1;
         if($matches){
@@ -261,7 +260,36 @@ class Shortcodes
                 }
             }
         }
+        // return
         return $r;
+    }
+
+
+    /**
+     * Intersect
+     *
+     * @param null $shortcode
+     * @return mixed
+     */
+
+    public static function intersectShortcodes($shortcode = null)
+    {
+        // global shortcodes
+        global $shortcode_tags;
+        $tags = $shortcode_tags;
+        // Remove from global shortcodes
+        if($shortcode){
+            foreach($tags as $key => $shortcodedata){
+                if(is_string($key) && is_string($shortcode)){
+                    if(Strings::contains(Strings::lower($key), Strings::lower($shortcode))){
+                        // keep
+                    } else {
+                        unset($tags[$key]);
+                    }
+                }
+            }
+        }
+        return $tags;
     }
 
 
@@ -275,7 +303,7 @@ class Shortcodes
 
     public static function findRecrusively($shortCodeData, $shortcodeSearch)
     {
-        $matches = self::findShortcodes($shortCodeData);
+        $matches = self::findShortcodes($shortCodeData, $shortcodeSearch);
         $r = null;
         // Prep data
         if(is_array($matches)){
@@ -304,12 +332,13 @@ class Shortcodes
      * Remove empty arrays
      *
      * @param $sr
+     * @param $shortcode
      * @return mixed
      */
 
-    public static function findShortcodes($sr)
+    public static function findShortcodes($sr, $shortcode = null)
     {
-        preg_match_all('/' . get_shortcode_regex() . '/s', $sr, $arr, PREG_SET_ORDER);
+        preg_match_all('/' . self::getShortcodeRegex($shortcode) . '/s', $sr, $arr, PREG_SET_ORDER);
         if(is_array($arr)){
             foreach($arr as $key => $value){
                 if(is_array($value)){
@@ -326,6 +355,54 @@ class Shortcodes
             }
         }
         return $arr;
+    }
+
+
+    /**
+     * Get shortcode regex, for only certain tags
+     *
+     * @param null $except
+     * @return string
+     */
+
+    public static function getShortcodeRegex($except = null)
+    {
+        if($except){
+            $tagnames = array_keys(self::intersectShortcodes($except));
+            $tagregexp = join( '|', array_map('preg_quote', $tagnames));
+            // WARNING! Do not change this regex without changing do_shortcode_tag() and strip_shortcode_tag()
+            // Also, see shortcode_unautop() and shortcode.js.
+            return
+                '\\['                              // Opening bracket
+                . '(\\[?)'                           // 1: Optional second opening bracket for escaping shortcodes: [[tag]]
+                . "($tagregexp)"                     // 2: Shortcode name
+                . '(?![\\w-])'                       // Not followed by word character or hyphen
+                . '('                                // 3: Unroll the loop: Inside the opening shortcode tag
+                .     '[^\\]\\/]*'                   // Not a closing bracket or forward slash
+                .     '(?:'
+                .         '\\/(?!\\])'               // A forward slash not followed by a closing bracket
+                .         '[^\\]\\/]*'               // Not a closing bracket or forward slash
+                .     ')*?'
+                . ')'
+                . '(?:'
+                .     '(\\/)'                        // 4: Self closing tag ...
+                .     '\\]'                          // ... and closing bracket
+                . '|'
+                .     '\\]'                          // Closing bracket
+                .     '(?:'
+                .         '('                        // 5: Unroll the loop: Optionally, anything between the opening and closing shortcode tags
+                .             '[^\\[]*+'             // Not an opening bracket
+                .             '(?:'
+                .                 '\\[(?!\\/\\2\\])' // An opening bracket not followed by the closing shortcode tag
+                .                 '[^\\[]*+'         // Not an opening bracket
+                .             ')*+'
+                .         ')'
+                .         '\\[\\/\\2\\]'             // Closing shortcode tag
+                .     ')?'
+                . ')'
+                . '(\\]?)';                          // 6: Optional second closing brocket for escaping shortcodes: [[tag]]
+        }
+        return get_shortcode_regex();
     }
 
 

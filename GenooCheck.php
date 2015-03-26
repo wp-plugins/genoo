@@ -21,7 +21,7 @@ class GenooCheck
     {
         // get vars
         global $wp_version;
-        $memoryLimit = GenooCheck::getMemoryLimit();
+        $memoryLimit = !(defined('WP_CLI') && WP_CLI) ? GenooCheck::getMemoryLimit() : 128 * (1024 * 1024);
         // minimum versions
         $checkMinWp  = '3.3';
         $checkMinPHP = '5.3';

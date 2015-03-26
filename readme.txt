@@ -5,24 +5,31 @@ Requires at least: 3.3
 Tested up to: 4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 2.0.8
+Stable tag: 2.6
 
-Genoo Plugin brings seamless marketing automation integration to Genoo users who use WordPress to host their websites and blogs.
+Combine the flexibility of WordPress with the power of Genoo and experience amazing results!
 
 
 == Description ==
 
-Genoo Plugin brings seamless marketing automation integration to Genoo users who use WordPress to host their websites and blogs.
+The Genoo Plugin for WordPress has been crafted to address one of the most important challenges with WordPress sites - creating an easy way to engage site visitors, capture their contact information, and continue to engage them with relevant content based on their interests.
 
-Some of the features include:
+With the Genoo plugin installed, customers using WordPress as their website platform can now:
 
-- easy implementation of Genoo Tracking code on your site - to track all lead activities.
-- place Genoo forms on your website pages.
-— identify your “default” form for capturing blog subscribers.
-- automate emails (from Genoo) for your blog subscribers and know how engaged your subscribers are.
-- place all form submissions into a centralized lead database and forward to an email.
-- trigger follow-up emails based on form submitted, or user activities.
-- understand who your approved commenters are, and have them added to your lead database automatically.
+- Track all visitor activity and record it into the lead's Activity screen inside Genoo
+- Automate emails based on site visitor actions
+- Create content-relevant and buyer-stage calls-to-action (CTAs) and insert them on pages, into posts, or in sidebars - wherever they make the most sense based on your content
+- CTAs can be images that change on mouse-over, or HTML buttons - your choice
+- Integrate WordPress user levels with Genoo Lead Types - automatically - and then use Smart Rules to create deeper engagement
+- Understand your approved commenters and add them to your lead database automatically
+- Create and manage forms inside Genoo and present them in your WordPress site using a Genoo form theme or your site's CSS - use for calls-to-action, event registrations, and more - as popups or full forms -and the forms are responsive too.
+- Form submissions on WordPress automatically create or update Genoo lead records - trigger automatic emails, nurturing sequences, or a variety of other activities
+
+With the Genoo Plugin for WordPress, your site will engage visitors, entice them to provide their contact informaton, and increase your audience - which means, ultimately, that you will increase your sales!  [Schedule a demo now](http://www.genoo.com/marketing-automation-features/WordPress-Plugin/Genoo-WP-Plugin-Demo-Request "Schedule a demo now").
+
+To download the Genoo Plugin for WordPress, visit https://wordpress.org/plugins/genoo/ or search for "Genoo" from your WordPress Plugins screen (Add New). To obtain the Genoo WordPress Plugin user guide, visit Help/Support from your Genoo Admin Screen.
+
+Not a Genoo customer yet? Let's get your ["30-Day Free Trial"](http://www.genoo.com/30-Day_Free_Trial "30-Day Free Trial") started today!
 
 = Requirements =
 
@@ -59,8 +66,13 @@ Some of the features include:
 
 == Changelog ==
 
-= 2.0.6 =
-* Activating Genoo Lumens
+= 2.6 =
+* Added ability to identify multiple CTA's (and their placement within the sidebar) for a specific page or post.
+* Expanded CTA Library to include creating a CTA that is a Lumens class list. This allows placing specific class list on specific pages/posts.
+* Implemented a fix so if the plugin is being accessed from the command line it will be able to be activated (in case of backups that deactivate plugins prior to doing the backup).
+
+= 2.5 =
+* WP Users in specific role can push to specific Lead Type within Genoo, and be automatically joined/removed from Lead Types as their WP User Role changes.
 
 = 2.0.5 =
 * Patch to prevent Genoo CTA shortcode to be executed from header.php or footer.php.

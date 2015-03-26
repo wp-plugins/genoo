@@ -61,7 +61,6 @@ class HtmlForm
                 if(!empty($this->form)){
                     $this->form->insertBefore($node, $this->form->childNodes->item(0));
                 }
-
             }
         }
         return $this;

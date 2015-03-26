@@ -147,17 +147,34 @@ Metabox.checkEnabled = function()
             document.getElementById('open_in_new_window').checked = false;
             document.getElementById('themeMetaboxRowform_success_message').style.display = 'block';
             document.getElementById('themeMetaboxRowform_error_message').style.display = 'block';
-        } else {
+            if(Document.elementExists(('themeMetaboxRowclass_list'))){
+                document.getElementById('class_list').selectedIndex = 0;
+            }
+        } else if(document.getElementById('cta_type').options[document.getElementById('cta_type').selectedIndex].value == 'link') {
             document.getElementById('themeMetaboxRowcta_type').style.display = 'block';
             document.getElementById('themeMetaboxRowbutton_url').style.display = 'block';
             document.getElementById('themeMetaboxRowbutton_type').style.display = 'block';
             document.getElementById('themeMetaboxRowopen_in_new_window').style.display = 'block';
             document.getElementById('form').selectedIndex = 0;
             document.getElementById('form_theme').selectedIndex = 0;
+            if(Document.elementExists(('themeMetaboxRowclass_list'))){
+                document.getElementById('class_list').selectedIndex = 0;
+            }
+        } else if(document.getElementById('cta_type').options[document.getElementById('cta_type').selectedIndex].value == 'class'){
+            document.getElementById('themeMetaboxRowcta_type').style.display = 'block';
+            document.getElementById('themeMetaboxRowbutton_text').style.display = 'none';
+            if(Document.elementExists(('themeMetaboxRowclass_list'))){
+                document.getElementById('themeMetaboxRowclass_list').style.display = 'block';
+            }
+            document.getElementById('form').selectedIndex = 0;
+            document.getElementById('form_theme').selectedIndex = 0;
         }
         // button type
         if(document.getElementById('button_type').options[document.getElementById('button_type').selectedIndex].value == 'html'){
-            document.getElementById('themeMetaboxRowbutton_text').style.display = 'block';
+            // Classlist doesn't really need button
+            if(document.getElementById('cta_type').options[document.getElementById('cta_type').selectedIndex].value != 'class'){
+                document.getElementById('themeMetaboxRowbutton_text').style.display = 'block';
+            }
             document.getElementById('button_image').value = '';
             document.getElementById('button_hover_image').value = '';
         } else {
@@ -170,6 +187,12 @@ Metabox.checkEnabled = function()
         if(document.getElementById('enable_cta_for_this_post').checked){
             // is form?
             document.getElementById('themeMetaboxRowselect_cta').style.display = 'block';
+        }
+    }
+    if(Document.elementExists('repeatable_genoo-dynamic-cta')){
+        if(document.getElementById('enable_cta_for_this_post_repeat').checked){
+            // is form?
+            document.getElementById('themeMetaboxRowselect_cta_repeat').style.display = 'block';
         }
     }
 };
@@ -193,9 +216,15 @@ Metabox.hideAll = function()
         document.getElementById('themeMetaboxRowbutton_hover_image').style.display = 'none';
         document.getElementById('themeMetaboxRowform_success_message').style.display = 'none';
         document.getElementById('themeMetaboxRowform_error_message').style.display = 'none';
+        if(Document.elementExists(('themeMetaboxRowclass_list'))){
+            document.getElementById('themeMetaboxRowclass_list').style.display = 'none';
+        }
     }
     if(Document.elementExists('genoo-cta')){
         document.getElementById('themeMetaboxRowselect_cta').style.display = 'none';
+    }
+    if(Document.elementExists('repeatable_genoo-dynamic-cta')){
+        document.getElementById('themeMetaboxRowselect_cta_repeat').style.display = 'none';
     }
 };
 
@@ -212,4 +241,43 @@ Document.ready(window, function(e){
     Event.attach(document.getElementById('cta_type'), 'change', Metabox.checkFields);
     Event.attach(document.getElementById('button_type'), 'change', Metabox.checkFields);
     Event.attach(document.getElementById('enable_cta_for_this_post'), 'change', Metabox.checkFields);
+    Event.attach(document.getElementById('enable_cta_for_this_post_repeat'), 'change', Metabox.checkFields);
+    // Validate
+    // TODO: rewrite to normal js, instead of jQuery
+    var form = jQuery("form[name='post']");
+    jQuery(form).find("#publish").click(function(e){
+        // prevent default
+        e.preventDefault();
+        // found
+        var found = false;
+        // Do we have dynamic cta box?
+        if(Document.elementExists('repeatable_genoo-dynamic-cta')){
+            // Go throu selected options
+            jQuery('#repeatable_genoo-dynamic-cta select').each(function(){
+                if(!jQuery(this).hasClass('empty')){
+                    var title = jQuery(this).find(':selected').text();
+                    // Whooa we have a winner
+                    if(title !== undefined && (title === 'Select CTA' || title === 'Select Sidebar')){
+                        var r = confirm("It seems like you have forgotten to select a sidebar or CTA for one or more dynamic CTA's, would like to continue?");
+                        if(r == true){
+                            jQuery("#ajax-loading").show();
+                            jQuery(form).submit();
+                        } else {
+                            jQuery("#publish").removeClass().addClass("button-primary");
+                            jQuery("#ajax-loading").hide();
+                        }
+                        found = true;
+                        return false;
+                    }
+                }
+            });
+            if(found == false){
+                jQuery("#ajax-loading").show();
+                jQuery(form).submit();
+            }
+        } else {
+            jQuery("#ajax-loading").show();
+            jQuery(form).submit();
+        }
+    });
 });

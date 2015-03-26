@@ -33,6 +33,43 @@ class Post
 
 
     /**
+     * Is single
+     *
+     * @return mixed
+     */
+
+    public static function isSingle(){ return is_single(); }
+
+
+    /**
+     * Is Page
+     *
+     * @return mixed
+     */
+
+    public static function isPage(){ return is_page(); }
+
+
+    /**
+     * Is post type "this" type?
+     *
+     * @param \WP_Post $post
+     * @param $type
+     * @return bool
+     */
+
+    public static function isPostType(\WP_Post $post, $type)
+    {
+        if(is_string($type) && !empty($type)){
+            return $post->post_type == $type;
+        } elseif (is_array($type)){
+            return in_array($post->post_type, $type);
+        }
+        return false;
+    }
+
+
+    /**
      * Set post
      *
      * @param $id

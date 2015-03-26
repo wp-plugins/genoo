@@ -37,7 +37,11 @@ class WidgetForm extends \WP_Widget
     function __construct($constructParent = true)
     {
         if($constructParent){
-            parent::__construct('genooForm', 'Genoo', array('description' => __('Add Genoo forms to your pages.', 'genoo')));
+            parent::__construct(
+                'genooform',
+                'Genoo',
+                array('description' => __('Add Genoo forms to your pages.', 'genoo'))
+            );
         }
     }
 
@@ -139,7 +143,10 @@ class WidgetForm extends \WP_Widget
                     $html .= '<span>' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
                 } else {
                     $html .= '<span class="genooDisplayDesktop">' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
-                    $html .= '<span class="genooDisplayMobile">' . ModalWindow::button($formButton, $this->id, false, 'genooButton form-button-submit', true) . '<div class="clear"></div></span>';
+                    if(isset($instance['canHaveMobile']) && $instance['canHaveMobile'] == false){
+                    } else {
+                        $html .= '<span class="genooDisplayMobile">' . ModalWindow::button($formButton, $this->id, false, 'genooButton form-button-submit', true) . '<div class="clear"></div></span>';
+                    }
                 }
                 $html .= '<div class="clear"></div></span>';
                 $html .= Attachment::generateCss($formImg, $formImgHover, $buttonId);
@@ -149,9 +156,17 @@ class WidgetForm extends \WP_Widget
                     $html .= '<span>' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '</span>';
                 } else {
                     $html .= '<span class="genooDisplayDesktop">' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '</span>';
-                    $html .= '<span class="genooDisplayMobile">' . ModalWindow::button($formButton, $this->id, false, 'genooButton form-button-submit', true) . '</span>';
+                    if(isset($instance['canHaveMobile']) && $instance['canHaveMobile'] == false){
+                    } else {
+                        $html .= '<span class="genooDisplayMobile">' . ModalWindow::button($formButton, $this->id, false, 'genooButton form-button-submit', true) . '</span>';
+                    }
                 }
             }
+            // Remove desktop display, if not needed
+            if(isset($instance['canHaveMobile']) && $instance['canHaveMobile'] == false){
+                $html = str_replace('class="genooDisplayDesktop"', '', $html);
+            }
+            // Continue on html
             $html .= '</div>';
             $html .= $args['after_widget'];
             // Close if shortcode

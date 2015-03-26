@@ -6,24 +6,23 @@
  * For the full copyright and license information, please view
  * the Genoo.php file in root directory of this plugin.
  *
- * Genoo TinyMCE plugin - Form
+ * Genoo TinyMCE plugin - Lumens
  *
  * @version 1
  * @author latorante.name
  */
 
 (function(){
-    var forms = new GenooTinyMCE.addPlugin(
+    var lumens = new GenooTinyMCE.addPlugin(
         tinymce.majorVersion + '.' + tinymce.minorVersion,
-        'GenooTinyMCEForm.php',
-        'genooForm',
-        'bgTinyMCE.png?v=2',
-        'Add a default Genoo Form',
+        'GenooTinyMCELumens.php',
+        'genooLumens',
+        'bgTinyMCELumens.png?v=2',
+        'Genoo Lumens',
         false,  // Aligned?
-        'Are you sure? Please confirm to delete the form.',
+        'Are you sure? Please confirm to delete the Lumen classlist.',
         {
-            height: 250
+            height: 180
         }
     );
 })();
-

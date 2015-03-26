@@ -11,7 +11,11 @@
 
 namespace Genoo\Wordpress;
 
+use Genoo\Tracer;
 use Genoo\Utils\Strings,
+    Genoo\Utils\ArrayObject,
+    Genoo\Wordpress\Action,
+    Genoo\WidgetCTADynamic,
     Genoo\CTA;
 
 class Widgets
@@ -23,11 +27,15 @@ class Widgets
 
     public static function register()
     {
-        add_action('widgets_init', function () {
+        Action::add('widgets_init', function (){
+            // Register main Genoo plugins
             register_widget('\Genoo\WidgetForm');
-            register_widget('\Genoo\WidgetCTA');
+            // CTA Widget is now only legacy
+            if(GENOO_LEGACY === TRUE){
+                register_widget('\Genoo\WidgetCTA');
+            }
             // If lumens are set up.
-            if (GENOO_LUMENS){
+            if(GENOO_LUMENS){
                 register_widget('\Genoo\WidgetLumen');
             }
         });
@@ -43,21 +51,21 @@ class Widgets
 
     public static function get($name = '')
     {
-        // global
+        // Global
         global $wp_widget_factory;
-        // vars
+        // Vars
         $arr = array();
-        // go through
+        // Go through
         if ($wp_widget_factory->widgets) {
             foreach ($wp_widget_factory->widgets as $class => $widget) {
-                // congratulations, we have a Genoo widget
+                // Congratulations, we have a Genoo widget
                 if (Strings::contains(Strings::lower($widget->id_base), $name)) {
                     $widget->class = $class;
                     $arr[] = $widget;
                 }
             }
         }
-        // return widgets
+        // Return widgets
         return $arr;
     }
 
@@ -73,15 +81,15 @@ class Widgets
         $sidebarChanged = false;
         $sidebarWidgets = wp_get_sidebars_widgets();
         // not empty?
-        if (is_array($sidebarWidgets) && !empty($sidebarWidgets)) {
+        if (is_array($sidebarWidgets) && !empty($sidebarWidgets)){
             // go through areas
-            foreach ($sidebarWidgets as $sidebarKey => $sidebarWidget) {
+            foreach ($sidebarWidgets as $sidebarKey => $sidebarWidget){
                 // not empty array?
-                if (is_array(($sidebarWidget)) && !empty($sidebarWidget)) {
+                if (is_array(($sidebarWidget)) && !empty($sidebarWidget)){
                     // go through
-                    foreach ($sidebarWidget as $key => $value) {
+                    foreach ($sidebarWidget as $key => $value){
                         // is it our widget-like?
-                        if (Strings::contains($value, $name)) {
+                        if (Strings::contains($value, $name)){
                             unset($sidebarWidgets[$sidebarKey][$key]);
                             $sidebarChanged = true;
                         }
@@ -89,7 +97,7 @@ class Widgets
                 }
             }
         }
-        if ($sidebarChanged == true) {
+        if($sidebarChanged == true){
             wp_set_sidebars_widgets($sidebarWidgets);
         }
     }
@@ -115,23 +123,23 @@ class Widgets
 
     public static function getFooterModals()
     {
-        // get them
+        // Get them
         $widgets = self::get('genoo');
         $widgetsArray = self::getArrayOfWidgets();
         $widgetsObj = array();
-        // go through them
+        // Go through them
         if ($widgets){
             foreach ($widgets as $widget){
-                // get instances
+                // Get instances
                 $widgetInstances = $widget->get_settings();
                 if (is_array($widgetInstances)){
                     foreach ($widgetInstances as $id => $instance){
                         $currId = $widget->id_base . $id;
                         $currWpId = $widget->id_base . '-' . $id;
-                        // this is it! is it modal widget?
+                        // This is it! is it modal widget?
                         if ((isset($instance['modal']) && $instance['modal'] == 1) || ($widget->id_base == 'genoocta')){
-                            // is it active tho?
-                            if (isset($widgetsArray['wp_inactive_widgets']) && !in_array($currWpId, $widgetsArray['wp_inactive_widgets'])) {
+                            // Is it active tho?
+                            if (isset($widgetsArray['wp_inactive_widgets']) && !in_array($currWpId, $widgetsArray['wp_inactive_widgets'])){
                                 unset($widgetInstances[$id]['modal']);
                                 $widgetsObj[$currId] = new \stdClass();
                                 $widgetsObj[$currId]->widget = $widget;
@@ -148,5 +156,206 @@ class Widgets
         }
         // give me
         return $widgetsObj;
+    }
+
+
+    /**
+     * Get footer modals, out of previously
+     * genereated dynamic ctas.
+     *
+     *
+     * @param $sidebars
+     * @return array
+     */
+
+    public static function getFooterDynamicModals($sidebars)
+    {
+        $r = array();
+        if(is_array($sidebars) && !empty($sidebars)){
+            // Go through sidebars
+            foreach($sidebars as $sidebar){
+                // Go through widgets in sidebars
+                if(is_array($sidebar) && !empty($sidebar)){
+                    foreach($sidebar as $widget){
+                        if($widget->widgetIsForm){
+                            $r[$widget->widget] = new \stdClass();
+                            $r[$widget->widget]->widget = $widget->widgetInstance;
+                            if(method_exists($widget->widgetInstance, 'getInnerInstance')){
+                                $r[$widget->widget]->instance = $widget->widgetInstance->getInnerInstance();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $r;
+    }
+
+
+    /**
+     * Inject Widget Into sidebar
+     *
+     * @param $sidebarKey
+     * @param $widgetKey
+     * @param $position
+     */
+
+    public static function injectIntoSidebar($sidebarKey, $widgetKey, $position)
+    {
+        static $priority = 1;
+        // Inject sidebar instance
+        Filter::add('sidebars_widgets', function($sidebars) use ($sidebarKey, $widgetKey, $position){
+            if(isset($sidebars[$sidebarKey])){
+                $sidebars[$sidebarKey] = ArrayObject::appendTo($sidebars[$sidebarKey], $position, $widgetKey);
+            }
+            return $sidebars;
+        }, $priority, 1);
+        // Higher number to postpone.
+        ++$priority;
+    }
+
+
+    /**
+     * Inject multiple Widgets into Sidebars
+     *
+     * @param $widgets
+     */
+
+    public static function injectMultipleIntoSidebar($widgets)
+    {
+        // Do we have an array? Let's go through
+        if(is_array($widgets) && !empty($widgets)){
+            Filter::add('sidebars_widgets', function($sidebars) use ($widgets){
+                // Go through sidebars
+                foreach($widgets as $sidebarKey => $widgetArray){
+                    // Each sidebar has an array of widgets,
+                    // even one widget will be in an array
+                    if(is_array($widgetArray) && !empty($widgetArray)){
+                        // Going through widgets
+                        foreach($widgetArray as $widget){
+                            // If the sidebar they are assigned to exists,
+                            // continue (if not, might have been removed, theme change etc.)
+                            if(isset($sidebars[$sidebarKey])){
+                                // Remove widget so we can position it correctly
+                                $sidebars[$sidebarKey] = ArrayObject::removeByValue($sidebars[$sidebarKey], $widget->widget);
+                                // Check if it's not already there, because the widget "id" is unique
+                                // it shouldn't be there more than once
+                                if(!in_array($widget->widget, $sidebars[$sidebarKey])){
+                                    // Positin wise setup
+                                    if($widget->position == -1){        // Last
+                                        $sidebars[$sidebarKey] = ArrayObject::appendToTheEnd($sidebars[$sidebarKey], $widget->widget);
+                                    } elseif ($widget->position == 1){  // First
+                                        $sidebars[$sidebarKey] = ArrayObject::prependToTheBeginning($sidebars[$sidebarKey], $widget->widget);
+                                    } else {                            // Other
+                                        $position = ($widget->position < 0) ? 0 : $widget->position - 1;
+                                        $sidebars[$sidebarKey] = ArrayObject::appendTo($sidebars[$sidebarKey], $position, $widget->widget);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return $sidebars;
+            }, 10, 1);
+        }
+    }
+
+
+    /**
+     * Inject values for a widget
+     *
+     * @param $widgets
+     */
+
+    public static function injectMultipleValues($widgets)
+    {
+        // We will store the data here.
+        $r = array();
+        $r['_multiwidget'] = 1;
+        // Is it not empty?
+        if(is_array($widgets) && !empty($widgets)){
+            foreach($widgets as $sidebarKey => $widgetArray){
+                // This is a sidebar now, let's find those keys we need
+                if(is_array($widgetArray) && !empty($widgetArray)){
+                    // Get widgets
+                    foreach($widgetArray as $widget){
+                        // Decode: "widgetname-1"
+                        $widgetPrep = explode('-', $widget->widget);
+                        $widgetName = $widgetPrep[0];
+                        $widgetNumber = $widgetPrep[1];
+                        // Add to the array
+                        $r[(int)$widgetNumber] = array();
+                    }
+                }
+            }
+        }
+        // Do we have a name? And data for widgets? Let's do this ...
+        if(!empty($widgetName) && !empty($r)){
+            // This is the pre_option hook, since the widgets are injected
+            // they don't have settings saved in db, we have to create them
+            // this way and inject them as well.
+            Filter::add('pre_option_widget_' . $widgetName, function($value) use ($r){
+                return $r;
+            }, 10, 1);
+        }
+    }
+
+
+    /**
+     * Inject to register widgets.
+     *
+     * @param array $widgets
+     * @param null $prefix
+     * @return array
+     */
+
+    public static function injectRegisterWidgets(array $widgets, $prefix = 'genoodynamiccta')
+    {
+        global $wp_registered_widgets;
+        $counter = 1;
+        $return = array();
+        // Going through widgets and registering them
+        foreach($widgets as $widget){
+            // Current id
+            $current = $prefix . '-' . $counter;
+            // If widget doesnt exist there ... put it in!
+            if(!isset($wp_registered_widgets[$current])){
+                // Add do registered widgets
+                $wp_registered_widgets[$current] = array(
+                    'name' => __('Genoo Dynamic CTA Widget', 'genoo'),
+                    'id' => $current,
+                    'callback' => array(
+                        $widgetInstance = new WidgetCTADynamic($prefix, $counter, $widget),
+                        'display_callback'
+                    ),
+                    'params' => array(
+                        array(
+                            'number' => $counter
+                        )
+                    ),
+                    'classname' => 'classname',
+                    'description' => __('This is Genoo Dynamic CTA Widget.', 'genoo')
+                );
+                // Add current id, so it can be deleted later
+                $return[$widget->sidebar][] = (object)array(
+                    'widget' => $current,
+                    // Only add if cta is form
+                    'widgetInstance' => $widgetInstance->preCta->isForm ? $widgetInstance : null,
+                    // WidgetIsForm is used in footer modals
+                    'widgetIsForm' => $widgetInstance->preCta->isForm,
+                    'position' => $widget->position
+                );
+            }
+            ++$counter;
+        }
+        // Return array of sidabar => array( widgets ids ) to go through and remove afterwoods
+        return $return;
+    }
+
+
+    /** */
+    public static function refreshDynamic()
+    {
+        //wp_registered_widgets
     }
 }

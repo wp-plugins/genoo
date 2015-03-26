@@ -71,6 +71,7 @@ class Api
      */
 
     const PUT_ACTIVITY = '/activitystream[S]'; //id
+    const PUT_LEADTYPE_MEMBERS = '/leadtypes/members';
 
 
     /** @var array Messages */
@@ -360,12 +361,13 @@ class Api
      *
      * @param $leadType
      * @param array $leads
+     * @param bool $update
      * @return object|string
      * @throws \InvalidArgumentException
      * @throws \LengthException
      */
 
-    public function setLeads($leadType, array $leads = array())
+    public function setLeads($leadType, array $leads = array(), $update = false)
     {
         //standard lead, example
         $stdLead = array('email' => '', 'first_name' => '', 'last_name' => '', 'web_site_url' => '');
@@ -384,6 +386,7 @@ class Api
         // leads
         return $this->call(self::POST_LEADS, array(
             'leadtype' => (string)$leadType,
+            'updateadd' => $update,
             'leads' => $leads
         ));
     }
@@ -394,26 +397,92 @@ class Api
      *
      * @param $leadType
      * @param $email
-     * @param null $first_name
-     * @param null $last_name
-     * @param null $web_site_url
-     * @return object|string
+     * @param string $first_name
+     * @param string $last_name
+     * @param string $web_site_url
+     * @param bool $update
+     * @return null
      */
 
-    public function setLead($leadType, $email, $first_name = '', $last_name = '', $web_site_url = '')
+    public function setLead($leadType, $email, $first_name = '', $last_name = '', $web_site_url = '', $update = false)
     {
         $lead = $this->setLeads($leadType, array(
             array(
                 'email' => $email,
                 'first_name' => $first_name,
                 'last_name' => $last_name,
-                'web_site_url' => $web_site_url
+                'web_site_url' => $web_site_url,
             )
-        ));
+        ), $update);
         if($lead->result == 'processed'){
-            return $lead->process_results[0]->genoo_id;
+            return isset($lead->process_results[0]->genoo_id) ? $lead->process_results[0]->genoo_id : null;
         }
         return null;
+    }
+
+
+    /**
+     * Set single lead - update
+     *
+     * @param $genooId
+     * @param $leadType
+     * @param $email
+     * @param string $first_name
+     * @param string $last_name
+     * @param string $web_site_url
+     * @return null
+     */
+
+    public function setLeadUpdate($genooId, $leadType, $email, $first_name = '', $last_name = '', $web_site_url = '')
+    {
+        $lead = $this->setLeads($leadType, array(
+            array(
+                'genoo_id' => $genooId,
+                'email' => $email,
+                'first_name' => $first_name,
+                'last_name' => $last_name,
+                'web_site_url' => $web_site_url,
+            )
+        ), true);
+        if($lead->result == 'processed'){
+            return isset($lead->process_results[0]->genoo_id) ? $lead->process_results[0]->genoo_id : null;
+        }
+        return null;
+    }
+
+
+    /**
+     * Remove lead from Leadtype(s)
+     *
+     * @param $genooId
+     * @param $leadtypes
+     * @throws ApiException
+     * @throws \Exception
+     */
+
+    public function removeLeadFromLeadtype($genooId, $leadtypes)
+    {
+        if(is_string($leadtypes) || is_numeric($leadtypes)){
+            return $this->call(self::PUT_LEADTYPE_MEMBERS, array(
+                'leadtype' => (string)$leadtypes,
+                'action' => 'remove',
+                'genoo_ids' => array(
+                    (string)$genooId
+                )
+            ));
+        } elseif(is_array($leadtypes)){
+            foreach($leadtypes as $leadtype){
+                $this->call(self::PUT_LEADTYPE_MEMBERS, array(
+                    'leadtype' => (string)$leadtype,
+                    'action' => 'remove',
+                    'genoo_ids' => array(
+                        (string)$genooId
+                    )
+                ));
+            }
+        } else {
+            throw new \Exception(__('Leadtype must be either of string | numeric | array type.', 'genoo'));
+        }
     }
 
 
@@ -501,6 +570,7 @@ class Api
             throw new \InvalidArgumentException(__('Name is a required activity field!', 'genoo'));
         }
 
+        // prep
         $activityDateTime = new \DateTime($date);
         $activityDate = $activityDateTime->format('c');
         $activityType = !empty($type) ? $type : '';
@@ -606,6 +676,11 @@ class Api
 
     /**
      * Call API
+     *
+     * @param $action
+     * @param null $params
+     * @return bool
+     * @throws ApiException
      */
 
     private function call($action, $params = null)
@@ -652,6 +727,12 @@ class Api
                     $this->http->put(Json::encode($params['params']));
                     return $this->onReturn(Json::isJson($this->http->getBody()) ? Json::decode($this->http->getBody()) : $this->http->getBody());
                     break;
+                // put leadtype members
+                case self::PUT_LEADTYPE_MEMBERS:
+                    $this->http->setUrl($this->buildQuery($action));
+                    $this->http->put(Json::encode($params));
+                    return $this->onReturn(Json::isJson($this->http->getBody()) ? Json::decode($this->http->getBody()) : $this->http->getBody());
+                    break;
             }
         } catch (Wordpress\HttpException $e){
             throw new ApiException('Wordpress HTTP Api: ' . $e->getMessage());
@@ -660,6 +741,7 @@ class Api
         } catch (\Exception $e){
             throw new ApiException($e->getMessage());
         }
+        return true;
     }
 
 

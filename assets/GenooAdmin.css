@@ -19,6 +19,7 @@
 .branch-4   #toplevel_page_Genoo:hover .wp-menu-image:before,
 .branch-3-8 #toplevel_page_Genoo .wp-menu-image:before,
 .branch-3-8 #toplevel_page_Genoo:hover .wp-menu-image:before { display: none !important; }
+#toplevel_page_Genoo .wp-menu-image { background: none !important; }
 
 /*
 	Assets
@@ -48,6 +49,9 @@
 .genooWidgetImage { text-align: center; }
 .genooWidgetImage img { padding: 3px; margin: 3px; display: inline-block; max-width: 70%; height: auto;  }
 .genooWidgetImage img { border: 2px dashed #c7c7c7; background: #f8f8f8; margin-bottom: 0; margin-top: 5px; }
+.genooMetaboxRepeatable td input,
+.genooMetaboxRepeatable td select,
+.genooMetaboxRepeatable td textarea { width: 100%; }
 #genooLog { width: 45%; min-width: 255px; margin: 10px 0;  -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
 #genooLog h3 { padding: 0; }
 #genooLog small { padding: 5px 0; font-size: 12px; font-weight: normal; }
@@ -124,7 +128,7 @@
 .themeMetaboxRow input[type='checkbox'] { width: auto; display: inline; }
 .themeMetaboxRow .radio { display: inline-block; float: left; width: 500px; }
 .themeMetaboxRow .label,
-.themeMetaboxRow label { width: 150px; float: left; margin-right: 20px; font-weight: bold; }
+.themeMetaboxRow label { width: 230px; float: left; margin-right: 20px; font-weight: bold; }
 .themeMetaboxRow input,
 .themeMetaboxRow select,
 .themeMetaboxRow textarea {

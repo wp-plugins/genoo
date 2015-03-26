@@ -13,7 +13,8 @@ namespace Genoo\Wordpress;
 
 use Genoo\Api,
     Genoo\Utils\Strings,
-    Genoo\Wordpress\Notice;
+    Genoo\Wordpress\Notice,
+    Genoo\Wordpress\Action;
 
 class Settings
 {
@@ -39,8 +40,8 @@ class Settings
         $this->api = $api;
         $this->sections = $this->settingsRepo->getSettingsSections();
         $this->fields = $this->settingsRepo->getSettingsFields();
-        add_action('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
-        add_action('admin_init', array($this, 'adminInit'));
+        Action::add('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
+        Action::add('admin_init', array($this, 'adminInit'));
     }
 
 

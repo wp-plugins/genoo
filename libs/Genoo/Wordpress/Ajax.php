@@ -15,6 +15,7 @@ use Genoo\Utils\Strings,
     Genoo\Utils\Json,
     Genoo\RepositorySettings,
     Genoo\Wordpress\Comments,
+    Genoo\Wordpress\Action,
     Genoo\Users,
     Genoo\Import;
 
@@ -34,7 +35,7 @@ class Ajax
             // Is it "on" event, and not return?
             if(Strings::startsWith($method, 'on') && ($method != 'onReturn')){
                 $methodAction = lcfirst(str_replace('on', '', $method));
-                add_action('wp_ajax_' . $methodAction, array(__CLASS__, $method));
+                Action::add('wp_ajax_' . $methodAction, array(__CLASS__, $method));
             }
         }
     }

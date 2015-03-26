@@ -25,9 +25,12 @@ use Genoo\RepositorySettings,
     Genoo\Wordpress\Nag,
     Genoo\Wordpress\Metabox,
     Genoo\Wordpress\PostType,
+    Genoo\Wordpress\Action,
+    Genoo\Wordpress\Filter,
     Genoo\Wordpress\TinyMCE,
     Genoo\Tools,
     Genoo\Utils\Strings;
+use Genoo\Wordpress\MetaboxCTA;
 
 
 class Admin
@@ -74,13 +77,13 @@ class Admin
         $this->user = new RepositoryUser();
         $this->settings = new Settings($this->repositarySettings, $this->api);
         // admin constructor
-        add_action('current_screen', array($this, 'adminCurrentScreen'));
-        add_action('admin_init', array($this, 'adminInit'));
-        add_action('admin_init', array($this, 'adminUI'));
-        add_action('init', array($this, 'adminPostTypes'));
-        add_action('admin_menu', array($this, 'adminMenu'));
-        add_action('admin_notices', array ($this, 'adminNotices'));
-        add_action('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'), 10, 1);
+        Action::add('current_screen', array($this, 'adminCurrentScreen'));
+        Action::add('admin_init', array($this, 'adminInit'));
+        Action::add('admin_init', array($this, 'adminUI'));
+        Action::add('init', array($this, 'adminPostTypes'));
+        Action::add('admin_menu', array($this, 'adminMenu'));
+        Action::add('admin_notices', array ($this, 'adminNotices'));
+        Action::add('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'), 10, 1);
     }
 
 
@@ -94,10 +97,17 @@ class Admin
         wp_enqueue_style('core', GENOO_ASSETS . 'GenooAdmin.css', null, GENOO_REFRESH);
         wp_enqueue_script('Genoo', GENOO_ASSETS . 'Genoo.js', null, GENOO_REFRESH, true);
         // if post edit or add screeen
-        if ($hook == 'post-new.php' || $hook == 'post.php'){ wp_enqueue_script('GenooEditPost', GENOO_ASSETS . 'GenooEditPost.js', array('jquery'), GENOO_REFRESH); }
+        if($hook == 'post-new.php' || $hook == 'post.php'){
+            wp_enqueue_script('GenooEditPost', GENOO_ASSETS . 'GenooEditPost.js', array('jquery'), GENOO_REFRESH);
+        }
         // if setup up add vars
         if(GENOO_SETUP){
             wp_localize_script('Genoo', 'GenooVars', array(
+                'GenooSettings' => array(
+                    'GENOO_PART_SETUP' => GENOO_PART_SETUP,
+                    'GENOO_SETUP' => GENOO_SETUP,
+                    'GENOO_LUMENS' => GENOO_LUMENS
+                ),
                 'GenooPluginUrl' => GENOO_ASSETS,
                 'GenooMessages'  => array(
                     'importing'  => __('Importing...', 'genoo'),
@@ -105,6 +115,7 @@ class Admin
                 'GenooTinyMCE' => array(
                     'themes' => $this->repositarySettings->getSettingsThemes(),
                     'forms'  => $this->repositaryForms->getFormsArray(),
+                    'lumens' => $this->repositaryLumens->getLumensArray(),
                     'ctas'   => $this->repositaryCTAs->getArray(),
                     'cta-pt' => $this->repositarySettings->getCTAPostTypes()
                 )
@@ -162,9 +173,8 @@ class Admin
          * 3. Plugin meta links
          */
 
-        add_filter('plugin_action_links',   array($this, 'adminPluginLinks'), 10, 2);
-        add_filter('plugin_row_meta',       array($this, 'adminPluginMeta'),  10, 2);
-
+        Filter::add('plugin_action_links',   array($this, 'adminPluginLinks'), 10, 2);
+        Filter::add('plugin_row_meta',       array($this, 'adminPluginMeta'),  10, 2);
     }
 
 
@@ -178,7 +188,7 @@ class Admin
         global $menu;
         global $submenu;
         // Admin Pages
-        add_menu_page('Settings', 'Genoo', 'manage_options', 'Genoo', array($this, 'renderGenooSettings'), NULL, '71.22');
+        add_menu_page('Settings', 'Genoo', 'manage_options', 'Genoo', array($this, 'renderGenooSettings'), GENOO_ASSETS . 'bgMenuIconSingle.png', '71');
         if(GENOO_SETUP){
             add_submenu_page('Genoo', 'Forms', 'Forms', 'manage_options', 'GenooForms', array($this, 'renderGenooForms'));
             if(GENOO_LUMENS){ add_submenu_page('Genoo', 'Lumens', 'Lumens', 'manage_options', 'GenooLumens', array($this, 'renderGenooLumens')); }
@@ -194,7 +204,7 @@ class Admin
                     }
                 }
             }
-            if($del){ unset($menu[$del]); }
+            if(isset($del)){ unset($menu[$del]); }
             // Admin submenu, assing to Genoo
             if($submenu){
                 // find correct submenu
@@ -269,10 +279,7 @@ class Admin
                     array(
                         'type' => 'select',
                         'label' => __('CTA type', 'genoo'),
-                        'options' => array(
-                            'link' => __('Link', 'genoo'),
-                            'form' => __('Form in Pop-up', 'genoo'),
-                        )
+                        'options' => $this->repositarySettings->getCTADropdownTypes()
                     ),
                     array(
                         'type' => 'select',
@@ -334,24 +341,28 @@ class Admin
                         'type' => 'image-select',
                         'label' => __('Button Hover Image', 'genoo')
                     ),
+                    $this->repositarySettings->getLumensDropdown($this->repositaryLumens)
                 )
             );
+            // CTA metabox is now only legacy
+            if(GENOO_LEGACY === TRUE){
+                new Metabox('Genoo CTA', $this->repositarySettings->getCTAPostTypes(),
+                    array(
+                        array(
+                            'type' => 'checkbox',
+                            'label' => __('Enable CTA for this post', 'genoo')
+                        ),
+                        array(
+                            'type' => 'select',
+                            'label' => 'Select CTA',
+                            'options' => $this->repositarySettings->getCTAs(),
+                            'atts' => array('onChange' => 'Metabox.changeCTALink(this.options[this.selectedIndex].value)',)
+                        ),
+                    )
+                );
+            }
+            new MetaboxCTA('Genoo Dynamic CTA', $this->repositarySettings->getCTAPostTypes(), array(), $this->repositarySettings->getCTAs());
         }
-        new Metabox('Genoo CTA', $this->repositarySettings->getCTAPostTypes(),
-            array(
-                array(
-                    'type' => 'checkbox',
-                    'label' => __('Enable CTA for this post', 'genoo')
-                ),
-                array(
-                    'type' => 'select',
-                    'label' => 'Select CTA',
-                    'options' => $this->repositarySettings->getCTAs(),
-                    'atts' => array('onChange' => 'Metabox.changeCTALink(this.options[this.selectedIndex].value)',)
-                ),
-            )
-        );
-
         return null;
     }
 

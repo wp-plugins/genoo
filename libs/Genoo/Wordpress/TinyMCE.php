@@ -26,24 +26,37 @@ class TinyMCE
             $typenow = $post->post_type;
         }
 
+        // Cta?
         $cta = false;
         if(is_array($postTypes) && !empty($typenow)){
             $cta = in_array($typenow, $postTypes);
         }
 
-        /** Register external plugins */
-        add_filter('mce_external_plugins', function($plugin_array) use($cta){
-            $plugin_array['genoo'] = GENOO_ASSETS . 'GenooTinyMCEForm.js?v=' . GENOO_REFRESH;
+        // Register external plugins
+        Filter::add('mce_external_plugins', function($plugin_array) use($cta){
+            // Form
+            $plugin_array['genooForm'] = GENOO_ASSETS . 'GenooTinyMCEForm.js?v=' . GENOO_REFRESH;
+            // CTA
             if($cta) $plugin_array['genooCTA'] = GENOO_ASSETS . 'GenooTinyMCECTA.js?v=' . GENOO_REFRESH;
+            // Lumens
+            if(GENOO_LUMENS) $plugin_array['genooLumens'] = GENOO_ASSETS . 'GenooTinyMCELumens.js?v=' . GENOO_REFRESH;
+
             return $plugin_array;
-        });
-        /** Register external buttons */
-        add_filter('mce_buttons', function($buttons) use($cta){
+        }, 10, 1);
+
+        // Register external buttons
+        Filter::add('mce_buttons', function($buttons) use($cta){
+            // Form
             $buttons[] = 'genooForm';
+            // CTA
             if($cta) $buttons[] = 'genooCTA';
+            // Lumens
+            if(GENOO_LUMENS) $buttons[] = 'genooLumens';
+
             return $buttons;
-        });
-        /** Add editor style */
+        }, 10, 1);
+
+        // Add editor style
         add_editor_style(GENOO_ASSETS . 'GenooEditor.css?v=' . GENOO_REFRESH);
     }
 }

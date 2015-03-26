@@ -19,15 +19,19 @@ class CTA
 {
     /** @var \Genoo\RepositorySettings */
     private $repositarySettings;
-    /** @var   */
+    /** @var */
     public $post;
     /** @var \WP_Post */
     public $postObject;
-    /** @var bool  */
+    /** @var array post types */
+    public $postTypes;
+    /** @var bool */
     public $has = false;
-    /** @var bool  */
+    /** @var bool */
+    public $hasMultiple = false;
+    /** @var bool */
     public $isForm = false;
-    /** @var null  */
+    /** @var null */
     public $formId = null;
     /** @var null */
     public $desc = null;
@@ -37,28 +41,37 @@ class CTA
     public $displayDesc = false;
     /** @var null */
     public $title = null;
-    /** @var null  */
+    /** @var null */
     public $formTheme = null;
-    /** @var bool  */
+    /** @var bool */
     public $isLink = false;
-    /** @var bool  */
+    /** @var bool */
     public $isNewWindow = false;
-    /** @var bool  */
+    /** @var bool */
     public $isImage = false;
-    /** @var bool  */
+    /** @var bool */
     public $isHtml = false;
-    /** @var null  */
+    /** @var bool */
+    public $isClasslist = false;
+    /** @var null */
     public $linkText = null;
-    /** @var null  */
+    /** @var null */
     public $link = null;
-    /** @var null  */
+    /** @var null */
     public $image = null;
-    /** @var null  */
+    /** @var null */
     public $imageHover = null;
-    /** @var null  */
+    /** @var null */
     public $messageSuccess = null;
-    /** @var null  */
+    /** @var null */
     public $messageError = null;
+    /** @var null  */
+    public $classList = null;
+
+    /** @var null Position should be only set for dynamic CTAs */
+    public $position = null;
+    /** @var null Sidebar should be only set for dynamic CTAs */
+    public $sidebar = null;
 
 
     /**
@@ -73,6 +86,7 @@ class CTA
         if($post != false){
             $this->post = Post::set($post);
             $this->repositarySettings = new RepositorySettings();
+            $this->postTypes = $this->repositarySettings->getCTAPostTypes();
             $this->postObject = $this->post->getPost();
             if($this->has()){
                 $this->resolve();
@@ -91,16 +105,14 @@ class CTA
     public function has()
     {
         $meta = $this->post->getMeta('enable_cta_for_this_post');
-        $postTypes = $this->repositarySettings->getCTAPostTypes();
         $this->has = false;
-        if((!empty($postTypes) && (is_array($postTypes))) && ((in_array($this->postObject->post_type, $postTypes)) && (!empty($meta)))){
-                $p = $this->post->getMeta('select_cta');
-                if(Post::exists($p)){
-                    $this->post = Post::set($p);
-                    $this->has = true;
-                    return true;
-                }
-
+        if((!empty($this->postTypes) && (is_array($this->postTypes))) && ((in_array($this->postObject->post_type, $this->postTypes)) && (!empty($meta)))){
+            $p = $this->post->getMeta('select_cta');
+            if(Post::exists($p)){
+                $this->post = Post::set($p);
+                $this->has = true;
+                return true;
+            }
         }
         return false;
     }
@@ -128,7 +140,6 @@ class CTA
 
     private function resolve()
     {
-
         $a = $this->post->getMeta('cta_type'); // link form
         $b = $this->post->getMeta('button_url');
         $c = $this->post->getMeta('open_in_new_window');
@@ -140,16 +151,19 @@ class CTA
         $i = $this->post->getMeta('form_theme'); // form id
         $j = $this->post->getMeta('description'); // desc
         $z = $this->post->getMeta('display_cta_s');
+        $a1 = $this->post->getMeta('class_list');
         $k = ($z == '0' || empty($z)) ? false : true;
         $this->messageSuccess = $this->post->getMeta('form_success_message');
         $this->messageError = $this->post->getMeta('form_error_message');
         $this->isForm = $a == 'form' ? true : false;
         $this->formId = $h;
         $this->formTheme = $i;
-        $this->isLink = $this->isForm ? false : true;
+        $this->isClasslist = $a == 'class' ? true : false;
+        $this->isLink = $this->isForm ? false : $this->isClasslist ? false : true;
         $this->isNewWindow = ($c == 'true') ? true : false;
         $this->isImage = $d == 'image' ? true : false;
         $this->isHtml = $this->isImage ? false : true;
+        $this->classList = $this->isClasslist ? $a1 : null;
         $this->linkText = $e;
         $this->link = $b;
         $this->image = $f;

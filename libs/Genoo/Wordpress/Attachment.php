@@ -36,6 +36,7 @@ class Attachment
         if(!is_null($img)){
             $css->addRule('#' . $id.  ' input')
                 ->add('background', 'url(\'' . $src[0] . '\') top left no-repeat transparent')
+                ->add('background-size', '100% auto')
                 ->add('display', 'inline-block')
                 ->add('width', 'auto')
                 ->add('height', 'auto')
@@ -47,6 +48,7 @@ class Attachment
         if(!is_null($imgHover)){
             $css->addRule('#' . $id . ' input:hover, ' . '#' . $id . ' input:focus, ' . '#' . $id . ' input:active')
                 ->add('background', 'url(\'' . $srcHover[0] . '\') top left no-repeat transparent')
+                ->add('background-size', '100% auto')
                 ->add('width', $srcHover[1] . 'px')
                 ->add('height', $srcHover[2] . 'px')
                 ->add('min-height', $srcHover[2] . 'px')

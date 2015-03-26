@@ -18,6 +18,7 @@ use Genoo\RepositorySettings,
     Genoo\Users,
     Genoo\Frontend,
     Genoo\Admin,
+    Genoo\Wordpress\Action,
     Genoo\Wordpress\Ajax,
     Genoo\Wordpress\Debug,
     Genoo\Wordpress\Comments,
@@ -39,31 +40,33 @@ class Genoo
 
     public function __construct()
     {
-        // cosntants define
+        // Cosntants define
         define('GENOO_KEY',     'genoo');
         define('GENOO_FILE',    'genoo/Genoo.php');
         define('GENOO_CRON',    'genoo_cron');
+        define('GENOO_LEGACY',  FALSE);
         define('GENOO_HOME_URL',get_option('siteurl'));
         define('GENOO_FOLDER',  plugins_url(NULL, __FILE__));
         define('GENOO_ASSETS',  GENOO_FOLDER . '/assets/');
         define('GENOO_ROOT',    dirname(__FILE__) . DIRECTORY_SEPARATOR);
         define('GENOO_CACHE',   GENOO_ROOT . 'cache' . DIRECTORY_SEPARATOR);
         define('GENOO_DEBUG',   get_option('genooDebug'));
-        define('GENOO_REFRESH', '552aacs4doad4doa3aaaadl');
+        define('GENOO_REFRESH', sha1('genoo-refresh-javascript-now-please'));
         // start the engine last file to require, rest is auto
         // custom auto loader, PSR-0 Standard
         require_once('GenooRobotLoader.php');
         $classLoader = new GenooRobotLoader('Genoo', dirname(__FILE__) . DIRECTORY_SEPARATOR . 'libs' . DIRECTORY_SEPARATOR);
         $classLoader->register();
         // initialize
-        $this->api = new Api(new RepositorySettings());
+        $this->repositarySettings = new RepositorySettings();
+        $this->api = new Api($this->repositarySettings);
         $this->cache = new Cache(GENOO_CACHE);
         // helper constants
         define('GENOO_PART_SETUP', $this->api->isSetup());
         define('GENOO_SETUP', $this->api->isSetupFull());
-        define('GENOO_LUMENS', $this->api->isLumensSetup()); // for now, before
+        define('GENOO_LUMENS', $this->api->isLumensSetup());
         // wp init
-        add_action('plugins_loaded', array($this, 'init'));
+        Action::add('plugins_loaded', array($this, 'init'));
     }
 
 
@@ -89,11 +92,11 @@ class Genoo
          * 2. Register Widgets / Shortcodes / Cron, etc.
          */
 
-        Cron::register(GENOO_CRON);
+        //Cron::register(GENOO_CRON);
         if(GENOO_SETUP){
             Ajax::register();
             Comments::register();
-            Users::register();
+            Users::register($this->repositarySettings, $this->api);
             Widgets::register();
             Shortcodes::register();
         }
@@ -105,14 +108,14 @@ class Genoo
         if(is_admin()){
             return new Admin($this->api, $this->cache);
         }
-        return new Frontend();
+        return new Frontend($this->repositarySettings);
     }
 
     /** Activation hook */
-    public static function activate(){ Cron::onActivate(GENOO_CRON); }
+    public static function activate(){ /*Cron::onActivate(GENOO_CRON);*/ }
 
     /** Deactivation hook */
-    public static function deactivate() { Cron::onDeactivate(GENOO_CRON); }
+    public static function deactivate() { /*Cron::onDeactivate(GENOO_CRON);*/ }
 }
 
 $genoo = new Genoo();

@@ -35,8 +35,18 @@ function genooUninstall()
     delete_option('genooDebug');
     delete_option('genooDebugCheck');
 
+
     /**
-     * 2. Go through users, and delete user nag meta
+     * 2. Delete saved Widget settings
+     */
+
+    delete_option('widget_genoocta');
+    delete_option('widget_genooform');
+    delete_option('widget_genoolumen');
+
+
+    /**
+     * 3. Go through users, and delete user nag meta
      */
 
     $users = get_users(array('who' => array('administrator')));
