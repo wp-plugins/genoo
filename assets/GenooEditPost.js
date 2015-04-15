@@ -244,14 +244,16 @@ Document.ready(window, function(e){
     Event.attach(document.getElementById('enable_cta_for_this_post_repeat'), 'change', Metabox.checkFields);
     // Validate
     // TODO: rewrite to normal js, instead of jQuery
+    /*
     var form = jQuery("form[name='post']");
+    var publish = jQuery(form).find("#publish");
     jQuery(form).find("#publish").click(function(e){
         // prevent default
-        e.preventDefault();
+        if(e.preventDefault){ e.preventDefault(); }
         // found
         var found = false;
         // Do we have dynamic cta box?
-        if(Document.elementExists('repeatable_genoo-dynamic-cta')){
+        if(Document.elementExists('repeatable_genoo-dynamic-cta') && jQuery('#enable_cta_for_this_post_repeat').is(':checked')){
             // Go throu selected options
             jQuery('#repeatable_genoo-dynamic-cta select').each(function(){
                 if(!jQuery(this).hasClass('empty')){
@@ -261,7 +263,7 @@ Document.ready(window, function(e){
                         var r = confirm("It seems like you have forgotten to select a sidebar or CTA for one or more dynamic CTA's, would like to continue?");
                         if(r == true){
                             jQuery("#ajax-loading").show();
-                            jQuery(form).submit();
+                            publish.click();
                         } else {
                             jQuery("#publish").removeClass().addClass("button-primary");
                             jQuery("#ajax-loading").hide();
@@ -273,11 +275,12 @@ Document.ready(window, function(e){
             });
             if(found == false){
                 jQuery("#ajax-loading").show();
-                jQuery(form).submit();
+                publish.click();
             }
         } else {
             jQuery("#ajax-loading").show();
-            jQuery(form).submit();
+            publish.click();
         }
     });
+     */
 });
