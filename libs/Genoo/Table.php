@@ -11,21 +11,13 @@
 
 namespace Genoo;
 
-if(!class_exists('WP_List_Table')){
-    if(file_exists(ABSPATH . 'wp-admin/includes/class-wp-list-table.php')){
-        require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
-    }
-    // if not, this might fail, do something man, cmon
-}
+use Genoo\RepositoryUser;
+use Genoo\Utils\Strings;
+use Genoo\Wordpress\Utils;
+use Genoo\Wordpress\Notice;
+use Genoo\Wordpress\WPListTable;
 
-
-use Genoo\RepositoryUser,
-    Genoo\Utils\Strings,
-    Genoo\Wordpress\Utils,
-    Genoo\Wordpress\Notice;
-
-
-abstract class Table extends \WP_List_Table
+abstract class Table extends \Genoo\Wordpress\WPListTable
 {
     /** @var array() */
     var $notices;

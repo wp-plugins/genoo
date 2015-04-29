@@ -127,7 +127,10 @@ class Post
      * @return mixe
      */
 
-    public static function getTypes($args = array()){ return get_post_types(array_merge(array('public' => true, 'show_ui' => true), $args), 'objects'); }
+    public static function getTypes($args = array())
+    {
+        return get_post_types(array_merge(array('public' => true, 'show_ui' => true), $args), 'objects');
+    }
 
 
     /**

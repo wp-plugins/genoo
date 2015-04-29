@@ -11,9 +11,9 @@
 
 namespace Genoo;
 
-use Genoo\Wordpress\Utils,
-    Genoo\Wordpress\Notice,
-    Genoo\Tools;
+use Genoo\Wordpress\Utils;
+use Genoo\Wordpress\Notice;
+use Genoo\Tools;
 
 class TableForms extends Table
 {

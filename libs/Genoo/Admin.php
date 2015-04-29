@@ -11,25 +11,26 @@
 
 namespace Genoo;
 
-use Genoo\RepositorySettings,
-    Genoo\RepositoryUser,
-    Genoo\RepositoryForms,
-    Genoo\RepositoryLumens,
-    Genoo\Api,
-    Genoo\TableForms,
-    Genoo\TableLumens,
-    Genoo\Wordpress\Utils,
-    Genoo\Wordpress\Settings,
-    Genoo\Wordpress\Page,
-    Genoo\Wordpress\Notice,
-    Genoo\Wordpress\Nag,
-    Genoo\Wordpress\Metabox,
-    Genoo\Wordpress\PostType,
-    Genoo\Wordpress\Action,
-    Genoo\Wordpress\Filter,
-    Genoo\Wordpress\TinyMCE,
-    Genoo\Tools,
-    Genoo\Utils\Strings;
+use Genoo\RepositorySettings;
+use Genoo\RepositoryUser;
+use Genoo\RepositoryForms;
+use Genoo\RepositoryLumens;
+use Genoo\Api;
+use Genoo\TableForms;
+use Genoo\TableLumens;
+use Genoo\Wordpress\Utils;
+use Genoo\Wordpress\Settings;
+use Genoo\Wordpress\Page;
+use Genoo\Wordpress\Notice;
+use Genoo\Wordpress\Nag;
+use Genoo\Wordpress\Metabox;
+use Genoo\Wordpress\PostType;
+use Genoo\Wordpress\Action;
+use Genoo\Wordpress\Filter;
+use Genoo\Wordpress\TinyMCE;
+use Genoo\Tools;
+use Genoo\Utils\Strings;
+use Genoo\Wordpress\Debug;
 use Genoo\Wordpress\MetaboxCTA;
 
 
@@ -74,16 +75,27 @@ class Admin
         $this->repositaryForms = new RepositoryForms($this->cache, $this->api);
         $this->repositaryLumens = new RepositoryLumens($this->cache, $this->api);
         $this->repositaryCTAs = new RepositoryCTA($this->cache);
-        $this->user = new RepositoryUser();
-        $this->settings = new Settings($this->repositarySettings, $this->api);
+        // initialise settings and users
+        Action::add('init', array($this, 'init'), 1);
         // admin constructor
         Action::add('current_screen', array($this, 'adminCurrentScreen'));
         Action::add('admin_init', array($this, 'adminInit'));
-        Action::add('admin_init', array($this, 'adminUI'));
+        Action::add('init', array($this, 'adminUI'));
         Action::add('init', array($this, 'adminPostTypes'));
         Action::add('admin_menu', array($this, 'adminMenu'));
         Action::add('admin_notices', array ($this, 'adminNotices'));
         Action::add('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'), 10, 1);
+    }
+
+    /**
+     * Init variables
+     */
+    public function init()
+    {
+        // We first need to get these, but only after init,
+        // to retrieve all custom post types correclty
+        $this->user = new RepositoryUser();
+        $this->settings = new Settings($this->repositarySettings, $this->api);
     }
 
 

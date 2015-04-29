@@ -14,7 +14,9 @@ namespace Genoo\Wordpress;
 use Genoo\Api,
     Genoo\Utils\Strings,
     Genoo\Wordpress\Notice,
-    Genoo\Wordpress\Action;
+    Genoo\Wordpress\Action,
+    Genoo\Wordpress\Utils;
+use Genoo\RepositorySettings;
 
 class Settings
 {
@@ -123,38 +125,46 @@ class Settings
     public function adminInit()
     {
         //register settings sections
-        foreach ($this->sections as $section){
-            if (false == get_option($section['id'])){ add_option($section['id']); }
-            if (isset($section['desc']) && !empty($section['desc'])){
-                $section['desc'] = '<div class="inside">'.$section['desc'].'</div>';
-                $callback = create_function('', 'echo "'.str_replace('"', '\"', $section['desc']).'";');
-            } else {
-                $callback = '__return_false';
+        if(Utils::isIterable($this->sections)){
+            foreach($this->sections as $section){
+                if (false == get_option($section['id'])){ add_option($section['id']); }
+                if (isset($section['desc']) && !empty($section['desc'])){
+                    $section['desc'] = '<div class="inside">'.$section['desc'].'</div>';
+                    $callback = create_function('', 'echo "'.str_replace('"', '\"', $section['desc']).'";');
+                } else {
+                    $callback = '__return_false';
+                }
+                add_settings_section($section['id'], $section['title'], $callback, $section['id']);
             }
-            add_settings_section($section['id'], $section['title'], $callback, $section['id']);
         }
         //register settings fields
-        foreach($this->fields as $section => $field){
-            foreach ($field as $option){
-                if(!empty($option)){
-                    $type = isset($option['type']) ? $option['type'] : 'text';
-                    $args = array(
-                        'type' => $type,
-                        'id' => $option['name'],
-                        'desc' => isset($option['desc']) ? $option['desc'] : null,
-                        'name' => $option['label'],
-                        'section' => $section,
-                        'options' => isset($option['options']) ? $option['options'] : '',
-                        'std' => isset($option['default']) ? $option['default'] : '',
-                        'attr' => isset($option['attr']) ? $option['attr'] : ''
-                    );
-                    add_settings_field($section . '[' . $option['name'] . ']', $option['label'], array($this, 'renderer'), $section, $section, $args);
+        if(Utils::isIterable($this->fields)){
+            foreach($this->fields as $section => $field){
+                if(Utils::isIterable($field)){
+                    foreach ($field as $option){
+                        if(!empty($option)){
+                            $type = isset($option['type']) ? $option['type'] : 'text';
+                            $args = array(
+                                'type' => $type,
+                                'id' => $option['name'],
+                                'desc' => isset($option['desc']) ? $option['desc'] : null,
+                                'name' => $option['label'],
+                                'section' => $section,
+                                'options' => isset($option['options']) ? $option['options'] : '',
+                                'std' => isset($option['default']) ? $option['default'] : '',
+                                'attr' => isset($option['attr']) ? $option['attr'] : ''
+                            );
+                            add_settings_field($section . '[' . $option['name'] . ']', $option['label'], array($this, 'renderer'), $section, $section, $args);
+                        }
+                    }
                 }
             }
         }
         // creates our settings in the options table
-        foreach ($this->sections as $section){
-            register_setting($section['id'], $section['id'], array($this, 'validate'));
+        if(Utils::isIterable($this->sections)){
+            foreach ($this->sections as $section){
+                register_setting($section['id'], $section['id'], array($this, 'validate'));
+            }
         }
     }
 
@@ -307,18 +317,20 @@ class Settings
                     }
                 }
                 // go through sections
-                foreach($this->sections as $form){
-                    echo '<div id="'. $form['id'] .'" class="group">';
-                        echo '<form method="post" action="options.php">';
-                            do_action('wsa_form_top_' . $form['id'], $form);
-                            settings_fields($form['id']);
-                            do_settings_sections($form['id']);
-                            do_action('wsa_form_bottom_' . $form['id'], $form);
-                            echo '<div style="padding-left: 10px">';
-                            submit_button();
-                            echo '</div>';
-                        echo '</form>';
-                    echo '</div>';
+                if(Utils::isIterable($this->sections)){
+                    foreach($this->sections as $form){
+                        echo '<div id="'. $form['id'] .'" class="group">';
+                            echo '<form method="post" action="options.php">';
+                                do_action('wsa_form_top_' . $form['id'], $form);
+                                settings_fields($form['id']);
+                                do_settings_sections($form['id']);
+                                do_action('wsa_form_bottom_' . $form['id'], $form);
+                                echo '<div style="padding-left: 10px">';
+                                    submit_button();
+                                echo '</div>';
+                            echo '</form>';
+                        echo '</div>';
+                    }
                 }
             echo '</div>';
         echo '</div>';

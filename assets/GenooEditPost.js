@@ -263,7 +263,7 @@ Document.ready(window, function(e){
                         var r = confirm("It seems like you have forgotten to select a sidebar or CTA for one or more dynamic CTA's, would like to continue?");
                         if(r == true){
                             jQuery("#ajax-loading").show();
-                            publish.click();
+                            publish.trigger('click');
                         } else {
                             jQuery("#publish").removeClass().addClass("button-primary");
                             jQuery("#ajax-loading").hide();
@@ -275,11 +275,11 @@ Document.ready(window, function(e){
             });
             if(found == false){
                 jQuery("#ajax-loading").show();
-                publish.click();
+                publish.trigger('click');
             }
         } else {
             jQuery("#ajax-loading").show();
-            publish.click();
+            publish.trigger('click');
         }
     });
      */

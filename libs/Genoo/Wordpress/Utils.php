@@ -125,4 +125,20 @@ class Utils
         }
         echo $output;
     }
+
+    /**
+     * Is iterable?
+     *
+     * @param $var
+     * @return bool
+     */
+    public static function isIterable($var)
+    {
+        return $var !== null
+                && (is_array($var)
+                || $var instanceof \Traversable
+                || $var instanceof \Iterator
+                || $var instanceof \IteratorAggregate
+        );
+    }
 }
