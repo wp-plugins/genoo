@@ -96,7 +96,7 @@ Event.attach = function (obj, type, fn)
         obj.addEventListener(type, fn, false);
     } else if (obj.attachEvent){
         obj["e"+type+fn] = fn;
-        obj[type+fn] = function() { obj["e"+type+fn]( window.event ); }
+        obj[type+fn] = function() { obj["e"+type+fn]( window.event ); };
         obj.attachEvent( "on"+type, obj[type+fn] );
     } else {
         obj["on"+type] = obj["e"+type+fn];
@@ -199,6 +199,39 @@ Metabox.checkEnabled = function()
 
 
 /**
+ * Register CTA validation
+ */
+Metabox.registerCTAValidator = function()
+{
+    // only if repeatable dynamic cta is present
+    if(Document.elementExists('repeatable_genoo-dynamic-cta')){
+        jQuery('#repeatable_genoo-dynamic-cta .validate select').change(Metabox.validateCTA);
+    }
+};
+
+/**
+ * Validate CTA, it can't be the first option
+ *
+ * @param event
+ */
+Metabox.validateCTA = function(event)
+{
+    // get vars
+    var e = event.target;
+    var e_parent = event.target.parentNode;
+    var first_value = e.options[0].value;
+    var selected_value = e.options[e.selectedIndex].value;
+    if(first_value === selected_value){
+        Tool.removeClass(e_parent, 'valid');
+        Tool.addClass(e_parent, 'invalid');
+    } else {
+        Tool.addClass(e_parent, 'valid');
+        Tool.removeClass(e_parent, 'invalid');
+    }
+};
+
+
+/**
  * Hide all
  */
 
@@ -242,45 +275,7 @@ Document.ready(window, function(e){
     Event.attach(document.getElementById('button_type'), 'change', Metabox.checkFields);
     Event.attach(document.getElementById('enable_cta_for_this_post'), 'change', Metabox.checkFields);
     Event.attach(document.getElementById('enable_cta_for_this_post_repeat'), 'change', Metabox.checkFields);
-    // Validate
-    // TODO: rewrite to normal js, instead of jQuery
-    /*
-    var form = jQuery("form[name='post']");
-    var publish = jQuery(form).find("#publish");
-    jQuery(form).find("#publish").click(function(e){
-        // prevent default
-        if(e.preventDefault){ e.preventDefault(); }
-        // found
-        var found = false;
-        // Do we have dynamic cta box?
-        if(Document.elementExists('repeatable_genoo-dynamic-cta') && jQuery('#enable_cta_for_this_post_repeat').is(':checked')){
-            // Go throu selected options
-            jQuery('#repeatable_genoo-dynamic-cta select').each(function(){
-                if(!jQuery(this).hasClass('empty')){
-                    var title = jQuery(this).find(':selected').text();
-                    // Whooa we have a winner
-                    if(title !== undefined && (title === 'Select CTA' || title === 'Select Sidebar')){
-                        var r = confirm("It seems like you have forgotten to select a sidebar or CTA for one or more dynamic CTA's, would like to continue?");
-                        if(r == true){
-                            jQuery("#ajax-loading").show();
-                            publish.trigger('click');
-                        } else {
-                            jQuery("#publish").removeClass().addClass("button-primary");
-                            jQuery("#ajax-loading").hide();
-                        }
-                        found = true;
-                        return false;
-                    }
-                }
-            });
-            if(found == false){
-                jQuery("#ajax-loading").show();
-                publish.trigger('click');
-            }
-        } else {
-            jQuery("#ajax-loading").show();
-            publish.trigger('click');
-        }
-    });
-     */
+    // Validate cta metabox
+    // Only if query selector exits
+    Metabox.registerCTAValidator();
 });

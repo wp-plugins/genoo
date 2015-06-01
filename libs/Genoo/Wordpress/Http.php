@@ -27,46 +27,61 @@ class Http
      *
      * @param null $url
      */
-
-    public function __construct($url = null){ $this->url = $url; return $this; }
+    public function __construct($url = null)
+    {
+        $this->url = $url;
+        return $this;
+    }
 
 
     /**
      * @param array $args
+     * @return $this
      */
-
-    public function setArgs(array $args = array()){ $this->args = $args; return $this; }
+    public function setArgs(array $args = array())
+    {
+        $this->args = $args;
+        return $this;
+    }
 
 
     /**
      * @param string $url
+     * @return $this
      */
-
-    public function setUrl($url = ''){ $this->url = $url; return $this; }
+    public function setUrl($url = '')
+    {
+        $this->url = $url;
+        return $this;
+    }
 
 
     /**
      * @param string $body
+     * @return $this
      */
-
-    public function setBody($body = ''){ $this->args['body'] = $body; return $this; }
-
+    public function setBody($body = '')
+    {
+        $this->args['body'] = $body;
+        return $this;
+    }
 
     /**
-     * Get
-     *
-     * @return mixed
+     * @return $this
+     * @throws HttpException
      */
-
-    public function get(){ $this->response = wp_remote_get($this->url, $this->args); $this->check(); return $this; }
-
+    public function get()
+    {
+        $this->response = \wp_remote_get($this->url, $this->args);
+        $this->check();
+        return $this;
+    }
 
     /**
-     * Post
-     *
-     * @return mixed
+     * @param null $body
+     * @param string $method
+     * @throws HttpException
      */
-
     public function post($body = null, $method = 'POST')
     {
         // content type need for correct API resopnse
@@ -81,30 +96,28 @@ class Http
             ),
         );
         // go my man
-        $this->response = wp_remote_post($this->url, array_merge($defaults, $this->args));
+        $this->response = \wp_remote_post($this->url, array_merge($defaults, $this->args));
         $this->check();
     }
 
 
     /**
-     * Put
-     *
      * @param null $body
      */
-
     public function put($body = null)
     {
-        return $this->post($body, 'PUT');
+        $this->post($body, 'PUT');
     }
 
 
     /**
-     * Head
-     *
-     * @return mixed
+     * @throws HttpException
      */
-
-    public function head(){ $this->response = wp_remote_head($this->url, $this->args); $this->check(); }
+    public function head()
+    {
+        $this->response = \wp_remote_head($this->url, $this->args);
+        $this->check();
+    }
 
 
     /**
@@ -112,7 +125,6 @@ class Http
      *
      * @throws HttpException
      */
-
     private function check()
     {
         if (is_wp_error($this->response)){
@@ -123,12 +135,12 @@ class Http
 
 
     /**
-     * Get response
-     *
      * @return mixed
      */
-
-    public function getResponse(){ return $this->response['response']; }
+    public function getResponse()
+    {
+        return $this->response['response'];
+    }
 
 
     /**
@@ -136,8 +148,10 @@ class Http
      *
      * @return mixed
      */
-
-    public function getResponseCode(){ return $this->response['response']['code']; }
+    public function getResponseCode()
+    {
+        return $this->response['response']['code'];
+    }
 
 
     /**
@@ -145,14 +159,15 @@ class Http
      *
      * @return mixed
      */
-
-    public function getBody(){ return $this->response['body']; }
+    public function getBody()
+    {
+        return $this->response['body'];
+    }
 
 
     /**
      * Reset
      */
-
     public function reset()
     {
         $this->response = '';

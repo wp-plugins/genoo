@@ -49,9 +49,22 @@
 .genooWidgetImage { text-align: center; }
 .genooWidgetImage img { padding: 3px; margin: 3px; display: inline-block; max-width: 70%; height: auto;  }
 .genooWidgetImage img { border: 2px dashed #c7c7c7; background: #f8f8f8; margin-bottom: 0; margin-top: 5px; }
+#repeatable_genoo-dynamic-cta th { padding-left: 28px; }
 .genooMetaboxRepeatable td input,
 .genooMetaboxRepeatable td select,
-.genooMetaboxRepeatable td textarea { width: 100%; }
+.genooMetaboxRepeatable td textarea { width: 80%; display: inline-block; float: left; margin-left: 20px; }
+.genooMetaboxRepeatable td { position: relative; }
+.genooMetaboxRepeatable td .dashicons { width: 20px; height: 20px; display: block; position: absolute; vertical-align: middle; text-align: left; padding-right: 0; }
+.genooMetaboxRepeatable td .dashicons { max-width: 17%; margin: 0; padding: 0; }
+.genooMetaboxRepeatable td.invalid select { border-color: #da771e; }
+.genooMetaboxRepeatable td.invalid .dashicons { color: #da771e; vertical-align: top; width: 20px; text-align: center; }
+.genooMetaboxRepeatable td.invalid .dashicons:before { content: "x"; }
+.genooMetaboxRepeatable td.valid select { border-color: #308e1f }
+.genooMetaboxRepeatable td.valid .dashicons { color: #308e1f; width: 20px; line-height: 30px; }
+.genooMetaboxRepeatable td.valid .dashicons:before { content: "\f147"; }
+.version-lower-than-3-8 .genooMetaboxRepeatable td .dashicons { width: 20px; height: 20px; font-size: 20px; line-height: 1; font-family: "Arial", sans-serif; text-decoration: inherit; font-weight: normal; font-style: normal; vertical-align: middle; text-align: center; -webkit-transition: color .1s ease-in 0; transition: color .1s ease-in 0; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.version-lower-than-3-8 .genooMetaboxRepeatable td.invalid .dashicons:before { content: 'X'; }
+.version-lower-than-3-8 .genooMetaboxRepeatable td.valid  .dashicons:before { content: '\2713'; }
 #genooLog { width: 45%; min-width: 255px; margin: 10px 0;  -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
 #genooLog h3 { padding: 0; }
 #genooLog small { padding: 5px 0; font-size: 12px; font-weight: normal; }
@@ -61,7 +74,6 @@
 #genooProgressBarText { display: block; position: absolute; top: 0; left: 0; z-index: 400; height: 100%; text-align: center; }
 #genooProgressBarText { width: 100%; line-height: 25px; }
 #genooProgressBarBG { position: absolute; z-index: 300; display: block; left: 0; height: 100%; }
-
 
 /* prevent flickering */
 #genooThemeSettings-genooFormPrev { width: auto; max-width: 260px; }

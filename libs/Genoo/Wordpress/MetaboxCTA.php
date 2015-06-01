@@ -143,27 +143,27 @@ class MetaboxCTA extends Metabox
                     if ($savedFields){
                         foreach ($savedFields as $field){ ?>
                         <tr>
-                            <td><?php echo self::select($this->id . '[cta][]', $fieldCTAs, isset($field['cta']) ? $field['cta'] : false); ?></td>
-                            <td><?php echo self::select($this->id . '[sidebar][]', $fieldSidebars, isset($field['cta']) ? $field['sidebar'] : false); ?></td>
-                            <td><?php echo self::select($this->id . '[position][]', self::selectPosition(), !empty($field['position']) ? $field['position'] : false); ?></td>
-                            <td><a class="button remove-row" href="#">Remove</a></td>
+                            <td width="40" class="validate valid"><span class="dashicons"></span><?php echo self::select($this->id . '[cta][]', $fieldCTAs, isset($field['cta']) ? $field['cta'] : false); ?></td>
+                            <td width="30" class="validate valid"><span class="dashicons"></span><?php echo self::select($this->id . '[sidebar][]', $fieldSidebars, isset($field['cta']) ? $field['sidebar'] : false); ?></td>
+                            <td width="20" class="valid"><span class="dashicons"></span><?php echo self::select($this->id . '[position][]', self::selectPosition(), !empty($field['position']) ? $field['position'] : false); ?></td>
+                            <td width="10"><a class="button remove-row" href="#">Remove</a></td>
                         </tr>
                     <?php
                         }
                     } else {
                         ?>
                         <tr>
-                            <td><?php echo self::select($this->id . '[cta][]', $fieldCTAs); ?></td>
-                            <td><?php echo self::select($this->id . '[sidebar][]', $fieldSidebars); ?></td>
-                            <td><?php echo self::select($this->id . '[position][]', self::selectPosition()); ?></td>
-                            <td><a class="button remove-row" href="#">Remove</a></td>
+                            <td width="40" class="validate invalid"><span class="dashicons"></span><?php echo self::select($this->id . '[cta][]', $fieldCTAs); ?></td>
+                            <td width="30" class="validate invalid"><span class="dashicons"></span><?php echo self::select($this->id . '[sidebar][]', $fieldSidebars); ?></td>
+                            <td width="20" class="valid"><span class="dashicons"></span><?php echo self::select($this->id . '[position][]', self::selectPosition()); ?></td>
+                            <td width="10"><a class="button remove-row" href="#">Remove</a></td>
                         </tr>
                     <?php } ?>
                     <tr class="empty-row screen-reader-text">
-                        <td><?php echo self::select($this->id . '[cta][]', $fieldCTAs, null, 'empty'); ?></td>
-                        <td><?php echo self::select($this->id . '[sidebar][]', $fieldSidebars, null, 'empty'); ?></td>
-                        <td><?php echo self::select($this->id . '[position][]', self::selectPosition(), null, 'empty'); ?></td>
-                        <td><a class="button remove-row" href="#">Remove</a></td>
+                        <td width="40" class="validate invalid"><span class="dashicons"></span><?php echo self::select($this->id . '[cta][]', $fieldCTAs, null, 'empty'); ?></td>
+                        <td width="30" class="validate invalid"><span class="dashicons"></span><?php echo self::select($this->id . '[sidebar][]', $fieldSidebars, null, 'empty'); ?></td>
+                        <td width="20" class="valid"><span class="dashicons"></span><?php echo self::select($this->id . '[position][]', self::selectPosition(), null, 'empty'); ?></td>
+                        <td width="10"><a class="button remove-row" href="#">Remove</a></td>
                     </tr>
                     </tbody>
                     <tfoot>

@@ -86,7 +86,7 @@ class Frontend
         // Do we have a post
         if($post instanceof \WP_Post){
             // We only run this on single posts
-            if(Post::isSingle() || Post::isPage() && Post::isPostType($post, $this->repositorySettings->getCTAPostTypes())){
+            if((Post::isSingle() || Post::isPage()) && Post::isPostType($post, $this->repositorySettings->getCTAPostTypes())){
                 // Dynamic cta
                 $cta = new CTADynamic($post);
                 // If the post does have multiple ctas, continue

@@ -201,13 +201,13 @@ class Settings
             case 'checkbox':
                 $fieldHtml .= sprintf('<input type="hidden" name="%1$s[%2$s]" value="off" />', $args['section'], $args['id']);
                 $fieldHtml .= sprintf('<input type="checkbox" class="checkbox" id="%1$s-%2$s" name="%1$s[%2$s]" value="on"%4$s %5$s />', $args['section'], $args['id'], $fieldValue, checked($fieldValue, 'on', false), $fieldAttr);
-                $fieldHtml .= sprintf('<label for="%1$s[%2$s]"> %3$s</label>', $args['section'], $args['id'], $args['desc']);
+                $fieldHtml .= sprintf('<label for="%1$s-%2$s"> %3$s</label>', $args['section'], $args['id'], $args['desc']);
                 break;
             case 'multicheck':
                 foreach ($args['options'] as $key => $label){
                     $checked = isset($fieldValueUn[$key]) ? $fieldValueUn[$key] : '0';
                     $fieldHtml .= sprintf('<input type="checkbox" class="checkbox" id="%1$s-%2$s-%3$s" name="%1$s[%2$s][%3$s]" value="%3$s"%4$s />', $args['section'], $args['id'], $key, checked($checked, $key, false));
-                    $fieldHtml .= sprintf('<label for="%1$s[%2$s][%4$s]"> %3$s</label><br />', $args['section'], $args['id'], $label, $key);
+                    $fieldHtml .= sprintf('<label for="%1$s-%2$s-%4$s"> %3$s</label><br />', $args['section'], $args['id'], $label, $key);
                 }
                 break;
             case 'radio':

@@ -85,6 +85,8 @@ class Admin
         Action::add('admin_menu', array($this, 'adminMenu'));
         Action::add('admin_notices', array ($this, 'adminNotices'));
         Action::add('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'), 10, 1);
+        // we need this for dashicons fallback
+        Filter::add('admin_body_class', array($this, 'adminBodyClass'), 10, 1);
     }
 
     /**
@@ -110,7 +112,7 @@ class Admin
         wp_enqueue_script('Genoo', GENOO_ASSETS . 'Genoo.js', null, GENOO_REFRESH, true);
         // if post edit or add screeen
         if($hook == 'post-new.php' || $hook == 'post.php'){
-            wp_enqueue_script('GenooEditPost', GENOO_ASSETS . 'GenooEditPost.js', array('jquery'), GENOO_REFRESH);
+            wp_enqueue_script('GenooEditPost', GENOO_ASSETS . 'GenooEditPosts.js', array('jquery'), GENOO_REFRESH);
         }
         // if setup up add vars
         if(GENOO_SETUP){
@@ -135,6 +137,31 @@ class Admin
             // register editor styles
             TinyMCE::register($this->repositarySettings->getCTAPostTypes());
         }
+    }
+
+
+    /**
+     * Admin body class
+     * - used to add lower than 3.8, dashicons edit
+     *
+     * @param $classes
+     * @return mixed
+     */
+    public function adminBodyClass($classes)
+    {
+        global $wp_version;
+        if (version_compare($wp_version, '3.8', '<' )){
+            // note that admin body classes use string, instead of an array
+            // but that might change one day so ...
+            if(empty($classes)){
+                $classes = 'version-lower-than-3-8';
+            } elseif(is_string($classes)){
+                $classes .= 'version-lower-than-3-8';
+            } elseif(is_array($classes)) {
+                $classes[] = 'version-lower-than-3-8';
+            }
+        }
+        return $classes;
     }
 
 

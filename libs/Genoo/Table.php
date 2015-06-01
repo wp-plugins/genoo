@@ -15,9 +15,9 @@ use Genoo\RepositoryUser;
 use Genoo\Utils\Strings;
 use Genoo\Wordpress\Utils;
 use Genoo\Wordpress\Notice;
-use Genoo\Wordpress\WPListTable;
+use Genoo\Wordpress\TableLite;
 
-abstract class Table extends \Genoo\Wordpress\WPListTable
+abstract class Table extends \Genoo\Wordpress\TableLite
 {
     /** @var array() */
     var $notices;

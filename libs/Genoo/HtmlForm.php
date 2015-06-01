@@ -87,7 +87,7 @@ class HtmlForm
             }
             if(!empty($this->msg)){
                 // html
-                $html .= '<strong class="'.$strongClass.'">' . htmlspecialchars($msg) . '</strong>';
+                $html .= '<strong class="'.$strongClass.'">' . strip_tags($msg, '<br><br/>') . '</strong>'; //htmlspecialchars
                 $fragment = $this->dom->createDocumentFragment();
                 $fragment->appendXML($html);
                 $this->msg->appendChild($fragment);

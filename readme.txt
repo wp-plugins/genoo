@@ -5,7 +5,7 @@ Requires at least: 3.3
 Tested up to: 4.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 2.6.8
+Stable tag: 2.7
 
 Combine the flexibility of WordPress with the power of Genoo and experience amazing results!
 
@@ -63,8 +63,13 @@ Not a Genoo customer yet? Let's get your ["30-Day Free Trial"](http://www.genoo.
 == Frequently Asked Questions ==
 
 == Upgrade Notice ==
+* CTA can be enabled for any post-types now
+* Updated CTA metabox validation
 
 == Changelog ==
+
+= 2.8 =
+* Added dynamic CTA validation
 
 = 2.6.8 =
 * Added WordPress 4.2.2 listing table support

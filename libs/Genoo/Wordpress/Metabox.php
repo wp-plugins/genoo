@@ -133,11 +133,13 @@ class Metabox
         if(is_array($this->fields) && !empty($this->fields)){
             foreach($this->fields as $field){
                 $fieldId = isset($field['id']) ? $field['id'] : str_replace('-', '_', Strings::lower(Strings::webalize($field['label'])));
-                $fieldRow = '<div class="themeMetaboxRow" id="themeMetaboxRow'. $fieldId .'" >';
-                $fieldValue = get_post_meta($post->ID, $fieldId, true);
-                $fieldLabel = '<label for="' . $fieldId . '">' . $field['label'] . '</label>';
-                $fieldOptions = isset($field['options']) ? $field['options'] : array();
-                $fieldAtts = '';
+                if(isset($field['type']) && (isset($field['label']))){
+                    $fieldRow = '<div class="themeMetaboxRow" id="themeMetaboxRow'. $fieldId .'" >';
+                    $fieldValue = get_post_meta($post->ID, $fieldId, true);
+                    $fieldLabel = '<label for="' . $fieldId . '">' . $field['label'] . '</label>';
+                    $fieldOptions = isset($field['options']) ? $field['options'] : array();
+                    $fieldAtts = '';
+                }
                 if(isset($field['atts']) && is_array($field['atts'])){ foreach($field['atts'] as $key => $value){ $fieldAtts .= ' '. $key .'="'. $value .'" '; } }
                 switch($field['type']){
                     case 'text':
@@ -188,13 +190,13 @@ class Metabox
                             . wp_get_attachment_image($fieldValue, 'medium', false)
                             . '</div>';
                         $fieldInput = '<input type="hidden" name="'. $fieldId .'" id="'. $fieldId .'" value="'. $fieldValue .'" />';
-                        $fieldInput .= '<a href="#" onclick="Modal.open(event,this);"'
-                            . 'id="'. $fieldId . 'Btn' .'"'
-                            . 'data-current-id="'. $fieldValue .'"'
-                            . 'data-title="'. $fieldLabelButton .'"'
-                            . 'data-update-text="'. $fieldLabelButton .'"'
-                            . 'data-target="'. $fieldTarget .'"'
-                            . 'data-target-input="'. $fieldId .'"'
+                        $fieldInput .= '<a href="#" onclick="Modal.open(event,this);" '
+                            . 'id="'. $fieldId . 'Btn' .'" '
+                            . 'data-current-id="'. $fieldValue .'" '
+                            . 'data-title="'. $fieldLabelButton .'" '
+                            . 'data-update-text="'. $fieldLabelButton .'" '
+                            . 'data-target="'. $fieldTarget .'" '
+                            . 'data-target-input="'. $fieldId .'" '
                             . 'class="button">'. $fieldLabelButton .'</a>';
                         $fieldInput .= ' | ';
                         $fieldInput .= '<a href="#" onclick="Modal.emptyImage(event,'
@@ -205,12 +207,14 @@ class Metabox
                         $fieldInput .= '<div class="clear"></div></div>';
                         break;
                 }
-                // add elements to a row
-                $fieldRow .= $fieldLabel;
-                $fieldRow .= $fieldInput;
-                $fieldRow .= $metaboxClear;
-                // add row to metabox form
-                $metaboxForm .= $fieldRow . '</div>';
+                if(isset($field['type']) && (isset($field['label']))){
+                    // add elements to a row
+                    $fieldRow .= $fieldLabel;
+                    $fieldRow .= $fieldInput;
+                    $fieldRow .= $metaboxClear;
+                    // add row to metabox form
+                    $metaboxForm .= $fieldRow . '</div>';
+                }
             }
         }
         // render, well, echo
