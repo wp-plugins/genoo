@@ -14,7 +14,7 @@
  */
 
 // Include parent class
-if(file_exists('TinyMCEHanlder.php')){
+if(file_exists(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'TinyMCEHanlder.php')){
     require_once 'TinyMCEHanlder.php';
 }
 

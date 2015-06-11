@@ -131,7 +131,8 @@ class Admin
                     'forms'  => $this->repositaryForms->getFormsArray(),
                     'lumens' => $this->repositaryLumens->getLumensArray(),
                     'ctas'   => $this->repositaryCTAs->getArray(),
-                    'cta-pt' => $this->repositarySettings->getCTAPostTypes()
+                    'cta-pt' => $this->repositarySettings->getCTAPostTypes(),
+                    'url'    => Utils::addQueryParam(GENOO_HOME_URL, 'genooIframe=', '')
                 )
             ));
             // register editor styles

@@ -18,6 +18,7 @@ use Genoo\RepositorySettings,
     Genoo\ModalWindow,
     Genoo\HtmlForm,
     Genoo\Wordpress\Widgets;
+use Genoo\Utils\Strings;
 use Genoo\Wordpress\Debug;
 use Genoo\Wordpress\Post;
 
@@ -30,9 +31,10 @@ class Frontend
     var $footerCTAModals = array();
 
     /**
-     * Constructor
+     * Construct Frontend
+     *
+     * @param RepositorySettings $repositorySettings
      */
-
     public function __construct(RepositorySettings $repositorySettings)
     {
         // Settings
@@ -53,11 +55,11 @@ class Frontend
     /**
      * Init, rewrite rules for mobiles windows
      */
-
     public function init()
     {
         Filter::add('query_vars', function($query_vars){
             $query_vars[] = 'genooMobileWindow';
+            $query_vars[] = 'genooIframe';
             return $query_vars;
         }, 10, 1);
         Action::add('parse_request', function($wp){
@@ -66,6 +68,19 @@ class Frontend
                 // Only when query parsed do this
                 Filter::removeFrom('wp_head')->everythingExceptLike(array('style', 'script'));
                 Frontend::renderMobileWindow();
+            }
+            // If iframe load for backend, its safe to assume
+            // that only logged in users will hava access to tinyMCE editor
+            if(array_key_exists('genooIframe', $wp->query_vars) && is_user_logged_in()){
+                // Only continue if file actually exists and iframe not empty
+                if(!empty($wp->query_vars['genooIframe']) && file_exists(GENOO_ASSETS_DIR . $wp->query_vars['genooIframe'])){
+                    // Since this could be potentionally hazardous, to display just any PHP file that is in the folder
+                    // we will check if its GenooTinyMCE file first, just to be safe, and of course just those PHP iframe files, not any others.
+                    if(Strings::startsWith($wp->query_vars['genooIframe'], 'GenooTinyMCE') && Strings::endsWith($wp->query_vars['genooIframe'], '.php')){
+                        // No we have a winner.
+                        Frontend::renderTinyMCEIframe($wp->query_vars['genooIframe']);
+                    }
+                }
             }
         });
         Widgets::refreshDynamic();
@@ -78,7 +93,6 @@ class Frontend
      *
      * @param $wp
      */
-
     public function wp($wp)
     {
         // Global post
@@ -113,7 +127,6 @@ class Frontend
     /**
      * Enqueue
      */
-
     public function enqueue()
     {
         // Frontend css
@@ -129,7 +142,6 @@ class Frontend
     /**
      * Footer first
      */
-
     public function footerFirst()
     {
         // Tracking code
@@ -143,7 +155,6 @@ class Frontend
     /**
      * Footer last
      */
-
     public function footerLast()
     {
         // Prep
@@ -191,7 +202,6 @@ class Frontend
     /**
      * Render mobile window
      */
-
     public static function renderMobileWindow()
     {
         // Simple template
@@ -207,6 +217,15 @@ class Frontend
         wp_footer();
         echo '</body></html>';
         // Kill it before WordPress does his shenanigans
+        exit();
+    }
+
+    /**
+     * Render iframe for TinyMCE admin editor
+     */
+    public static function renderTinyMCEIframe($file)
+    {
+        include_once GENOO_ASSETS_DIR . $file;
         exit();
     }
 

@@ -1179,7 +1179,6 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
     GenooTinyMCE.addPlugin.log('Plugin initiated:');
     GenooTinyMCE.addPlugin.log('Button: ' + buttonTitle);
 
-
     /**
      * Replace Shortcode
      *
@@ -1243,7 +1242,6 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
         contentNew = this.contentRestoreShortcode(tinymce, contentNew, buttonCommand, buttonShortcode);
         return contentNew;
     };
-
 
     // Version 4 and above
     if(Tool.versionCompare(TinyMCEVersion, '4', '>='))
@@ -1323,7 +1321,7 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
                 query['version'] = TinyMCEVersion;
                 query['commandRefresh'] = buttonCommandRefresh;
                 ed.windowManager.open({
-                    file : url + '/' + pluginFile + '?' + Admin.buildQuery(query),
+                    file : GenooVars.GenooTinyMCE.url + pluginFile + '&' + Admin.buildQuery(query),
                     width : options.width + parseInt(ed.getLang('example.delta_width', 0)),
                     height : options.height + parseInt(ed.getLang('example.delta_height', 0)),
                     inline : 1
@@ -1337,7 +1335,7 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
                 query['selected'] = string;
                 query['commandRefresh'] = buttonCommandRefresh;
                 ed.windowManager.open({
-                    file : url + '/' + pluginFile + '?' + Admin.buildQuery(query),
+                    file : GenooVars.GenooTinyMCE.url + pluginFile + '&' + Admin.buildQuery(query),
                     width : options.width + parseInt(ed.getLang('example.delta_width', 0)),
                     height : options.height + parseInt(ed.getLang('example.delta_height', 0)),
                     inline : 1
@@ -1361,6 +1359,6 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
         });
         // Version 3
     } else if(Tool.versionCompare(TinyMCEVersion, '3', '>=')){
-        // Todo add version 3
+        // Do we still support older TinyMCE?
     }
 };

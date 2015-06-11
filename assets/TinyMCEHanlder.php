@@ -11,7 +11,6 @@
 /**
  * Class TinyMCEHanlder
  */
-
 abstract class TinyMCEHanlder
 {
     /** @var string */
@@ -37,7 +36,6 @@ abstract class TinyMCEHanlder
     /**
      * @param $shortcode
      */
-
     public function __construct($shortcode)
     {
         // Construct first vars
@@ -54,7 +52,6 @@ abstract class TinyMCEHanlder
     /**
      * Resolve GET parameters
      */
-
     public function resolve()
     {
         $this->edit = (isset($_GET['edit']) && $_GET['edit'] == '1') ? true : false;
@@ -74,28 +71,11 @@ abstract class TinyMCEHanlder
      * @param $text
      * @return array|string
      */
-
     public static function parseAtts($text)
     {
-        $atts = array();
-        $pattern = '/(\w+)\s*=\s*"([^"]*)"(?:\s|$)|(\w+)\s*=\s*\'([^\']*)\'(?:\s|$)|(\w+)\s*=\s*([^\s\'"]+)(?:\s|$)|"([^"]*)"(?:\s|$)|(\S+)(?:\s|$)/';
-        $text = preg_replace("/[\x{00a0}\x{200b}]+/u", " ", $text);
-        if (preg_match_all($pattern, $text, $match, PREG_SET_ORDER)){
-            foreach ($match as $m) {
-                if (!empty($m[1]))
-                    $atts[strtolower($m[1])] = stripcslashes($m[2]);
-                elseif (!empty($m[3]))
-                    $atts[strtolower($m[3])] = stripcslashes($m[4]);
-                elseif (!empty($m[5]))
-                    $atts[strtolower($m[5])] = stripcslashes($m[6]);
-                elseif (isset($m[7]) and strlen($m[7]))
-                    $atts[] = stripcslashes($m[7]);
-                elseif (isset($m[8]))
-                    $atts[] = stripcslashes($m[8]);
-            }
-        } else {
-            $atts = ltrim($text);
-        }
+        // We now include the file, so we can use WordPress inner Parse Attributes
+        $text = str_replace("\'", "'", $text);
+        $atts = shortcode_parse_atts($text);
         return $atts;
     }
 
@@ -105,7 +85,6 @@ abstract class TinyMCEHanlder
      *
      * @return string
      */
-
     public function shortcodeRegex()
     {
         // Tag regex
@@ -149,7 +128,6 @@ abstract class TinyMCEHanlder
      * and renders accordingly. Inner parts are rendered
      * from extending classes.
      */
-
     public function render()
     {
         ?>
@@ -304,7 +282,6 @@ abstract class TinyMCEHanlder
      * Renders Javasript function to insert a shortcode,
      * this will be overwritten by each extending class.
      */
-
     public function renderJavascript(){}
 
 
@@ -312,13 +289,11 @@ abstract class TinyMCEHanlder
      * Renders the form, again this will be replaced by
      * the extending class.
      */
-
     public function renderForm(){}
 
 
     /**
      * To be overwritten by extending class.
      */
-
     public function resolveSecond(){}
 }

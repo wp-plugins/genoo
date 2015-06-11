@@ -47,11 +47,12 @@ class Genoo
         define('GENOO_LEGACY',  FALSE);
         define('GENOO_HOME_URL',get_option('siteurl'));
         define('GENOO_FOLDER',  plugins_url(NULL, __FILE__));
-        define('GENOO_ASSETS',  GENOO_FOLDER . '/assets/');
         define('GENOO_ROOT',    dirname(__FILE__) . DIRECTORY_SEPARATOR);
+        define('GENOO_ASSETS',  GENOO_FOLDER . '/assets/');
+        define('GENOO_ASSETS_DIR', GENOO_ROOT . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR);
         define('GENOO_CACHE',   GENOO_ROOT . 'cache' . DIRECTORY_SEPARATOR);
         define('GENOO_DEBUG',   get_option('genooDebug'));
-        define('GENOO_REFRESH', sha1('genoo-new-javascript-now-css-too'));
+        define('GENOO_REFRESH', sha1('genoo-works-around-security-protocols'));
         // start the engine last file to require, rest is auto
         // custom auto loader, PSR-0 Standard
         require_once('GenooRobotLoader.php');
