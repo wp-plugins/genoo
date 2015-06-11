@@ -11,6 +11,7 @@
 
 namespace Genoo;
 
+use Genoo\Wordpress\Utils;
 
 class RepositoryLumens extends Repository
 {
@@ -71,7 +72,8 @@ class RepositoryLumens extends Repository
                 $this->cache->set((string)$id, $prepLumen, self::REPO_TIMER, self::REPO_NAMESPACE);
             }
         } catch(\Exception $e){}
-        return $prepLumen;
+        // Get Lumen class without "http://" and "https://" here already
+        return Utils::nonProtocolUrl($prepLumen);
     }
 
 

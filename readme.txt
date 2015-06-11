@@ -5,7 +5,7 @@ Requires at least: 3.3
 Tested up to: 4.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 2.8.6
+Stable tag: 2.8.7
 
 Combine the flexibility of WordPress with the power of Genoo and experience amazing results!
 
@@ -68,9 +68,10 @@ Not a Genoo customer yet? Let's get your ["30-Day Free Trial"](http://www.genoo.
 
 == Changelog ==
 
-= 2.8.6 =
+= 2.8.7 =
 * Added compatibility for TinyMCE iframes when servers don't allow direct access to PHP files in wp-content/plugins/ directory.
 * Changed preview function for Lumens Classlist
+* Changed Classlist url to non-protocol one (only //url.url)
 
 = 2.8 =
 * Added dynamic CTA validation

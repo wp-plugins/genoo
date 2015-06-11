@@ -141,4 +141,23 @@ class Utils
                 || $var instanceof \IteratorAggregate
         );
     }
+
+    /**
+     * @param $url
+     * @return mixed
+     */
+    public static function nonProtocolUrl($url)
+    {
+        return str_replace(
+            array(
+                'http://',
+                'https://',
+            ),
+            array(
+                '//',
+                '//'
+            ),
+            $url
+        );
+    }
 }
