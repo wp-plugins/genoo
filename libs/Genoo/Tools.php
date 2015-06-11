@@ -288,4 +288,22 @@ class Tools
         $p .= '<p>' . self::toolsLink('genooActionValidate', __('Validate API key.', 'genoo')) . '</p>';
         return $p;
     }
+
+
+    /**
+     * @return object
+     */
+    public static function parseLumenData($data)
+    {
+        // suppress warnings of invalid html
+        libxml_use_internal_errors(true);
+        // Dom document
+        $dom = new \DOMDocument;
+        $dom->loadHTML($data);
+        $dom->preserveWhiteSpace = false;
+        // Get script + get div
+        $arr['id'] = $dom->getElementsByTagName("div")->item(0)->getAttribute('id');
+        $arr['src'] = $dom->getElementsByTagName("script")->item(0)->getAttribute('src');
+        return (object)$arr;
+    }
 }

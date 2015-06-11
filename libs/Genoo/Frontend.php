@@ -60,6 +60,7 @@ class Frontend
         Filter::add('query_vars', function($query_vars){
             $query_vars[] = 'genooMobileWindow';
             $query_vars[] = 'genooIframe';
+            $query_vars[] = 'genooIframeLumen';
             return $query_vars;
         }, 10, 1);
         Action::add('parse_request', function($wp){
@@ -80,6 +81,14 @@ class Frontend
                         // No we have a winner.
                         Frontend::renderTinyMCEIframe($wp->query_vars['genooIframe']);
                     }
+                }
+            }
+            // Genoo preview iframe
+            if(array_key_exists('genooIframeLumen', $wp->query_vars) && is_user_logged_in()){
+                // This workaround needs id and script source to dispaly the script
+                if((isset($_GET['genooIframeLumenSrc']) && !empty($_GET['genooIframeLumenSrc'])) && (!empty($wp->query_vars['genooIframeLumen']))){
+                    // Seems like a winner, display content
+                    Frontend::renderPreviewLumenIframe($wp->query_vars['genooIframeLumen'], $_GET['genooIframeLumenSrc']);
                 }
             }
         });
@@ -221,7 +230,7 @@ class Frontend
     }
 
     /**
-     * Render iframe for TinyMCE admin editor
+     * @param $file
      */
     public static function renderTinyMCEIframe($file)
     {
@@ -229,6 +238,16 @@ class Frontend
         exit();
     }
 
+    /**
+     * @param $id
+     * @param $src
+     */
+    public static function renderPreviewLumenIframe($id, $src)
+    {
+        echo '<script src="'. $src .'" type="text/javascript"></script>';
+        echo '<div id="'. $id .'"></div>';
+        exit();
+    }
 
     /**
      * Shutdown

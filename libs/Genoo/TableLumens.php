@@ -96,14 +96,14 @@ class TableLumens extends Table
      * @param $item
      * @return string
      */
-
     function column_lumen($item)
     {
         $prepForm = '';
-        $prepForm .= '<div id="genooLumen'. $item['id'] .'" style="display:none;">';
-            $prepForm .= $this->repositoryLumens->getLumen($item['id']);
-        $prepForm .= '</div>';
-        $prepForm .= '<a href="#TB_inline?width=600&height=550&inlineId=genooLumen'. $item['id'] .'" class="thickbox">'. __('Preview list', 'genoo') .'</a>';
+        $form = $this->repositoryLumens->getLumen($item['id']);
+        $formData = Tools::parseLumenData($form);
+        if(is_object($formData)){
+            $prepForm .= '<a href="'. GENOO_HOME_URL .'?genooIframeLumen='. $formData->id .'&genooIframeLumenSrc='. $formData->src .'&TB_iframe=true&width=250&height=300" class="thickbox">'. __('Preview list', 'genoo') .'</a>';
+        }
         return $prepForm;
     }
 
