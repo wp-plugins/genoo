@@ -101,8 +101,11 @@ class TableLumens extends Table
         $prepForm = '';
         $form = $this->repositoryLumens->getLumen($item['id']);
         $formData = Tools::parseLumenData($form);
+        $prepForm .= '<!--';
+            $prepForm .= $form;
+        $prepForm .= '-->';
         if(is_object($formData)){
-            $prepForm .= '<a href="'. GENOO_HOME_URL .'?genooIframeLumen='. $formData->id .'&genooIframeLumenSrc='. $formData->src .'&TB_iframe=true&width=250&height=300" class="thickbox">'. __('Preview list', 'genoo') .'</a>';
+            $prepForm .= '<a href="'. GENOO_HOME_URL .'?genooIframeLumen='. $formData->id .'&genooIframeLumenSrc='. base64_encode($formData->src) .'&TB_iframe=true&width=250&height=300" class="thickbox">'. __('Preview list', 'genoo') .'</a>';
         }
         return $prepForm;
     }

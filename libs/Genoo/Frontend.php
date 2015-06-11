@@ -244,7 +244,7 @@ class Frontend
      */
     public static function renderPreviewLumenIframe($id, $src)
     {
-        $src = Utils::nonProtocolUrl($src);
+        $src = Utils::nonProtocolUrl(base64_decode($src));
         echo '<script src="'. $src .'" type="text/javascript"></script>';
         echo '<div id="'. $id .'"></div>';
         exit();
