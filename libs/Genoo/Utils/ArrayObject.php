@@ -148,6 +148,6 @@ class ArrayObject extends \ArrayObject
 
     public static function removeByValue($array, $element)
     {
-        return array_diff($array, [$element]);
+        return array_diff($array, array($element));
     }
 }
