@@ -148,6 +148,7 @@ class TableForms extends Table
             $this->found_data = array_slice($allLogs,(($this->get_pagenum()-1)* $perPage), $perPage);
             $this->set_pagination_args(array('total_items' => count($allLogs), 'per_page' => $perPage));
             $this->items = $this->found_data;
+            $this->checkActiveForm($this->items);
         } catch (\Genoo\ApiException $e){
             $this->addNotice('error', 'Genoo API: ' . $e->getMessage());
         } catch (\Exception $e){
@@ -160,7 +161,6 @@ class TableForms extends Table
     /**
      * Process it!
      */
-
     public function process()
     {
         // sortof beforeRender, add thickbox, just to be sure
@@ -177,6 +177,32 @@ class TableForms extends Table
         if(isset($_GET['genooFormId']) && is_numeric($_GET['genooFormId'])){
             $this->repositorySettings->setActiveForm($_GET['genooFormId']);
             $this->addNotice('updated', __('Form set as primary Subscribe Form.', 'genoo'));
+        }
+    }
+
+    /**
+     * Check if Active default form has been changed / removed
+     *
+     * @param $forms
+     */
+    public function checkActiveForm($forms)
+    {
+        if(!empty($this->activeForm)){
+            $found = FALSE;
+            if(is_array($forms) && !empty($forms) && !empty($this->activeForm)){
+                foreach($forms as $form){
+                    if(isset($form['id'])){
+                        if($form['id'] == $this->activeForm){
+                            $found = TRUE;
+                            break;
+                        }
+                    }
+                }
+            }
+            // Only if none of the forms inside matches active form
+            if($found == FALSE){
+                $this->addNotice('error', 'Have you recently changed your Genoo forms? Your default form seems to be missing, don’t forget to select a new one!');
+            }
         }
     }
 }
