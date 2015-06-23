@@ -42,7 +42,7 @@ class Frontend
         // Init
         Action::add('init',  array($this, 'init'));
         // wp
-        Action::add('wp',    array($this, 'wp'), 10, 1);
+        Action::add('wp',    array($this, 'wp'), 999, 1);
         // Enqueue scripts
         Action::add('wp_enqueue_scripts', array($this, 'enqueue'));
         // Footer

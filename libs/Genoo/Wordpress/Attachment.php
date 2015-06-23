@@ -34,8 +34,8 @@ class Attachment
 
         $css = new CSS();
         if(!is_null($img)){
-            $css->addRule('#' . $id.  ' input')
-                ->add('background', 'url(\'' . $src[0] . '\') top left no-repeat transparent')
+            $css->addRule('body #' . $id.  ' input')
+                ->add('background', 'url(\'' . $src[0] . '\') top left no-repeat transparent !important')
                 ->add('background-size', '100% auto')
                 ->add('display', 'inline-block')
                 ->add('width', 'auto')
@@ -46,8 +46,8 @@ class Attachment
                 ->add('max-width', '100%');
         }
         if(!is_null($imgHover)){
-            $css->addRule('#' . $id . ' input:hover, ' . '#' . $id . ' input:focus, ' . '#' . $id . ' input:active')
-                ->add('background', 'url(\'' . $srcHover[0] . '\') top left no-repeat transparent')
+            $css->addRule('body #' . $id . ' input:hover, ' . '#' . $id . ' input:focus, ' . '#' . $id . ' input:active')
+                ->add('background', 'url(\'' . $srcHover[0] . '\') top left no-repeat transparent !important')
                 ->add('background-size', '100% auto')
                 ->add('width', $srcHover[1] . 'px')
                 ->add('height', $srcHover[2] . 'px')
@@ -56,7 +56,7 @@ class Attachment
         }
 
         // clean up theme styles
-        $css->addRule('#' . $id.  ' input')
+        $css->addRule('body #' . $id.  ' input')
             ->add('box-shadow', 'none !important')
             ->add('border', 'none !important')
             ->add('border-radius', '0 !important');

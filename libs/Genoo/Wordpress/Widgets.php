@@ -228,16 +228,25 @@ class Widgets
             Filter::add('sidebars_widgets', function($sidebars) use ($widgets){
                 // Go through sidebars
                 foreach($widgets as $sidebarKey => $widgetArray){
+                    // Sort array by position, only if array and positionable
+                    if(is_array($widgetArray) && isset($widgetArray[0]->position)){
+                        usort($widgetArray, function($a, $b){
+                            return ($a->position == $b->position)
+                                ? (($a->position < $b->position) ? -1 : 1)
+                                : ($a->position - $b->position);
+                        });
+                    }
                     // Each sidebar has an array of widgets,
                     // even one widget will be in an array
                     if(is_array($widgetArray) && !empty($widgetArray)){
+                        // Before going through widgets, removing instances of
+                        // all dynamic CTA widgets, so we position them correctly
+                        $sidebars[$sidebarKey] = ArrayObject::removeByValueLike($sidebars[$sidebarKey], 'genoodynamiccta');
                         // Going through widgets
                         foreach($widgetArray as $widget){
                             // If the sidebar they are assigned to exists,
                             // continue (if not, might have been removed, theme change etc.)
                             if(isset($sidebars[$sidebarKey])){
-                                // Remove widget so we can position it correctly
-                                $sidebars[$sidebarKey] = ArrayObject::removeByValue($sidebars[$sidebarKey], $widget->widget);
                                 // Check if it's not already there, because the widget "id" is unique
                                 // it shouldn't be there more than once
                                 if(!in_array($widget->widget, $sidebars[$sidebarKey])){
@@ -256,7 +265,7 @@ class Widgets
                     }
                 }
                 return $sidebars;
-            }, 10, 1);
+            }, 999, 1);
         }
     }
 
@@ -296,7 +305,7 @@ class Widgets
             // this way and inject them as well.
             Filter::add('pre_option_widget_' . $widgetName, function($value) use ($r){
                 return $r;
-            }, 10, 1);
+            }, 1, 1);
         }
     }
 

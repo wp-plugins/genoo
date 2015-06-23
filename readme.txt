@@ -5,7 +5,7 @@ Requires at least: 3.3
 Tested up to: 4.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 2.8.9
+Stable tag: 2.9
 
 Combine the flexibility of WordPress with the power of Genoo and experience amazing results!
 
@@ -67,6 +67,9 @@ Not a Genoo customer yet? Let's get your ["30-Day Free Trial"](http://www.genoo.
 * Updated CTA metabox validation
 
 == Changelog ==
+
+= 2.9 =
+* Better dynamic CTA resolving and priority handeling
 
 = 2.8.7 =
 * Added compatibility for TinyMCE iframes when servers don't allow direct access to PHP files in wp-content/plugins/ directory.

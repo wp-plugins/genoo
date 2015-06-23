@@ -12,7 +12,6 @@
 
 namespace Genoo\Utils;
 
-
 class ArrayObject extends \ArrayObject
 {
 
@@ -149,5 +148,34 @@ class ArrayObject extends \ArrayObject
     public static function removeByValue($array, $element)
     {
         return array_diff($array, array($element));
+    }
+
+
+    /**
+     * Remove by value - %LIKE%
+     *
+     * @param $array
+     * @param $like
+     */
+
+    public static function removeByValueLike($array, $like)
+    {
+        $r = array();
+        // If we have array
+        if(is_array($array)){
+            // Go through array
+            foreach($array as $key => $value){
+                if(!is_array($value)){
+                    // We have a winner!
+                    if(strpos($value, $like) !== FALSE){
+                        unset($array[$key]);
+                    }
+                } else {
+                    $array[$key] = self::removeByValueLike($value, $like);
+                }
+            }
+            $r = $array;
+        }
+        return $r;
     }
 }
