@@ -148,16 +148,73 @@ class Utils
      */
     public static function nonProtocolUrl($url)
     {
+        $http = self::isSecure() ? 'https://' : 'http://';
         return str_replace(
             array(
                 'http://',
                 'https://',
             ),
             array(
-                '//',
-                '//'
+                $http,
+                'https://'
             ),
             $url
+        );
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isSecure()
+    {
+        return
+            (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || $_SERVER['SERVER_PORT'] == 443;
+    }
+
+
+    /**
+     * Does what it says
+     *
+     * @param $array
+     * @return bool
+     */
+    public static function definedAndFalse($array)
+    {
+        $r = $array;
+        if(is_array($r)){
+            foreach($r as $constant){
+                if (defined($constant) && constant($constant) == TRUE){
+                    return FALSE;
+                }
+            }
+        }
+        return TRUE;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isSafeFrontend()
+    {
+        return self::definedAndFalse(
+            array(
+                'DOING_AJAX',
+                'DOING_AUTOSAVE',
+                'DOING_CRON',
+                'WP_ADMIN',
+                'WP_IMPORTING',
+                'WP_INSTALLING',
+                'WP_UNINSTALL_PLUGIN',
+                'IFRAME_REQUEST',
+                '#WP_INSTALLING_NETWORK',
+                'WP_NETWORK_ADMIN',
+                'WP_LOAD_IMPORTERS',
+                'WP_REPAIRING',
+                'WP_UNINSTALL_PLUGIN',
+                'WP_USER_ADMIN',
+                'XMLRPC_REQUEST'
+            )
         );
     }
 }

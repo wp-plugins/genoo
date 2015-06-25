@@ -12,11 +12,12 @@
 namespace Genoo\Wordpress;
 
 use Genoo\Tracer;
-use Genoo\Utils\Strings,
-    Genoo\Utils\ArrayObject,
-    Genoo\Wordpress\Action,
-    Genoo\WidgetCTADynamic,
-    Genoo\CTA;
+use Genoo\Utils\Strings;
+use Genoo\Utils\ArrayObject;
+use Genoo\Wordpress\Action;
+use Genoo\Wordpress\Utils;
+use Genoo\WidgetCTADynamic;
+use Genoo\CTA;
 
 class Widgets
 {
@@ -226,38 +227,41 @@ class Widgets
         // Do we have an array? Let's go through
         if(is_array($widgets) && !empty($widgets)){
             Filter::add('sidebars_widgets', function($sidebars) use ($widgets){
-                // Go through sidebars
-                foreach($widgets as $sidebarKey => $widgetArray){
-                    // Sort array by position, only if array and positionable
-                    if(is_array($widgetArray) && isset($widgetArray[0]->position)){
-                        usort($widgetArray, function($a, $b){
-                            return ($a->position == $b->position)
-                                ? (($a->position < $b->position) ? -1 : 1)
-                                : ($a->position - $b->position);
-                        });
-                    }
-                    // Each sidebar has an array of widgets,
-                    // even one widget will be in an array
-                    if(is_array($widgetArray) && !empty($widgetArray)){
-                        // Before going through widgets, removing instances of
-                        // all dynamic CTA widgets, so we position them correctly
-                        $sidebars[$sidebarKey] = ArrayObject::removeByValueLike($sidebars[$sidebarKey], 'genoodynamiccta');
-                        // Going through widgets
-                        foreach($widgetArray as $widget){
-                            // If the sidebar they are assigned to exists,
-                            // continue (if not, might have been removed, theme change etc.)
-                            if(isset($sidebars[$sidebarKey])){
-                                // Check if it's not already there, because the widget "id" is unique
-                                // it shouldn't be there more than once
-                                if(!in_array($widget->widget, $sidebars[$sidebarKey])){
-                                    // Positin wise setup
-                                    if($widget->position == -1){        // Last
-                                        $sidebars[$sidebarKey] = ArrayObject::appendToTheEnd($sidebars[$sidebarKey], $widget->widget);
-                                    } elseif ($widget->position == 1){  // First
-                                        $sidebars[$sidebarKey] = ArrayObject::prependToTheBeginning($sidebars[$sidebarKey], $widget->widget);
-                                    } else {                            // Other
-                                        $position = ($widget->position < 0) ? 0 : $widget->position - 1;
-                                        $sidebars[$sidebarKey] = ArrayObject::appendTo($sidebars[$sidebarKey], $position, $widget->widget);
+                // One last protection inside the filter (just a precaution)
+                if(Utils::isSafeFrontend()){
+                    // Go through sidebars
+                    foreach($widgets as $sidebarKey => $widgetArray){
+                        // Sort array by position, only if array and positionable
+                        if(is_array($widgetArray) && isset($widgetArray[0]->position)){
+                            usort($widgetArray, function($a, $b){
+                                return ($a->position == $b->position)
+                                    ? (($a->position < $b->position) ? -1 : 1)
+                                    : ($a->position - $b->position);
+                            });
+                        }
+                        // Each sidebar has an array of widgets,
+                        // even one widget will be in an array
+                        if(is_array($widgetArray) && !empty($widgetArray)){
+                            // Before going through widgets, removing instances of
+                            // all dynamic CTA widgets, so we position them correctly
+                            $sidebars[$sidebarKey] = ArrayObject::removeByValueLike($sidebars[$sidebarKey], 'genoodynamiccta');
+                            // Going through widgets
+                            foreach($widgetArray as $widget){
+                                // If the sidebar they are assigned to exists,
+                                // continue (if not, might have been removed, theme change etc.)
+                                if(isset($sidebars[$sidebarKey])){
+                                    // Check if it's not already there, because the widget "id" is unique
+                                    // it shouldn't be there more than once
+                                    if(!in_array($widget->widget, $sidebars[$sidebarKey])){
+                                        // Positin wise setup
+                                        if($widget->position == -1){        // Last
+                                            $sidebars[$sidebarKey] = ArrayObject::appendToTheEnd($sidebars[$sidebarKey], $widget->widget);
+                                        } elseif ($widget->position == 1){  // First
+                                            $sidebars[$sidebarKey] = ArrayObject::prependToTheBeginning($sidebars[$sidebarKey], $widget->widget);
+                                        } else {                            // Other
+                                            $position = ($widget->position < 0) ? 0 : $widget->position - 1;
+                                            $sidebars[$sidebarKey] = ArrayObject::appendTo($sidebars[$sidebarKey], $position, $widget->widget);
+                                        }
                                     }
                                 }
                             }

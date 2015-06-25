@@ -11,13 +11,13 @@
 
 namespace Genoo;
 
-use Genoo\RepositorySettings,
-    Genoo\Wordpress\Utils,
-    Genoo\Wordpress\Filter,
-    Genoo\Wordpress\Action,
-    Genoo\ModalWindow,
-    Genoo\HtmlForm,
-    Genoo\Wordpress\Widgets;
+use Genoo\RepositorySettings;
+use Genoo\Wordpress\Utils;
+use Genoo\Wordpress\Filter;
+use Genoo\Wordpress\Action;
+use Genoo\ModalWindow;
+use Genoo\HtmlForm;
+use Genoo\Wordpress\Widgets;
 use Genoo\Utils\Strings;
 use Genoo\Wordpress\Debug;
 use Genoo\Wordpress\Post;
@@ -106,27 +106,30 @@ class Frontend
     {
         // Global post
         global $post;
-        // Do we have a post
-        if($post instanceof \WP_Post){
-            // We only run this on single posts
-            if((Post::isSingle() || Post::isPage()) && Post::isPostType($post, $this->repositorySettings->getCTAPostTypes())){
-                // Dynamic cta
-                $cta = new CTADynamic($post);
-                // If the post does have multiple ctas, continue
-                if($cta->hasMultiple()){
-                    // Set we have multiple CTAs
-                    $this->hasMultipleCTAs = true;
-                    // Get CTA's
-                    $ctas = $cta->getCtas();
-                    $ctasRegister = $cta->getCtasRegister();
-                    // Injects widgets, registers them
-                    $ctasWidgetsRegistered = Widgets::injectRegisterWidgets($ctasRegister);
-                    // Save for footer print
-                    $this->footerCTAModals = $ctasWidgetsRegistered;
-                    // Repositions them
-                    Widgets::injectMultipleIntoSidebar($ctasWidgetsRegistered);
-                    // Pre-option values
-                    Widgets::injectMultipleValues($ctasWidgetsRegistered);
+        // Firstly we do not run this anytime other then on real frontend
+        if(Utils::isSafeFrontend()){
+            // Do we have a post
+            if($post instanceof \WP_Post){
+                // We only run this on single posts
+                if((Post::isSingle() || Post::isPage()) && Post::isPostType($post, $this->repositorySettings->getCTAPostTypes())){
+                    // Dynamic cta
+                    $cta = new CTADynamic($post);
+                    // If the post does have multiple ctas, continue
+                    if($cta->hasMultiple()){
+                        // Set we have multiple CTAs
+                        $this->hasMultipleCTAs = true;
+                        // Get CTA's
+                        $ctas = $cta->getCtas();
+                        $ctasRegister = $cta->getCtasRegister();
+                        // Injects widgets, registers them
+                        $ctasWidgetsRegistered = Widgets::injectRegisterWidgets($ctasRegister);
+                        // Save for footer print
+                        $this->footerCTAModals = $ctasWidgetsRegistered;
+                        // Repositions them
+                        Widgets::injectMultipleIntoSidebar($ctasWidgetsRegistered);
+                        // Pre-option values
+                        Widgets::injectMultipleValues($ctasWidgetsRegistered);
+                    }
                 }
             }
         }

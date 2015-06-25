@@ -33,6 +33,13 @@ class Attachment
         if(!is_null($imgHover)){ $srcHover = wp_get_attachment_image_src($imgHover, $size); }
 
         $css = new CSS();
+        // Image preload for hover
+        if(!is_null($imgHover)){
+            $css->addRule('body #' . $id.  ' input:after')
+                ->add('content', 'url('. $srcHover[0] .')')
+                ->add('display', 'none !important');
+        }
+        // Image
         if(!is_null($img)){
             $css->addRule('body #' . $id.  ' input')
                 ->add('background', 'url(\'' . $src[0] . '\') top left no-repeat transparent !important')
@@ -45,6 +52,7 @@ class Attachment
                 ->add('min-height', $src[2] . 'px')
                 ->add('max-width', '100%');
         }
+        // Image Hover
         if(!is_null($imgHover)){
             $css->addRule('body #' . $id . ' input:hover, ' . '#' . $id . ' input:focus, ' . '#' . $id . ' input:active')
                 ->add('background', 'url(\'' . $srcHover[0] . '\') top left no-repeat transparent !important')
@@ -54,7 +62,6 @@ class Attachment
                 ->add('min-height', $srcHover[2] . 'px')
                 ->add('max-width', '100%');
         }
-
         // clean up theme styles
         $css->addRule('body #' . $id.  ' input')
             ->add('box-shadow', 'none !important')

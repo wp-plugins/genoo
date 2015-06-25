@@ -9,20 +9,20 @@
  * the Genoo.php file in root directory of this plugin.
  */
 
-use Genoo\RepositorySettings,
-    Genoo\RepositoryUser,
-    Genoo\Api,
-    Genoo\Cache,
-    Genoo\Wordpress\Widgets,
-    Genoo\Shortcodes,
-    Genoo\Users,
-    Genoo\Frontend,
-    Genoo\Admin,
-    Genoo\Wordpress\Action,
-    Genoo\Wordpress\Ajax,
-    Genoo\Wordpress\Debug,
-    Genoo\Wordpress\Comments,
-    Genoo\Wordpress\Cron;
+use Genoo\RepositorySettings;
+use Genoo\RepositoryUser;
+use Genoo\Api;
+use Genoo\Cache;
+use Genoo\Wordpress\Widgets;
+use Genoo\Shortcodes;
+use Genoo\Users;
+use Genoo\Frontend;
+use Genoo\Admin;
+use Genoo\Wordpress\Action;
+use Genoo\Wordpress\Ajax;
+use Genoo\Wordpress\Debug;
+use Genoo\Wordpress\Comments;
+use Genoo\Wordpress\Cron;
 
 class Genoo
 {
