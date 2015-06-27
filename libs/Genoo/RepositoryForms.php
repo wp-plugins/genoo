@@ -11,6 +11,7 @@
 
 namespace Genoo;
 
+use Genoo\Wordpress\Utils;
 
 class RepositoryForms extends Repository
 {
@@ -69,7 +70,8 @@ class RepositoryForms extends Repository
                 $this->cache->set((string)$id, $prepForm, self::REPO_TIMER, self::REPO_NAMESPACE);
             }
         } catch(\Exception $e){}
-        return $prepForm;
+        // Get Lumen class without "http://" and "https://" here already
+        return Utils::nonProtocolUrl($prepForm);
     }
 
 
@@ -88,7 +90,6 @@ class RepositoryForms extends Repository
                 foreach($forms as $form){ $formsVars[$form['id']] = $form['name']; }
             }
         } catch(\Exception $e){}
-
         return $formsVars;
     }
 

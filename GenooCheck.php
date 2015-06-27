@@ -38,8 +38,8 @@ class GenooCheck
             GenooCheck::deactivatePlugin(
                 sprintf(__('We re really sorry, but you need PHP version at least <strong>%1$s</strong> to run <strong>Genoo plugin.</strong> You are currently using PHP version <strong>%2$s</strong>', 'genoo'),  $checkMinPHP, PHP_VERSION) . $recoverLink
             );
-        // Check PHP Memory Limit
-        } elseif(!version_compare($memoryLimit, $checkMinMemory, '>=')){
+        // Check PHP Memory Limit, and fallcase if its not unlimited (-1)
+        } elseif(!version_compare($memoryLimit, $checkMinMemory, '>=') && ((self::getMemoryLimit() !== '-1' || self::getMemoryLimit() !== -1))){
             $memoryLimitReadable = GenooCheck::getReadebleBytes($memoryLimit);
             $minMemoryLimitReadable = GenooCheck::getReadebleBytes($checkMinMemory);
             GenooCheck::deactivatePlugin(
