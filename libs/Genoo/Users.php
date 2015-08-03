@@ -65,31 +65,33 @@ class Users
                     }
                 }
             }
-            // Let's try this
-            try {
-                // Data
-                $userEmail = $user->user_email;
-                $userExisting = $api->getLeadByEmail($userEmail);
-                $userNewLead = isset($roles[$role]) ? $roles[$role] : null;
-                $userGenoo = $api->getLeadByEmail($userEmail);
-                $userGenoo = Users::getUserFromLead($userGenoo);
-                // Update
-                if(!is_null($userGenoo) && !empty($leadtypes)){
-                    // Leads, one or more?
-                    $leadtypesFinal = count($leadtypes) == 1 ? $leadtypes[0] : $leadtypes;
-                    // Existing User, remove from Leadtype
-                    $api->removeLeadFromLeadtype($userGenoo->genoo_id, $leadtypesFinal);
-                    // Add to leadtype
-                    $api->setLeadUpdate($userGenoo->genoo_id, $userNewLead, $userEmail, $user->first_name, $user->last_name);
-                } elseif(!is_null($userGenoo)){
-                    // Update lead
-                    $api->setLeadUpdate($userGenoo->genoo_id, $userNewLead, $userEmail, $user->first_name, $user->last_name);
-                } else {
-                    // set lead
-                    $result = $api->setLead($userNewLead, $userEmail, $user->first_name, $user->last_name);
+            if(!empty($roles)){
+                // Let's try this
+                try {
+                    // Data
+                    $userEmail = $user->user_email;
+                    $userExisting = $api->getLeadByEmail($userEmail);
+                    $userNewLead = isset($roles[$role]) ? $roles[$role] : null;
+                    $userGenoo = $api->getLeadByEmail($userEmail);
+                    $userGenoo = Users::getUserFromLead($userGenoo);
+                    // Update
+                    if(!is_null($userGenoo) && !empty($leadtypes)){
+                        // Leads, one or more?
+                        $leadtypesFinal = count($leadtypes) == 1 ? $leadtypes[0] : $leadtypes;
+                        // Existing User, remove from Leadtype
+                        $api->removeLeadFromLeadtype($userGenoo->genoo_id, $leadtypesFinal);
+                        // Add to leadtype
+                        $api->setLeadUpdate($userGenoo->genoo_id, $userNewLead, $userEmail, $user->first_name, $user->last_name);
+                    } elseif(!is_null($userGenoo)){
+                        // Update lead
+                        $api->setLeadUpdate($userGenoo->genoo_id, $userNewLead, $userEmail, $user->first_name, $user->last_name);
+                    } else {
+                        // set lead
+                        $result = $api->setLead($userNewLead, $userEmail, $user->first_name, $user->last_name);
+                    }
+                } catch (\Exception $e){
+                    $repositorySettings->addSavedNotice('error', __('Error changing Genoo user lead: ', 'genoo') . $e->getMessage());
                 }
-            } catch (\Exception $e){
-                $repositorySettings->addSavedNotice('error', __('Error changing Genoo user lead: ', 'genoo') . $e->getMessage());
             }
         }, 10, 3);
     }
