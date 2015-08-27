@@ -60,8 +60,10 @@ class Users
                 $leadtypes = array();
                 // Do we have leadtypes to remove?
                 foreach($old_roles as $roling){
-                    if(array_key_exists($roling, $roles)){
-                        $leadtypes[] = $roles[$roling];
+                    if(is_array($roles)){
+                        if(array_key_exists($roling, $roles)){
+                            $leadtypes[] = $roles[$roling];
+                        }
                     }
                 }
             }
