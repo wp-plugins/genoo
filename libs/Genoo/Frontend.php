@@ -159,7 +159,10 @@ class Frontend
         // Tracking code
         if(GENOO_SETUP){
             $settings = new RepositorySettings();
-            echo $settings->getTrackingCode();
+            $tracking = $settings->getTrackingCode();
+            // url relative version
+            $tracking = str_replace('http://api.genoo.com', '//api.genoo.com', $tracking);
+            echo $tracking;
         }
     }
 
