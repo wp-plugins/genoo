@@ -19,6 +19,7 @@ use Genoo\RepositorySettings,
     Genoo\Utils\Strings,
     Genoo\ModalWindow,
     Genoo\Wordpress\Attachment;
+use Genoo\Wordpress\MetaboxBuilder;
 
 
 /**
@@ -27,6 +28,8 @@ use Genoo\RepositorySettings,
 
 class WidgetForm extends \WP_Widget
 {
+    /** @var bool */
+    public $isWidgetCTA = false;
 
     /**
      * Constructor registers widget in WordPress
@@ -34,7 +37,7 @@ class WidgetForm extends \WP_Widget
      * @param bool $constructParent
      */
 
-    function __construct($constructParent = true)
+    function __construct($constructParent = true, $isWidgetCTA = false)
     {
         if($constructParent){
             parent::__construct(
@@ -42,6 +45,8 @@ class WidgetForm extends \WP_Widget
                 'Genoo',
                 array('description' => __('Add Genoo forms to your pages.', 'genoo'))
             );
+        } else {
+            $this->isWidgetCTA = $isWidgetCTA;
         }
     }
 
@@ -81,7 +86,6 @@ class WidgetForm extends \WP_Widget
         );
         $args = array_merge($default, $args);
         $html = '';
-
         // prep
         $formTitle = !empty($instance['title']) ? $instance['title'] : __('Subscribe', 'genoo');
         $formClass = !empty($instance['theme']) ? $instance['theme'] : 'themeDefault';
@@ -92,7 +96,11 @@ class WidgetForm extends \WP_Widget
         $formImgHover = !empty($instance['imgHover']) ? $instance['imgHover'] : null;
         $formHSkipMobileButton = isset($instance['skipMobileButton']) ? $instance['skipMobileButton'] : false;
         $formAlign = isset($instance['shortcodeAtts']['align']) ? $instance['shortcodeAtts']['align'] : false;
-
+        $formPopup = isset($instance['popup']) ? $instance['popup'] : false;
+        // Wheater it'only a widget instnace
+        $formInWiget = !isset($instance['shortcodeAtts']) ? TRUE : FALSE;
+        // Form popover hide button?
+        $isHidePopOver = (isset($instance['isPopOver']) && $instance['isPopOver']) && (isset($instance['popOverHide']) && $instance['popOverHide']) ? TRUE : FALSE;
         // if form is not in modal window
         if($formModal == false){
             try {
@@ -106,27 +114,51 @@ class WidgetForm extends \WP_Widget
                 $html = "<span class='error'>" . $e->getMessage() . "</span>";
             }
         }
-
         // form?
         if(isset($formIdFinal) && $formModal == false){
             // html
             // Might be shortcode block
-            $html .= $formAlign != false ? '<div class="genooInlineBlock '. $formAlign .'">' : null;
-            $html .= $formModal ? '<div id="'. $this->id .'" class="genooModal">' : '';
-            $html .= $args['before_widget'];
-            $html .= '<div class="genooForm themeResetDefault '. $formClass .'">';
-            $html .= '<div class="genooTitle">' . $args['before_title'] . $formTitle . $args['after_title'] . '</div>';
-            $html .= '<div class="clear"></div>';
-            $html .= '<div class="genooGuts">';
-            $html .= '<div id="genooMsg"></div>';
-            $html .= $formForm;
-            $html .= '</div>';
-            $html .= '<div class="clear"></div>';
-            $html .= '</div>';
-            $html .= $args['after_widget'];
-            $html .= $formModal ? '</div>' : '';
-            // Close shortcode block
-            $html .= $formAlign != false ? '</div>' : null;
+            // Pop up window
+            if(isset($instance['popup']) && is_array($instance['popup'])){
+                // This is pop up stuff
+                $cssAdditional = '';
+                //$cssAdditional = isset($instance['popup']['image-on']) && !empty($instance['popup']['image-on']) ? 'genooModalPopBig' : '';
+                if(isset($instance['popup']['image-on']) && !empty($instance['popup']['image-on'])){
+                    $image = wp_get_attachment_image($instance['popup']['image'], 'medium', FALSE);
+                    if($image){
+                        $cssAdditional = 'genooModalPopBig';
+                    }
+                }
+                $html = $formModal ? '<div id="'. $this->id .'" class="genooModal genooModalPop '. $cssAdditional .'">' : '';
+                $html .= '<div class="genooForm themeResetDefault '. $formClass .'">';
+                $html .= '<div class="clear"></div>';
+                $html .= '<div class="genooGuts">';
+                $html .= '<div id="genooMsg"></div>';
+                // Close shortcode block
+                $html .= MetaboxBuilder::getHTMLRenderer($instance['popup'], $formForm);
+                $html .= '</div>';
+                $html .= '<div class="clear"></div>';
+                $html .= '</div>';
+                $html .= $formModal ? '</div>' : '';
+            } else {
+                // Normal pop up or widget
+                $html .= $formAlign != false ? '<div class="genooInlineBlock '. $formAlign .'">' : null;
+                $html .= $formModal ? '<div id="'. $this->id .'" class="genooModal">' : '';
+                $html .= $args['before_widget'];
+                $html .= '<div class="genooForm themeResetDefault '. $formClass .'">';
+                $html .= '<div class="genooTitle">' . $args['before_title'] . $formTitle . $args['after_title'] . '</div>';
+                $html .= '<div class="clear"></div>';
+                $html .= '<div class="genooGuts">';
+                $html .= '<div id="genooMsg"></div>';
+                $html .= $formForm;
+                $html .= '</div>';
+                $html .= '<div class="clear"></div>';
+                $html .= '</div>';
+                $html .= $args['after_widget'];
+                $html .= $formModal ? '</div>' : '';
+                // Close shortcode block
+                $html .= $formAlign != false ? '</div>' : null;
+            }
         } elseif ($formModal == true){
             // Might be a shortcode
             $html .= $formAlign != false ? '<div class="genooInlineBlock '. $formAlign .'">' : null;
@@ -139,17 +171,19 @@ class WidgetForm extends \WP_Widget
                 $buttonId = "genooGeneratedButton" . $this->id;
                 $html .= '<span id="'. $buttonId .'" class="genooStripDown genooWidgetButton">';
                 // Skipping mobile button? Shortcodes cant deal with mobile button now
-                if($formHSkipMobileButton){
-                    $html .= '<span>' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
-                } else {
-                    $html .= '<span class="genooDisplayDesktop">' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
-                    if(isset($instance['canHaveMobile']) && $instance['canHaveMobile'] == false){
+                if(!$isHidePopOver){
+                    if($formHSkipMobileButton){
+                        $html .= '<span>' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
                     } else {
-                        $html .= '<span class="genooDisplayMobile">' . ModalWindow::button($formButton, $this->id, false, 'genooButton form-button-submit', true) . '<div class="clear"></div></span>';
+                        $html .= '<span class="genooDisplayDesktop">' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
+                        if(isset($instance['canHaveMobile']) && $instance['canHaveMobile'] == false){
+                        } else {
+                            $html .= '<span class="genooDisplayMobile">' . ModalWindow::button($formButton, $this->id, false, 'genooButton form-button-submit', true) . '<div class="clear"></div></span>';
+                        }
                     }
                 }
                 $html .= '<div class="clear"></div></span>';
-                $html .= Attachment::generateCss($formImg, $formImgHover, $buttonId);
+                $html .= Attachment::generateCss($formImg, $formImgHover, $buttonId, NULL, $this->isWidgetCTA);
             } else {
                 // classic html button
                 if($is_macIE || $is_winIE || $is_IE || $formHSkipMobileButton){
@@ -172,10 +206,52 @@ class WidgetForm extends \WP_Widget
             // Close if shortcode
             $html .= $formAlign != false ? '</div>' : null;
         }
-
+        if(isset($instance['isPopOver']) && $instance['isPopOver'] == TRUE && $formModal == TRUE && isset($instance['isPopOverInject'])){
+            $time = is_numeric($instance['popOverTime']) ? $instance['popOverTime'] : 0;
+            $html .= self::getModalOpenJavascript(ModalWindow::getModalId($this->id), $time);
+        }
         return $html;
     }
 
+    /**
+     * @param $modalId
+     * @param int $seconds
+     */
+    public static function getModalOpenJavascript($modalId, $seconds = FALSE)
+    {
+        if($seconds === FALSE){
+            $seconds = 0;
+            global $post;
+            if(isset($post) && $post instanceof \WP_Post){
+                $seconds = CTA::ctaGetPopOverTime($post->ID);
+            }
+        }
+        return  '<script type="text/javascript">
+                        Document.ready(window, function(e){
+                            setTimeout(function(){
+                                Modal.display(null, \''. $modalId .'\');
+                            }, '. ($seconds * 1000) .');
+                        });
+                      </script>';
+    }
+
+    /**
+     * Get CTA Modal Class
+     *
+     * @param array $instance
+     * @return string
+     */
+    public function getCTAModalClass($instance = array())
+    {
+        if(isset($instance['popup']['image-on']) && !empty($instance['popup']['image-on'])){
+            $image = wp_get_attachment_image($instance['popup']['image'], 'medium', FALSE);
+            if($image){
+                return 'genooModalPopBig';
+            }
+        }
+        return '';
+        //return isset($instance['popup']['image-on']) && !empty($instance['popup']['image-on']) ? 'genooModalPopBig' : '';
+    }
 
     /**
      * Get id
@@ -218,7 +294,7 @@ class WidgetForm extends \WP_Widget
             $formImgClass = $formChoice == 'img' ? '' : 'hidden';
             // widget form
             echo '<div class="genooParagraph">'
-                . '<label for="'. $this->get_field_id('title') .'">' . __('Genoo form title:', 'genoo') . ' </label><div class="clear"></div>'
+                . '<label for="'. $this->get_field_id('title') .'">' . __('Form title:', 'genoo') . ' </label><div class="clear"></div>'
                 . '<input class="widefat" id="'. $this->get_field_id('title') .'" name="'. $this->get_field_name('title') .'" value="'. esc_attr($widgetTitle) .'" type="text" />'
                 . '</div>';
             echo '<div class="genooParagraph">'

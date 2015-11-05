@@ -24,7 +24,8 @@ class CTADynamic extends CTA
     public $ctas = array();
     /** @var array */
     public $ctasRegister = array();
-
+    /** @var static */
+    public $postOrg;
 
     /**
      * Constructor
@@ -34,7 +35,8 @@ class CTADynamic extends CTA
 
     public function __construct(\WP_Post $post)
     {
-        $this->post = Post::set($post);
+        $this->postOrg = $post;
+        $this->post = Post::set($post->ID);
         $this->repositarySettings = new RepositorySettings();
         $this->postTypes = $this->repositarySettings->getCTAPostTypes();
         $this->postObject = $this->post->getPost();

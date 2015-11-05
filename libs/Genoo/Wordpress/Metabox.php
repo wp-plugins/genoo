@@ -107,7 +107,7 @@ class Metabox
         // Update the meta fields
         if(is_array($this->fields) && !empty($this->fields)){
             foreach($this->fields as $field){
-                $fieldId = str_replace('-', '_', Strings::lower(Strings::webalize($field['label'])));
+                $fieldId = isset($field['id']) ? $field['id'] : str_replace('-', '_', Strings::lower(Strings::webalize($field['label'])));
                 if(!empty($_POST[$fieldId])){
                     update_post_meta($post_id, $fieldId, sanitize_text_field($_POST[$fieldId]));
                 } elseif(empty($_POST[$fieldId])) {

@@ -39,6 +39,8 @@ class WidgetCTA extends \WP_Widget
     var $shortcodeAtts = array();
     /** @var bool */
     var $canHaveMobile = false;
+    /** @var bool */
+    public $isWidgetCTA = false;
 
 
     /**
@@ -148,13 +150,31 @@ class WidgetCTA extends \WP_Widget
      * @return null|string
      */
 
-    public function getHtml($a, $i)
+    public function getHtml($a = null, $i = null)
     {
-        $instance = $this->getInnerInstance();
+        $instance = !is_null($i) ? $i : $this->getInnerInstance();
         if(is_object($this->widgetForm) && method_exists($this->widgetForm, 'getHtml')){
             return $this->widgetForm->getHtml(array(), $instance);
         }
         return null;
+    }
+
+    /**
+     * Get CTA Modal Class
+     *
+     * @param array $instance
+     *
+     * @return string
+     */
+    public function getCTAModalClass($instance = array())
+    {
+        if(isset($instance['popup']['image-on']) && !empty($instance['popup']['image-on'])){
+            $image = wp_get_attachment_image($instance['popup']['image'], 'medium', FALSE);
+            if($image){
+                return 'genooModalPopBig';
+            }
+        }
+        return '';
     }
 
 
@@ -190,6 +210,7 @@ class WidgetCTA extends \WP_Widget
                 $instance['msgFail'] = $this->cta->messageError;
                 $instance['skipMobileButton'] = $this->skipMobileButton;
                 $instance['shortcodeAtts'] = $this->shortcodeAtts;
+                $instance['popup'] = $this->cta->popup;
             }
         }
         return $instance;
@@ -229,6 +250,11 @@ class WidgetCTA extends \WP_Widget
                 $instance['skipMobileButton'] = $this->skipMobileButton;
                 $instance['shortcodeAtts'] = $this->shortcodeAtts;
                 $instance['canHaveMobile'] = $this->canHaveMobile;
+                $instance['popup'] = $this->cta->popup;
+                $instance['isPopOver'] = $this->cta->isPopOver;
+                $instance['popOverTime'] = $this->cta->popOverTime;
+                $instance['popOverHide'] = $this->cta->popOverHide;
+                $isHidePopOver = $instance['isPopOver'] && $instance['popOverHide'] ? TRUE : FALSE;
                 if($this->cta->isForm || $this->cta->isClasslist){
                     $r .= $this->widgetForm->getHtml($args, $instance);
                 } elseif($this->cta->isLink){
@@ -246,10 +272,10 @@ class WidgetCTA extends \WP_Widget
                             $r .= '</span>';
                         $r .= '</form>';
                         if($this->cta->isImage && (!empty($this->cta->image) || !empty($this->cta->imageHover))){
-                            $r .= Attachment::generateCss($this->cta->image, $this->cta->imageHover, $bid);
+                            $r .= Attachment::generateCss($this->cta->image, $this->cta->imageHover, $bid, TRUE);
                         }
                     } elseif($this->cta->isClasslist){
-                        $r .= print_r($this->cta);
+                        //$r .= print_r($this->cta);
                     }
                     $r .= isset($args['after_widget']) ? $args['after_widget'] : '';
                 }

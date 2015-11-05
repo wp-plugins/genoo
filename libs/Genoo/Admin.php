@@ -18,6 +18,7 @@ use Genoo\RepositoryLumens;
 use Genoo\Api;
 use Genoo\TableForms;
 use Genoo\TableLumens;
+use Genoo\Wordpress\MetaboxBuilder;
 use Genoo\Wordpress\Utils;
 use Genoo\Wordpress\Settings;
 use Genoo\Wordpress\Page;
@@ -87,6 +88,13 @@ class Admin
         Action::add('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'), 10, 1);
         // we need this for dashicons fallback
         Filter::add('admin_body_class', array($this, 'adminBodyClass'), 10, 1);
+        // Post edit and Preview Modal
+        Filter::add('redirect_post_location', function($location, $post){
+            if(isset($_POST['previewModal'])){
+                $location = Utils::addQueryParam($location, 'previewModal', 'true');
+            }
+            return $location;
+        }, 10, 2);
     }
 
     /**
@@ -122,21 +130,30 @@ class Admin
                     'GENOO_SETUP' => GENOO_SETUP,
                     'GENOO_LUMENS' => GENOO_LUMENS
                 ),
+                'DOMAIN' => GENOO_DOMAIN,
                 'GenooPluginUrl' => GENOO_ASSETS,
                 'GenooMessages'  => array(
                     'importing'  => __('Importing...', 'genoo'),
                 ),
                 'GenooTinyMCE' => array(
-                    'themes' => $this->repositarySettings->getSettingsThemes(),
-                    'forms'  => $this->repositaryForms->getFormsArray(),
-                    'lumens' => $this->repositaryLumens->getLumensArray(),
-                    'ctas'   => $this->repositaryCTAs->getArray(),
-                    'cta-pt' => $this->repositarySettings->getCTAPostTypes(),
                     'url'    => Utils::addQueryParam(GENOO_HOME_URL, 'genooIframe=', '')
                 )
             ));
             // register editor styles
             TinyMCE::register($this->repositarySettings->getCTAPostTypes());
+        } else {
+            wp_localize_script('Genoo', 'GenooVars', array(
+                'GenooSettings' => array(
+                    'GENOO_PART_SETUP' => GENOO_PART_SETUP,
+                    'GENOO_SETUP' => GENOO_SETUP,
+                    'GENOO_LUMENS' => GENOO_LUMENS
+                ),
+                'DOMAIN' => GENOO_DOMAIN,
+                'GenooPluginUrl' => GENOO_ASSETS,
+                'GenooMessages'  => array(
+                    'importing'  => __('Importing...', 'genoo'),
+                )
+            ));
         }
     }
 
@@ -338,7 +355,11 @@ class Admin
                     array(
                         'type' => 'select',
                         'label' => __('Form', 'genoo'),
-                        'options' => (array('' => '-- Select Form') + $this->repositaryForms->getFormsArray())
+                        'options' => (array('' => '-- Select Form') + $this->repositaryForms->getFormsArray()),
+                        'atts' => array(
+                            'class' => 'bTargeted',
+                            'data-target' => 'block-form'
+                        )
                     ),
                     array(
                         'type' => 'select',
@@ -402,6 +423,29 @@ class Admin
                 );
             }
             new MetaboxCTA('Genoo Dynamic CTA', $this->repositarySettings->getCTAPostTypes(), array(), $this->repositarySettings->getCTAs());
+            // Builder
+            new MetaboxBuilder('Pop-up Builder', 'cta', $this->repositaryForms);
+            // Dynamic PopOver
+            new Metabox('Genoo Dynamic Pop-Over', $this->repositarySettings->getCTAPostTypes(),
+                array(
+                    array(
+                        'type' => 'select',
+                        'label' => __('Enable Pop-Over to open automatically', 'genoo'),
+                        'options' => array('Disable', 'Enable')
+                    ),
+                    array(
+                        'type' => 'select',
+                        'label' => __('CTA', 'genoo'),
+                        'id' => 'pop_over_cta_id',
+                        'options' => $this->repositaryCTAs->getArray()
+                    ),
+                    array(
+                        'type' => 'number',
+                        'label' => __('Open Pop-Up after delay (seconds)', 'genoo'),
+                        'id' => 'number_of_seconds_to_open_the_pop_up_after'
+                    ),
+                )
+            );
         }
         return null;
     }

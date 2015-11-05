@@ -11,6 +11,7 @@
 
 namespace Genoo\Wordpress;
 
+use Genoo\CTA;
 use Genoo\Utils\Strings,
     Genoo\Wordpress\Filter,
     Genoo\Wordpress\Action;
@@ -117,6 +118,7 @@ class MetaboxCTA extends Metabox
         $visibleFields = get_post_meta($post->ID, 'enable_cta_for_this_post_repeat', true);
         $fieldSidebars = Sidebars::getSidebars();
         $fieldCTAs = $this->ctas;
+        $fieldCTAs = self::ctasTitles($fieldCTAs);
         ?>
         <div class="genooMetabox">
             <div class="themeMetaboxRow" id="themeMetaboxRowenable_cta_for_this_post">
@@ -176,6 +178,37 @@ class MetaboxCTA extends Metabox
         <?php
     }
 
+
+    /**
+     * @param $ctas
+     * @return mixed
+     */
+    public static function ctasTitles($ctas)
+    {
+        if(is_array($ctas) && 1 == 3){ // This is turned off and functionality will be moved to post/page parent metabox
+            foreach($ctas as $id => $cta){
+                if($id !== 0){
+                    $has = CTA::ctaHasPopOver($id);
+                    $hasHide = CTA::ctaHasHidePopOver($id);
+                    $title = $cta;
+                    if($has){
+                        $title = $title . ' (';
+                    }
+                    if($has){
+                        $title = $title . 'PopOver';
+                    }
+                    if($has && $hasHide){
+                        $title = $title . '';
+                    }
+                    if($has){
+                        $title = $title . ')';
+                    }
+                    $ctas[$id] = $title;
+                }
+            }
+        }
+        return $ctas;
+    }
 
     /**
      * Save

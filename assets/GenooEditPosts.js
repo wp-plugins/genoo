@@ -150,6 +150,12 @@ Metabox.checkEnabled = function()
             if(Document.elementExists(('themeMetaboxRowclass_list'))){
                 document.getElementById('class_list').selectedIndex = 0;
             }
+            if(Document.elementExists(('builder_pop-up-builder'))){
+                document.getElementById('builder_pop-up-builder').style.display = 'block';
+            }
+            if(Document.elementExists(('pop-up-over'))){
+                document.getElementById('pop-up-over').style.display = 'block';
+            }
         } else if(document.getElementById('cta_type').options[document.getElementById('cta_type').selectedIndex].value == 'link') {
             document.getElementById('themeMetaboxRowcta_type').style.display = 'block';
             document.getElementById('themeMetaboxRowbutton_url').style.display = 'block';
@@ -159,6 +165,12 @@ Metabox.checkEnabled = function()
             document.getElementById('form_theme').selectedIndex = 0;
             if(Document.elementExists(('themeMetaboxRowclass_list'))){
                 document.getElementById('class_list').selectedIndex = 0;
+            }
+            if(Document.elementExists(('builder_pop-up-builder'))){
+                document.getElementById('builder_pop-up-builder').style.display = 'none';
+            }
+            if(Document.elementExists(('pop-up-over'))){
+                document.getElementById('pop-up-over').style.display = 'none';
             }
         } else if(document.getElementById('cta_type').options[document.getElementById('cta_type').selectedIndex].value == 'class'){
             document.getElementById('themeMetaboxRowcta_type').style.display = 'block';
@@ -181,6 +193,24 @@ Metabox.checkEnabled = function()
             document.getElementById('themeMetaboxRowbutton_image').style.display = 'block';
             document.getElementById('themeMetaboxRowbutton_hover_image').style.display = 'block';
             document.getElementById('button_text').value = '';
+        }
+        // Descirptions / title
+        if(Document.elementExists('display_cta_s')){
+            switch (document.getElementById('display_cta_s').options[document.getElementById('display_cta_s').selectedIndex].value){
+                case 0:
+                case '0':
+                    document.getElementById('themeMetaboxRowdescription').style.display = 'none';
+                    break;
+                case 'titledesc':
+                    document.getElementById('themeMetaboxRowdescription').style.display = 'block';
+                    break;
+                case 'title':
+                    document.getElementById('themeMetaboxRowdescription').style.display = 'none';
+                    break;
+                case 'desc':
+                    document.getElementById('themeMetaboxRowdescription').style.display = 'block';
+                    break;
+            }
         }
     }
     if(Document.elementExists('genoo-cta')){
@@ -272,6 +302,7 @@ Document.ready(window, function(e){
     Metabox.checkFields();
     // Attach events
     Event.attach(document.getElementById('cta_type'), 'change', Metabox.checkFields);
+    Event.attach(document.getElementById('display_cta_s'), 'change', Metabox.checkFields);
     Event.attach(document.getElementById('button_type'), 'change', Metabox.checkFields);
     Event.attach(document.getElementById('enable_cta_for_this_post'), 'change', Metabox.checkFields);
     Event.attach(document.getElementById('enable_cta_for_this_post_repeat'), 'change', Metabox.checkFields);

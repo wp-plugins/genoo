@@ -39,16 +39,6 @@ class GenooTinyMCELumens extends TinyMCEHanlder
 
 
     /**
-     * Resolve additional variables
-     */
-
-    public function resolveSecond()
-    {
-        $this->lumens = !empty($_GET['lumens']) ? $_GET['lumens'] : array();
-    }
-
-
-    /**
      * Genoo CTA pop-up javascript
      */
 
@@ -64,7 +54,11 @@ class GenooTinyMCELumens extends TinyMCEHanlder
         output += '[<?php echo $this->shortcode; ?>';
         if(formVal){ output += ' id=\''+formVal+'\''; }
         output += ']';        // bam
+        <?php if($this->edit){ ?>
+        tinyMCEPopup.execCommand('<?php echo $this->refresh; ?>Ref', false, output);
+    <?php } else { ?>
         tinyMCEPopup.execCommand('mceReplaceContent', false, output);
+    <?php } ?>
         tinyMCEPopup.execCommand('<?php echo $this->refresh; ?>');
         tinyMCEPopup.close();
     <?php
@@ -84,13 +78,25 @@ class GenooTinyMCELumens extends TinyMCEHanlder
                 <?php
                 if(isset($this->lumens) && !empty($this->lumens)){
                     foreach($this->lumens as $key => $value){
-                        $selectedVal = in_array($key, $this->selected) ? ' selected' : '';
+                        $selectedVal = '';
                         echo '<option value="'. $key .'" '. $selectedVal .'>'. $value .'</option>';
                     }
                 }
                 ?>
             </select>
         </p>
+        <script type="text/javascript">
+            jQuery(function() {
+                var data = Popup.data();
+                if(data){
+                    var dataShort = '[' + data + ']';
+                    var atts = window.parent.wp.shortcode.next('genooLumens', dataShort);
+                    if(atts.shortcode.attrs.named.id){
+                        jQuery('#form').val(atts.shortcode.attrs.named.id).change();
+                    }
+                }
+            });
+        </script>
     <?php
     }
 }

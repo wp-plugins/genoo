@@ -94,6 +94,12 @@ class RepositoryForms extends Repository
     }
 
 
+    public function getFormsJavascript()
+    {
+
+    }
+
+
     /**
      * Get forms for listing table
      *

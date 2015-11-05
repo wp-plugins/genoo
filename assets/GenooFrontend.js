@@ -310,6 +310,7 @@ Modal.center = function(modal)
 };
 
 
+
 /**
  * Display
  *
@@ -319,10 +320,15 @@ Modal.center = function(modal)
 
 Modal.display = function(e, modalId)
 {
-    e.preventDefault();
+    if(e){
+        if(e.preventDefault) e.preventDefault();
+        if(e.returnValue) e.returnValue = null;
+    }
     var doc = document.documentElement, body = document.body;
     var top = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
     var modal = document.getElementById(modalId);
+    var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
     if(modalId !== null){
         FX.fadeIn(document.getElementById('genooOverlay'),{
             duration: 400,
@@ -330,6 +336,10 @@ Modal.display = function(e, modalId)
                 Tool.switchClass(document.getElementById('genooOverlay'), 'visible');
                 Tool.addClass(modal, 'visible');
                 Modal.center(modal);
+                Tool.addClass(document.body, 'genooModalOpen');
+                if(w == 625 || w < 625){
+                    window.scrollTo(0,0);
+                }
             }
         });
     }
@@ -355,4 +365,124 @@ Modal.close = function(e, modalId)
             Tool.removeAllClassOf('genooOverlay', 'visible');
         }
     });
+};
+
+
+/**
+ * Document
+ * @type {*|Object}
+ */
+
+var Document = Document || {};
+
+/**
+ * Document ready function
+ *
+ * @author Diego Perini (diego.perini at gmail.com)
+ *
+ * @param win
+ * @param fn
+ */
+
+Document.ready = function(win, fn)
+{
+    var done = false, top = true,
+        doc = win.document, root = doc.documentElement,
+        add = doc.addEventListener ? 'addEventListener' : 'attachEvent',
+        rem = doc.addEventListener ? 'removeEventListener' : 'detachEvent',
+        pre = doc.addEventListener ? '' : 'on',
+        init = function(e) {
+            if (e.type == 'readystatechange' && doc.readyState != 'complete') return;
+            (e.type == 'load' ? win : doc)[rem](pre + e.type, init, false);
+            if (!done && (done = true)) fn.call(win, e.type || e);
+        },
+        poll = function() {
+            try { root.doScroll('left'); } catch(e) { setTimeout(poll, 50); return; }
+            init('poll');
+        };
+    if (doc.readyState == 'complete') fn.call(win, 'lazy');
+    else {
+        if (doc.createEventObject && root.doScroll) {
+            try { top = !win.frameElement; } catch(e) { }
+            if (top) poll();
+        }
+        doc[add](pre + 'DOMContentLoaded', init, false);
+        doc[add](pre + 'readystatechange', init, false);
+        win[add](pre + 'load', init, false);
+    }
+};
+
+
+/**
+ * Counter
+ * @type {*|Object}
+ */
+
+var Counter = Counter || {};
+
+/**
+ * Attach timer
+ *
+ * @param date
+ * @param element
+ */
+Counter.attach = function(date, element)
+{
+    var e = document.getElementById(element);
+    if (typeof(e) != 'undefined' && e != null){
+        var d,h,m,s;
+        interval = window.setInterval(function(){
+            var now = new Date();
+            start_date = now.getTime();
+            //end_date = new Date(2015, 9-1, 29, 12); //Need to make this the correct date
+            end_date = new Date(date); //Need to make this the correct date
+            // year, month, day, hours, minutes, seconds
+            d=0;
+            h=0;
+            m=0;
+            s=0;
+            time_left=end_date-start_date;
+            while(time_left > 1000*60*60*24){
+                d++;
+                time_left-=1000*60*60*24;
+            }
+            while(time_left > 1000*60*60){
+                h++;
+                time_left-=1000*60*60;
+            }
+            while(time_left > 1000*60){
+                m++;
+                time_left-=1000*60;
+            }
+            while(time_left > 1000){
+                s++;
+                time_left-=1000;
+            }
+            if(start_date < end_date){
+                Counter.update([d,h,m,s], e);
+            } else {
+                Counter.update([d,h,m,s], e);
+                clearInterval(interval);
+            }
+        }, 1000);
+    }
+};
+
+/**
+ * Update elements
+ * @param date
+ * @param element
+ */
+Counter.update = function(date, element)
+{
+    // Get elements
+    var days = element.getElementsByClassName('days')[0];
+    var hours = element.getElementsByClassName('hours')[0];
+    var minutes = element.getElementsByClassName('minutes')[0];
+    var seconds = element.getElementsByClassName('seconds')[0];
+    // Set values
+    days.innerHTML="<span>"+date[0]+"</span> Days";
+    hours.innerHTML="<span>"+date[1]+"</span> Hours";
+    minutes.innerHTML="<span>"+date[2]+"</span> Min";
+    seconds.innerHTML="<span>"+date[3]+"</span> Sec";
 };

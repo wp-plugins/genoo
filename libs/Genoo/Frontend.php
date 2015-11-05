@@ -29,22 +29,30 @@ class Frontend
     var $repositorySettings;
     /** @var array */
     var $footerCTAModals = array();
+    /** @var Api */
+    var $api;
+    /** @var Cache */
+    var $cache;
 
     /**
      * Construct Frontend
      *
      * @param RepositorySettings $repositorySettings
+     * @param Api $api
+     * @param Cache $cache
      */
-    public function __construct(RepositorySettings $repositorySettings)
+    public function __construct(RepositorySettings $repositorySettings, Api $api, Cache $cache)
     {
         // Settings
         $this->repositorySettings = $repositorySettings;
+        $this->api = $api;
+        $this->cache = $cache;
         // Init
         Action::add('init',  array($this, 'init'));
         // wp
         Action::add('wp',    array($this, 'wp'), 999, 1);
         // Enqueue scripts
-        Action::add('wp_enqueue_scripts', array($this, 'enqueue'));
+        Action::add('wp_enqueue_scripts', array($this, 'enqueue'), 1, 1);
         // Footer
         Action::add('wp_footer', array($this, 'footerFirst'), 999);
         Action::add('wp_footer', array($this, 'footerLast'), 1);
@@ -61,6 +69,7 @@ class Frontend
             $query_vars[] = 'genooMobileWindow';
             $query_vars[] = 'genooIframe';
             $query_vars[] = 'genooIframeLumen';
+            $query_vars[] = 'genooIframeCTA';
             return $query_vars;
         }, 10, 1);
         Action::add('parse_request', function($wp){
@@ -90,6 +99,36 @@ class Frontend
                     // Seems like a winner, display content
                     Frontend::renderPreviewLumenIframe($wp->query_vars['genooIframeLumen'], $_GET['genooIframeLumenSrc']);
                 }
+            }
+            // Genoo preview iframe for CTA
+            if(array_key_exists('genooIframeCTA', $wp->query_vars) && is_user_logged_in()){
+                // This workaround needs id and script source to dispaly the script
+                // Only when query parsed do this
+                try {
+                    error_reporting(0);
+                    ini_set('error_reporting', 0);
+                    // Set through widget
+                    $widget = new WidgetCTA(false);
+                    $widget->setThroughShortcode(1, $wp->query_vars['genooIframeCTA'], array());
+                    $class = '';
+                    if($widget->cta->popup['image-on']){
+                        $image = wp_get_attachment_image($widget->cta->popup['image'], 'medium', FALSE);
+                        if($image){
+                            $class = 'genooModalPopBig';
+                        }
+                    }
+                    // Set HTML
+                    $r = '<div aria-hidden="false" id="genooOverlay" class="visible">';
+                    $r .= '<div id="modalWindowGenoodynamiccta1" tabindex="-5" role="dialog" class="genooModal '. $class .' visible renderedVisible "><div class="relative">';
+                    $r .= $widget->getHtml();
+                    $r .= '</div></div>';
+                    $r .= '</div>';
+                    // Display!
+                    Filter::removeFrom('wp_head')->everythingExceptLike(array('style', 'script'));
+                    Frontend::renderMobileWindow('Preview', $r, 'genooPreviewModal');
+                } catch (\Exception $e){
+                }
+                exit;
             }
         });
         Widgets::refreshDynamic();
@@ -142,10 +181,10 @@ class Frontend
     public function enqueue()
     {
         // Frontend css
-        wp_enqueue_style('genooFrontend', GENOO_ASSETS . 'GenooFrontend.css', null, GENOO_REFRESH);
+        wp_enqueue_style('genooFrontend', GENOO_ASSETS . 'GenooFrontend.css', NULL, GENOO_REFRESH);
         // Frontend js, if not a mobile window
         if(!isset($_GET['genooMobileWindow'])){
-            wp_register_script('genooFrontendJs', GENOO_ASSETS . "GenooFrontend.js", false, GENOO_REFRESH, true);
+            wp_register_script('genooFrontendJs', GENOO_ASSETS . "GenooFrontend.js", FALSE, GENOO_REFRESH, FALSE);
             wp_enqueue_script('genooFrontendJs');
         }
     }
@@ -158,11 +197,8 @@ class Frontend
     {
         // Tracking code
         if(GENOO_SETUP){
-            $settings = new RepositorySettings();
-            $tracking = $settings->getTrackingCode();
-            // url relative version
-            $tracking = str_replace('http://api.genoo.com', '//api.genoo.com', $tracking);
-            echo $tracking;
+            // Get repo
+            echo $this->repositorySettings->getTrackingCode();
         }
     }
 
@@ -172,11 +208,15 @@ class Frontend
      */
     public function footerLast()
     {
+        // Get post / page
+        global $post;
         // Prep
         $footerWidgetForms = Widgets::getFooterModals();
         $footerWidgetsDynamicForms = Widgets::getFooterDynamicModals($this->footerCTAModals);
         $footerShortcodeForms = Shortcodes::getFooterCTAs();
-        $footerForms = $footerWidgetForms + $footerWidgetsDynamicForms +  $footerShortcodeForms;
+        $footerPopOverData = CTA::getFooterPopOvers();
+        $footerForms = $footerWidgetForms + $footerWidgetsDynamicForms + $footerShortcodeForms + $footerPopOverData;
+        // Prepare modals
         $footerModals = new ModalWindow();
         // footer widgtes
         if(!empty($footerForms)){
@@ -185,6 +225,10 @@ class Frontend
                 if(method_exists($widget->widget, 'getHtml')){
                     // prep
                     $modalGuts = $widget->widget->getHtml(array(), $widget->instance);
+                    $modalClass = '';
+                    if(method_exists($widget->widget, 'getCTAModalClass')){
+                        $modalClass = $widget->widget->getCTAModalClass($widget->instance);
+                    }
                     if(!empty($modalGuts)){
                         // inject hidden inputs first
                         $modalGutsInject = new HtmlForm($modalGuts);
@@ -204,9 +248,14 @@ class Frontend
                             }
                         }
                         // add html with injected values
-                        $footerModals->addModalWindow($id, $modalGutsInject);
+                        $footerModals->addModalWindow($id, $modalGutsInject, FALSE, $modalClass);
                     }
                 }
+            }
+            // Add open modal javascript fro PopOver (if set)
+            if(isset($footerPopOverData) && !empty($footerPopOverData)){
+                // There can be olny one popOver on post page, so it's always the same id, here:
+                $footerModals = $footerModals . WidgetForm::getModalOpenJavascript('modalWindowGenooctaShortcodepopover');
             }
             // print it out
             echo $footerModals;
@@ -216,19 +265,26 @@ class Frontend
 
     /**
      * Render mobile window
+     *
+     * @param string $subscribe
+     * @param null $html
      */
-    public static function renderMobileWindow()
+    public static function renderMobileWindow($subscribe = 'Subscribe', $html = NULL, $bodyClass = '')
     {
+        header('Content-Type: text/html; charset=utf-8');
         // Simple template
         echo '<!DOCTYPE html>'
             .'<html class="genooFullPage">'
             .'<head>'
             .'<meta charset="utf-8" />'
             .'<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width">'
-            .'<title>Subscribe</title>';
+            .'<title>'. $subscribe .'</title>';
             wp_head();
         echo '</head>';
-        echo '<body class="genooMobileWindow">';
+        echo '<body class="genooMobileWindow '. $bodyClass .'">';
+        if(!is_null($html)){
+            echo $html;
+        }
         wp_footer();
         echo '</body></html>';
         // Kill it before WordPress does his shenanigans
@@ -240,6 +296,7 @@ class Frontend
      */
     public static function renderTinyMCEIframe($file)
     {
+        header('Content-Type: text/html; charset=utf-8');
         include_once GENOO_ASSETS_DIR . $file;
         exit();
     }

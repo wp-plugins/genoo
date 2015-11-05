@@ -52,7 +52,8 @@ class Genoo
         define('GENOO_ASSETS_DIR', GENOO_ROOT . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR);
         define('GENOO_CACHE',   GENOO_ROOT . 'cache' . DIRECTORY_SEPARATOR);
         define('GENOO_DEBUG',   get_option('genooDebug'));
-        define('GENOO_REFRESH', sha1('genoo-works-around-security-protocols'));
+        define('GENOO_REFRESH', sha1('added-sugar-with-pop-over'));
+        define('GENOO_DOMAIN', '//api.genoo.com');
         // start the engine last file to require, rest is auto
         // custom auto loader, PSR-0 Standard
         require_once('GenooRobotLoader.php');
@@ -103,20 +104,26 @@ class Genoo
         }
 
         /**
+         * 3. Extensions
+         */
+        // This runs in plugin_loaded
+        Action::run('wpmktengine_init', $this->repositarySettings, $this->api, $this->cache);
+
+        /**
          * 3. Admin | Frontend
          */
 
         if(is_admin()){
             return new Admin($this->api, $this->cache);
         }
-        return new Frontend($this->repositarySettings);
+        return new Frontend($this->repositarySettings, $this->api, $this->cache);
     }
 
     /** Activation hook */
     public static function activate(){ /*Cron::onActivate(GENOO_CRON);*/ }
 
     /** Deactivation hook */
-    public static function deactivate() { /*Cron::onDeactivate(GENOO_CRON);*/ }
+    public static function deactivate() { }
 }
 
 $genoo = new Genoo();

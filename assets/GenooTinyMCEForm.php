@@ -42,17 +42,6 @@ class GenooTinyMCEForm extends TinyMCEHanlder
 
 
     /**
-     * Resolve additional variables
-     */
-
-    public function resolveSecond()
-    {
-        $this->themes = !empty($_GET['themes']) ? $_GET['themes'] : array();
-        $this->forms = !empty($_GET['forms']) ? $_GET['forms'] : array();
-    }
-
-
-    /**
      * Genoo CTA pop-up javascript
      */
 
@@ -69,7 +58,7 @@ class GenooTinyMCEForm extends TinyMCEHanlder
         <?php if($this->version >= 4){ ?>
         var themeConfirm = document.getElementById("themeConfirm").value;
         var themeError = document.getElementById("themeError").value;
-        <?php } ?>
+    <?php } ?>
         // output
         output += '[<?php echo $this->shortcode; ?>';
         if(formVal){ output += ' id=\''+formVal+'\''; }
@@ -79,9 +68,13 @@ class GenooTinyMCEForm extends TinyMCEHanlder
         if(themeConfirm){ output += ' msgSuccess=\''+addSlashes(themeConfirm)+'\''; }
         if(themeError){ output += ' msgFail=\''+addSlashes(themeError)+'\''; }
         }
-        <?php } ?>
+    <?php } ?>
         output += ']';        // bam
+        <?php if($this->edit){ ?>
+        tinyMCEPopup.execCommand('<?php echo $this->refresh; ?>Ref', false, output);
+    <?php } else { ?>
         tinyMCEPopup.execCommand('mceReplaceContent', false, output);
+    <?php } ?>
         tinyMCEPopup.execCommand('<?php echo $this->refresh; ?>');
         tinyMCEPopup.close();
     <?php
@@ -102,7 +95,7 @@ class GenooTinyMCEForm extends TinyMCEHanlder
                 <?php
                 if(isset($this->forms) && !empty($this->forms)){
                     foreach($this->forms as $key => $value){
-                        $selectedVal = in_array($key, $this->selected) ? ' selected' : '';
+                        $selectedVal = is_array($this->selected) && in_array($key, $this->selected) ? ' selected' : '';
                         echo '<option value="'. $key .'" '. $selectedVal .'>'. $value .'</option>';
                     }
                 }
@@ -116,7 +109,7 @@ class GenooTinyMCEForm extends TinyMCEHanlder
                 <?php
                 if(isset($this->themes) && !empty($this->themes)){
                     foreach($this->themes as $key => $value){
-                        $selectedVal = in_array($key, $this->selected) ? ' selected' : '';
+                        $selectedVal = is_array($this->selected) && in_array($key, $this->selected) ? ' selected' : '';
                         echo '<option value="'. $key .'" '. $selectedVal .'>'. $value .'</option>';
                     }
                 }
@@ -125,7 +118,7 @@ class GenooTinyMCEForm extends TinyMCEHanlder
         </p>
         <?php if($this->version >= 4){ ?>
         <p>
-            <label for="formInternal">Internal form? <input onchange="checkChecked(this);" type="checkbox" id="formInternal" name="formInternal" <?php if($this->visible){ echo 'checked'; } ?>/></label>
+            <label for="formInternal">Display confirmation message inline? <input onchange="checkChecked(this);" type="checkbox" id="formInternal" name="formInternal" <?php if($this->visible){ echo 'checked'; } ?>/></label>
             <br />
             <br />
         </p>
@@ -139,6 +132,32 @@ class GenooTinyMCEForm extends TinyMCEHanlder
                 <input class="text" type="text" id="themeError" name="msgFail" value="<?php if(isset($this->selected['msgfail'])){ echo $this->selected['msgfail']; } ?>" />
             </p>
         </div>
+    <?php } ?>
+        <?php if($this->edit){ ?>
+        <script type="text/javascript">
+            jQuery(function() {
+                var data = Popup.data();
+                if(data){
+                    var dataShort = '[' + data + ']';
+                    var atts = window.parent.wp.shortcode.next('genooForm', dataShort);
+                    if(atts.shortcode.attrs.named.id){
+                        jQuery('#form').val(atts.shortcode.attrs.named.id).change();
+                    }
+                    if(atts.shortcode.attrs.named.theme){
+                        jQuery('#formTheme').val(atts.shortcode.attrs.named.theme).change();
+                    }
+                    if(atts.shortcode.attrs.named.msgfail){
+                        jQuery('#themeError').val(atts.shortcode.attrs.named.msgfail).change();
+                    }
+                    if(atts.shortcode.attrs.named.msgsuccess){
+                        jQuery('#themeConfirm').val(atts.shortcode.attrs.named.msgsuccess).change();
+                    }
+                    if(atts.shortcode.attrs.named.msgfail && atts.shortcode.attrs.named.msgsuccess){
+                        jQuery('#formInternal').prop('checked', true).change();
+                    }
+                }
+            });
+        </script>
     <?php } ?>
     <?php
     }

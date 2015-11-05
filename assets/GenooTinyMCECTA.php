@@ -42,17 +42,6 @@ class GenooTinyMCECTA extends TinyMCEHanlder
 
 
     /**
-     * Resolve additional variables
-     */
-
-    public function resolveSecond()
-    {
-        $this->cta = (isset($_GET['cta']) && $_GET['cta'] == 'true') ? true : false;
-        $this->ctas = !empty($_GET['ctas']) ? $_GET['ctas'] : array();
-    }
-
-
-    /**
      * Genoo CTA pop-up javascript
      */
 
@@ -72,7 +61,11 @@ class GenooTinyMCECTA extends TinyMCEHanlder
         if(alignVal){ output += ' align=\''+alignVal+'\''; }
         output += ']';
         // bam
+        <?php if($this->edit){ ?>
+        tinyMCEPopup.execCommand('<?php echo $this->refresh; ?>Ref', false, output);
+    <?php } else { ?>
         tinyMCEPopup.execCommand('mceReplaceContent', false, output);
+    <?php } ?>
         tinyMCEPopup.execCommand('<?php echo $this->refresh; ?>');
         tinyMCEPopup.close();
         <?php
@@ -92,7 +85,7 @@ class GenooTinyMCECTA extends TinyMCEHanlder
                 <select name="cta" id="cta">
                     <?php
                     foreach($this->ctas as $key => $value){
-                        $selectedVal = in_array($key, $this->selected) ? ' selected' : '';
+                        $selectedVal = is_array($this->selected) && in_array($key, $this->selected) ? ' selected' : '';
                         echo '<option value="'. $key .'" '. $selectedVal .'>'. $value .'</option>';
                     }
                     ?>
@@ -105,11 +98,27 @@ class GenooTinyMCECTA extends TinyMCEHanlder
             <label for="align">Align:</label><br/>
             <select name="align" id="align">
                 <option value="">None</option>
-                <option value="left" <?php echo in_array('left', $this->selected) ? 'selected' : '' ?>>Left</option>
-                <option value="right" <?php echo in_array('right', $this->selected) ? 'selected' : '' ?>>Right</option>
+                <option value="left" <?php echo is_array($this->selected) && in_array('left', $this->selected) ? 'selected' : '' ?>>Left</option>
+                <option value="right" <?php echo is_array($this->selected) && in_array('right', $this->selected) ? 'selected' : '' ?>>Right</option>
             </select>
         </p>
-        <?php
+        <script type="text/javascript">
+            jQuery(function() {
+                var data = Popup.data();
+                if(data){
+                    var dataShort = '[' + data + ']';
+                    var atts = window.parent.wp.shortcode.next('genooCTA', dataShort);
+                    console.log(atts);
+                    if(atts.shortcode.attrs.named.id){
+                        jQuery('#cta').val(atts.shortcode.attrs.named.id).change();
+                    }
+                    if(atts.shortcode.attrs.named.align){
+                        jQuery('#align').val(atts.shortcode.attrs.named.align).change();
+                    }
+                }
+            });
+        </script>
+    <?php
     }
 }
 

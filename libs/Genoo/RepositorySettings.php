@@ -11,8 +11,9 @@
 
 namespace Genoo;
 
-use Genoo\Api,
-    Genoo\Wordpress\Post;
+use Genoo\Api;
+use Genoo\Wordpress\Post;
+use Genoo\Wordpress\Utils;
 
 
 class RepositorySettings extends Repository
@@ -261,7 +262,12 @@ class RepositorySettings extends Repository
      * @return string
      */
 
-    public function getTrackingCode(){ return $this->getOption('apiExternalTrackingCode', self::KEY_SETTINGS); }
+    public function getTrackingCode()
+    {
+        $code = $this->getOption('apiExternalTrackingCode', self::KEY_SETTINGS);
+        $code = Utils::nonProtocolUrl($code);
+        return $code;
+    }
 
 
     /**

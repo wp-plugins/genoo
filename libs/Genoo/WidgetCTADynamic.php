@@ -13,10 +13,12 @@ namespace Genoo;
 
 use Genoo\CTA;
 
-
+/**
+ * Class WidgetCTADynamic
+ * @package Genoo
+ */
 class WidgetCTADynamic extends WidgetCTA
 {
-
     /** @var CTA|int  */
     var $preCta;
 
@@ -40,6 +42,7 @@ class WidgetCTADynamic extends WidgetCTA
         $this->id =  $base . '-' . $number;
         $this->number = $number;
         $this->preCta = $cta;
+        $this->isWidgetCTA = TRUE;
         $this->set();
     }
 
@@ -60,7 +63,7 @@ class WidgetCTADynamic extends WidgetCTA
             if($this->cta->isClasslist){
                 $this->widgetForm = new WidgetLumen(false);
             } else {
-                $this->widgetForm = new WidgetForm(false);
+                $this->widgetForm = new WidgetForm(false, true);
             }
             $this->widgetForm->id = $this->id;
         }

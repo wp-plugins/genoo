@@ -291,13 +291,34 @@ Modal.open = function(e, el)
  *
  * @param event
  * @param id
- * @return {*}
+ * @param img
+ * @param btn
+ * @returns {boolean}
  */
 
 Modal.emptyImage = function(event, id, img, btn)
 {
     event.preventDefault();
     document.getElementById(id).innerHTML = '';
+    document.getElementById(img).value = '';
+    document.getElementById(btn).setAttribute('data-current-id','');
+    return false;
+};
+
+
+/**
+ * Empty Image with a placeholder
+ *
+ * @param event
+ * @param id
+ * @param img
+ * @param btn
+ * @returns {boolean}
+ */
+Modal.emptyImagePlaceholder = function(event, id, img, btn)
+{
+    event.preventDefault();
+    document.getElementById(id).innerHTML = '<div class="bContent">&nbsp;</div>';
     document.getElementById(img).value = '';
     document.getElementById(btn).setAttribute('data-current-id','');
     return false;
@@ -1140,6 +1161,7 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
     var debug = false;
     var TinyMCEVersion = varVersion;
     var query = GenooVars.GenooTinyMCE ? GenooVars.GenooTinyMCE : '';
+    var target = query.url;
     var aligned = varAligned;
     var buttonTitle = varTitle;
     var pluginFile = varFile;
@@ -1150,7 +1172,7 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
     var buttonToolbar = buttonCommand + 'Toolbar';
     var buttonImage = varImage;
     var buttonCommandSelected = 'data-' + buttonCommand + '-image-select';
-        buttonCommandSelected.toLowerCase();
+    buttonCommandSelected.toLowerCase();
 
     // Keywords play
     var buttonEdit = buttonCommand + 'Edit';
@@ -1192,8 +1214,8 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
         var regex = new RegExp('\\\['+ buttonCommand +'([^\\\]]*)\\\]', 'g');
         return content.replace(regex, function(a,b){
             var title = GenooTinyMCE.encode(b);
-                title = title ? title : '';
-                title = buttonCommand + ' ' + GenooTinyMCE.trim(title);
+            title = title ? title : '';
+            title = buttonCommand + ' ' + GenooTinyMCE.trim(title);
             var elClass = '';
             // Can be aligned?
             if(aligned){
@@ -1258,12 +1280,16 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
                     node = event.target,
                     selected = jQuery(ed.getBody()).find('.genooFormTemp > img[data-mce-selected="1"]');
                 if(event.button && event.button > 1){ return; }
+                console.log(buttonShortcode);
+                GenooTinyMCE.addPlugin.log('Mouse-up node:');
+                GenooTinyMCE.addPlugin.log(jQuery(node));
                 if(jQuery(node).hasClass(buttonShortcode)){
                     var uniqueId = GenooTinyMCE.uniqueID();
                     GenooTinyMCE.clenseSelected(ed);
                     GenooTinyMCE.addPlugin.log('Setting image unique ID: ' +  uniqueId);
                     jQuery(node).attr('data-genoo-id', uniqueId);
                     GenooTinyMCE.addToolbar(ed, node, buttonCommandSelected, buttonEdit, buttonRemove, buttonToolbar, uniqueId);
+                    GenooTinyMCE.addPlugin.log('Clicking ' + buttonShortcode + ' element.');
                 } else if(jQuery(event.target).hasClass(buttonEdit) || jQuery(event.target).hasClass(buttonRemove)){
                     event.preventDefault();
                     // Nope, we don't do anything here
@@ -1288,7 +1314,9 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
             ed.on('click', function(e){
                 GenooTinyMCE.addPlugin.log('Clicking event.');
                 if(jQuery(e.target).hasClass(buttonEdit)){
-                    var img = jQuery(e.target).closest('body').find('img['+ buttonCommandSelected +'="1"]');
+                    var toolbar = jQuery(e.target).closest('body').find('#' + buttonToolbar);
+                    var id = toolbar.attr('data-genoo-id');
+                    var img = jQuery(e.target).closest('body').find('img[data-genoo-id="'+ id +'"]');
                     ed.execCommand(buttonCommandEdit, false, img.attr('title'));
                     // but back selected attribute
                     img.attr(buttonCommandSelected, '1');
@@ -1320,8 +1348,9 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
                 query['edit'] = '0';
                 query['version'] = TinyMCEVersion;
                 query['commandRefresh'] = buttonCommandRefresh;
+                query['url'] = '';
                 ed.windowManager.open({
-                    file : GenooVars.GenooTinyMCE.url + pluginFile + '&' + Admin.buildQuery(query),
+                    file : target + pluginFile + '&' + Admin.buildQuery(query),
                     width : options.width + parseInt(ed.getLang('example.delta_width', 0)),
                     height : options.height + parseInt(ed.getLang('example.delta_height', 0)),
                     inline : 1
@@ -1332,15 +1361,19 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
                 // add selected
                 query['version'] = TinyMCEVersion;
                 query['edit'] = '1';
-                query['selected'] = string;
+                //query['selected'] = string;
+                query['selected'] = '';
                 query['commandRefresh'] = buttonCommandRefresh;
+                query['url'] = '';
                 ed.windowManager.open({
-                    file : GenooVars.GenooTinyMCE.url + pluginFile + '&' + Admin.buildQuery(query),
+                    file : target + pluginFile + '&' + Admin.buildQuery(query),
                     width : options.width + parseInt(ed.getLang('example.delta_width', 0)),
                     height : options.height + parseInt(ed.getLang('example.delta_height', 0)),
                     inline : 1
+                }, {
+                    query: string
                 });
-                GenooTinyMCE.removeToolbarAll(ed, true);
+                //GenooTinyMCE.removeToolbarAll(ed, true);
             });
             // Refresh content correctly ... :)
             ed.addCommand(buttonCommandRefresh, function(){
@@ -1353,6 +1386,14 @@ GenooTinyMCE.addPlugin = function(varVersion, varFile, varCommand, varImage, var
                     )
                 );
                 ed.focus();
+            });
+            ed.addCommand(buttonCommandRefresh + 'Ref', function(gui, output){
+                // Get selected element
+                var selected = jQuery(ed.getBody()).find('#' + buttonToolbar);
+                if(selected.length){
+                    var image = jQuery(ed.getBody()).find('img[data-genoo-id="' + selected.attr('data-genoo-id') + '"]');
+                    image.parent().replaceWith(output);
+                }
             });
             // Replace Content
             ed.addCommand(buttonCommandReplace, function(output){});

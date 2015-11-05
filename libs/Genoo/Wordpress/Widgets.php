@@ -242,6 +242,10 @@ class Widgets
                         // Each sidebar has an array of widgets,
                         // even one widget will be in an array
                         if(is_array($widgetArray) && !empty($widgetArray)){
+                            // if sidebar not set, create the array key (might be empty)
+                            if(!isset($sidebars[$sidebarKey])){
+                                $sidebars[$sidebarKey] = array();
+                            }
                             // Before going through widgets, removing instances of
                             // all dynamic CTA widgets, so we position them correctly
                             $sidebars[$sidebarKey] = ArrayObject::removeByValueLike($sidebars[$sidebarKey], 'genoodynamiccta');

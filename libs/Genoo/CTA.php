@@ -11,8 +11,8 @@
 
 namespace Genoo;
 
-use Genoo\Wordpress\Post,
-    Genoo\RepositorySettings;
+use Genoo\Wordpress\Post;
+use Genoo\RepositorySettings;
 
 
 class CTA
@@ -67,11 +67,18 @@ class CTA
     public $messageError = null;
     /** @var null  */
     public $classList = null;
-
     /** @var null Position should be only set for dynamic CTAs */
     public $position = null;
     /** @var null Sidebar should be only set for dynamic CTAs */
     public $sidebar = null;
+    /** @var null */
+    public $popup = null;
+    /** @var bool */
+    public $isPopOver = false;
+    /** @var int */
+    public $popOverTime = 0;
+    /** @var bool */
+    public $popOverHide = false;
 
 
     /**
@@ -152,7 +159,11 @@ class CTA
         $j = $this->post->getMeta('description'); // desc
         $z = $this->post->getMeta('display_cta_s');
         $a1 = $this->post->getMeta('class_list');
+        // A
         $k = ($z == '0' || empty($z)) ? false : true;
+        $this->isPopOver = $this->post->getMeta('enable_pop_up_to_open_automatically') == 0 ? FALSE : TRUE;
+        $this->popOverTime = $this->post->getMeta('number_of_seconds_to_open_the_pop_up_after') ? (int)$this->post->getMeta('number_of_seconds_to_open_the_pop_up_after') : 0;
+        $this->popOverHide = $this->post->getMeta('hide_pop_up_button') == 0 ? TRUE : FALSE;
         $this->messageSuccess = $this->post->getMeta('form_success_message');
         $this->messageError = $this->post->getMeta('form_error_message');
         $this->isForm = $a == 'form' ? true : false;
@@ -172,5 +183,98 @@ class CTA
         $this->title = $this->post->getTitle();
         $this->displayTitle = ($k == true && ($z == 'titledesc' || $z == 'title')) ? true : false;
         $this->displayDesc = ($k == true && ($z == 'titledesc' || $z == 'desc')) ? true : false;
+        $this->popup = $this->post->getMeta('formpop');
+    }
+
+    /**
+     * @param $post_id
+     * @return bool
+     */
+    public static function ctaHasPopOver($post_id)
+    {
+        if(Post::exists($post_id)){
+            $popOver = get_post_meta($post_id, 'enable_pop_over_to_open_automatically', TRUE);
+            return $popOver == 0 ? FALSE : TRUE;
+        }
+        return FALSE;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function ctaHasHidePopOver($post_id)
+    {
+        if(Post::exists($post_id)){
+            $popOver = get_post_meta($post_id, 'hide_pop_up_button', TRUE);
+            return $popOver == 0 ? TRUE : FALSE;
+        }
+        return FALSE;
+    }
+
+    /**
+     * @param $post_id
+     * @return bool
+     */
+    public static function ctaPopOverGet($post_id)
+    {
+        if(Post::exists($post_id)){
+            $pop = get_post_meta($post_id, 'pop_over_cta_id', TRUE);
+            if(is_numeric($pop)){
+                return $pop;
+            }
+            return FALSE;
+        }
+        return FALSE;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function ctaGetPopOverTime($post_id)
+    {
+        if(Post::exists($post_id)){
+            $popOver = (int)get_post_meta($post_id, 'number_of_seconds_to_open_the_pop_up_after', TRUE);
+            return $popOver;
+        }
+        return FALSE;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getFooterPopOvers()
+    {
+        // Prep
+        global $post;
+        $r = array();
+        $setPopOver = FALSE;
+        $repositorySettings = new RepositorySettings();
+        if(isset($post) && $post instanceof \WP_Post){
+            if(CTA::ctaHasPopOver($post->ID) && $cta_id = CTA::ctaPopOverGet($post->ID)){
+                // get CTA
+                $ctaTime = CTA::ctaGetPopOverTime($post->ID);
+                $cta = new WidgetCTA();
+                $cta->setThroughShortcode('popover', $cta_id);
+                // PUt in array if it is form CTA
+                if($cta->cta->isForm){
+                    $r[$cta->id] = new \stdClass();
+                    $r[$cta->id]->widget = $cta;
+                    $r[$cta->id]->instance = $cta->getInnerInstance();
+                    // Set up PopOver
+                    IF($setPopOver){
+                        $r[$cta->id]->widget->cta->isPopOver = TRUE;
+                        $r[$cta->id]->widget->cta->popOverTime = $ctaTime;
+                        $r[$cta->id]->widget->cta->popOverHide = TRUE;
+                        $r[$cta->id]->instance['modal'] = TRUE;
+                        $r[$cta->id]->instance['isPopOver'] = TRUE;
+                        $r[$cta->id]->instance['isPopOverInject'] = TRUE;
+                        $r[$cta->id]->instance['popOverHide'] = TRUE;
+                        $r[$cta->id]->instance['popOverTime'] = $ctaTime;
+                    }
+                }
+                return $r;
+            }
+        }
+        return $r;
     }
 }
