@@ -7,15 +7,17 @@
  *
  * For the full copyright and license information, please view
  * the Genoo.php file in root directory of this plugin.
- *
- * Based on: http://jordifreek.github.io/CacheGadget/
  */
 
 namespace Genoo;
 
 use Genoo\Utils\Json;
 
-
+/**
+ * Class Cache
+ * @package Genoo
+ * Based on: http://jordifreek.github.io/CacheGadget/
+ */
 class Cache
 {
     /** @var bool Enable/Disable cache. */
@@ -189,7 +191,7 @@ class Cache
                         }
                     }
                 }
-                if (!rmdir($directory)) {
+                if (!@rmdir($directory)) {
                     throw new CacheException('Can\'t remove dir (user permissions?)');
                 }
                 return true;
@@ -215,7 +217,7 @@ class Cache
         if (is_array($dirs) and count($dirs)) {
             foreach ($dirs as $dir) {
                 if (is_dir($dir)) {
-                    rmdir($dir);
+                    @rmdir($dir);
                 }
             }
         }
@@ -531,7 +533,7 @@ class Cache
         $file['dir']  = $this->cacheDir.'/'.$cache_name;
         $file['path'] = $this->cacheDir.'/'.$cache_name.'/'.$file['name'];
         if (!file_exists($file['dir'])) {
-            mkdir($file['dir']);
+            @mkdir($file['dir']);
         }
         return $file;
     }
@@ -583,5 +585,8 @@ class Cache
     }
 }
 
-
+/**
+ * Class CacheException
+ * @package Genoo
+ */
 class CacheException extends \Exception{}

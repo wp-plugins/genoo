@@ -25,7 +25,7 @@ class GenooCheck
         // minimum versions
         $checkMinWp  = '3.3';
         $checkMinPHP = '5.3';
-        $checkMinMemory = 60 * (1024 * 1024);
+        $checkMinMemory = 20 * (1024 * 1024);
         // recover hideLink
         $recoverLink = '<br /><br /><a href="'. admin_url('plugins.php') .'">' . __('Back to plugins.', 'genoo') . '</a>';
         // Check WordPress version

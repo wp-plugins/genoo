@@ -578,9 +578,10 @@ class MetaboxBuilder extends Metabox
     /**
      * @param $data
      * @param $formHtml
+     * @param $readyId
      * @return string
      */
-    public static function getHTMLRenderer($data, $formHtml)
+    public static function getHTMLRenderer($data, $formHtml, $readyId = NULL)
     {
         // Prep values
         $settings['percentage-on'] = FALSE;
@@ -649,33 +650,41 @@ class MetaboxBuilder extends Metabox
         // Contentos
         $r->content .= '<div class="clear"></div>';
         // Put it all together
-        $r->content = '<div class="genooPop">';
-        $r->content .= $settings->{'percentage-on'} ? $r->percentage : '';
-        if($settings->{'countdown-position'} == 'top'){
-            $r->content .= $settings->{'countdown-on'} ? $r->countdown : '';
+        $r->content = '';
+        $hideRest = FALSE;
+        if(isset($_GET['modalWindow']) && !is_null($readyId) && $_GET['modalWindow'] == 'modalWindow' . ucfirst($readyId)){
+            // This is active window
+            $hideRest = TRUE;
         }
-        if(!$settings->{'intro-inside-on'}){
-            $r->content .= $settings->{'intro-on'} ? $r->intro : '';
-        }
-        $r->content .= $settings->{'title-on'} ? $r->title : '';
-            if($settings->{'image-on'} && ($image)){
-                $r->content .= '<div class="genooPopRight">';
-                    $r->content .= $formHtml;
-                $r->content .= '</div>';
-                $r->content .= '<div class="genooPopLeft">';
-                $r->content .= $r->image;
-                $r->content .= '</div>';
-            } else {
-                $r->content .= '<div class="genooPopFull">';
-                    $r->content .= $formHtml;
-                $r->content .= '</div>';
+        if($hideRest === FALSE){
+            $r->content .= '<div class="genooPop">';
+            $r->content .= $settings->{'percentage-on'} ? $r->percentage : '';
+            if($settings->{'countdown-position'} == 'top'){
+                $r->content .= $settings->{'countdown-on'} ? $r->countdown : '';
             }
-        $r->content .= '<div class="clear"></div>';
-        $r->content .= $settings->{'footer-on'} ? $r->footer : '';
-        if($settings->{'countdown-position'} == 'bottom'){
-            $r->content .= $settings->{'countdown-on'} ? $r->countdown : '';
+            if(!$settings->{'intro-inside-on'}){
+                $r->content .= $settings->{'intro-on'} ? $r->intro : '';
+            }
+            $r->content .= $settings->{'title-on'} ? $r->title : '';
+                if($settings->{'image-on'} && ($image)){
+                    $r->content .= '<div class="genooPopRight">';
+                        $r->content .= $formHtml;
+                    $r->content .= '</div>';
+                    $r->content .= '<div class="genooPopLeft">';
+                    $r->content .= $r->image;
+                    $r->content .= '</div>';
+                } else {
+                    $r->content .= '<div class="genooPopFull">';
+                        $r->content .= $formHtml;
+                    $r->content .= '</div>';
+                }
+            $r->content .= '<div class="clear"></div>';
+            $r->content .= $settings->{'footer-on'} ? $r->footer : '';
+            if($settings->{'countdown-position'} == 'bottom'){
+                $r->content .= $settings->{'countdown-on'} ? $r->countdown : '';
+            }
+            $r->content .= '</div>';
         }
-        $r->content .= '</div>';
         // Return
         return $r->content;
     }

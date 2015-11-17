@@ -79,6 +79,8 @@ class CTA
     public $popOverTime = 0;
     /** @var bool */
     public $popOverHide = false;
+    /** @var bool */
+    public $followOriginalUrl = false;
 
 
     /**
@@ -183,6 +185,9 @@ class CTA
         $this->title = $this->post->getTitle();
         $this->displayTitle = ($k == true && ($z == 'titledesc' || $z == 'title')) ? true : false;
         $this->displayDesc = ($k == true && ($z == 'titledesc' || $z == 'desc')) ? true : false;
+        if($this->isForm){
+            $this->followOriginalUrl = $this->post->getMeta('follow_original_return_url') == 0 ? FALSE : TRUE;
+        }
         $this->popup = $this->post->getMeta('formpop');
     }
 

@@ -66,7 +66,23 @@ class CSS
                 $r .= $rule->getName() . ' {' . $rule . '}' ;
             }
         }
-        return self::START . $r . self::END;
+        // Generate CSS
+        $cssScoped = self::START . $r . self::END;
+
+        // Add CSS to global generator
+        global $GENOO_STYLES;
+        if(!empty($GENOO_STYLES)){
+            $GENOO_STYLES .= $cssScoped;
+        } else {
+            $GENOO_STYLES = $cssScoped;
+        }
+
+        // Append JS fallback
+        $cssJs = '<script type="text/javascript">if(typeof GenooCSS != "undefined"){ GenooCSS.add(' . json_encode($r) . '); }</script>';
+        $cssFinal = $cssScoped . $cssJs;
+
+        // Return
+        return $cssFinal;
     }
 }
 

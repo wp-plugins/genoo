@@ -486,3 +486,26 @@ Counter.update = function(date, element)
     minutes.innerHTML="<span>"+date[2]+"</span> Min";
     seconds.innerHTML="<span>"+date[3]+"</span> Sec";
 };
+
+
+/**
+ * Genoo CSS
+ * @type {GenooCSS|*|{}}
+ */
+var GenooCSS = GenooCSS || {};
+
+/**
+ * Add CSS
+ * @param css
+ */
+GenooCSS.add = function(css)
+{
+    var styleElement = document.createElement("style");
+    styleElement.type = "text/css";
+    if (styleElement.styleSheet) {
+        styleElement.styleSheet.cssText = css;
+    } else {
+        styleElement.appendChild(document.createTextNode(css));
+    }
+    document.getElementsByTagName("head")[0].appendChild(styleElement);
+};

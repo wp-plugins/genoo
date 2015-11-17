@@ -5,7 +5,7 @@ Requires at least: 3.3
 Tested up to: 4.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 3.0
+Stable tag: 3.0.5
 
 Combine the flexibility of WordPress with the power of Genoo and experience amazing results!
 
@@ -67,6 +67,10 @@ Not a Genoo customer yet? Let's get your ["30-Day Free Trial"](http://www.genoo.
 * Updated CTA metabox validation
 
 == Changelog ==
+
+= 3.0.5 =
+* Fixed minor issues
+* Added ability to follow Form original return URL
 
 = 3.0 =
 * Pop-Up builder added

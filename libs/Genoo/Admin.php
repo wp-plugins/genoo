@@ -124,6 +124,10 @@ class Admin
         }
         // if setup up add vars
         if(GENOO_SETUP){
+            $tinyMceUrl = Utils::addQueryParam(GENOO_HOME_URL, 'genooIframe=', '');
+            if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off'){
+                $tinyMceUrl = str_replace('http://', 'https://', $tinyMceUrl);
+            }
             wp_localize_script('Genoo', 'GenooVars', array(
                 'GenooSettings' => array(
                     'GENOO_PART_SETUP' => GENOO_PART_SETUP,
@@ -136,7 +140,7 @@ class Admin
                     'importing'  => __('Importing...', 'genoo'),
                 ),
                 'GenooTinyMCE' => array(
-                    'url'    => Utils::addQueryParam(GENOO_HOME_URL, 'genooIframe=', '')
+                    'url'    => $tinyMceUrl
                 )
             ));
             // register editor styles
@@ -359,6 +363,16 @@ class Admin
                         'atts' => array(
                             'class' => 'bTargeted',
                             'data-target' => 'block-form'
+                        )
+                    ),
+                    array(
+                        'type' => 'select',
+                        'label' => __('Follow original return URL', 'genoo'),
+                        'options' => (
+                            array(
+                                '' => 'Disable',
+                                '1' => 'Enable'
+                            )
                         )
                     ),
                     array(

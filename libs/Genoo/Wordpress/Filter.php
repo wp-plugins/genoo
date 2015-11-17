@@ -135,7 +135,7 @@ class Filter
     public static function everythingExceptLike($like = null)
     {
         $filters = self::get(self::$tag);
-        if($filters){
+        if($filters && !empty($filters)){
             // hooks, go through
             foreach($filters as $priority => $hooks){
                 // functions
@@ -147,8 +147,10 @@ class Filter
                         if(is_array($like)){
                             foreach($like as $lik){
                                 $remove = false;
-                                if(!Strings::contains((string)$hook['function'], (string)$lik)){
-                                    $remove = true;
+                                if(!empty($hook['function']) && !is_array($hook['function'])){
+                                    if(!Strings::contains((string)$hook['function'], (string)$lik)){
+                                        $remove = true;
+                                    }
                                 }
                             }
                             // none of those functions in array is the hold one, remove hook
@@ -156,9 +158,11 @@ class Filter
                                 self::remove(self::$tag, $hook['function'], $priority);
                             }
                         } elseif (is_string($like)){
-                            if(!Strings::contains((string)$hook['function'], (string)$like)){
-                                // remove hook
-                                self::remove(self::$tag, $hook['function'], $priority);
+                            if(!empty($hook['function']) && !is_array($hook['function'])){
+                                if(!Strings::contains((string)$hook['function'], (string)$like)){
+                                    // remove hook
+                                    self::remove(self::$tag, $hook['function'], $priority);
+                                }
                             }
                         }
                     }

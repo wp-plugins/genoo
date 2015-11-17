@@ -254,6 +254,7 @@ class WidgetCTA extends \WP_Widget
                 $instance['isPopOver'] = $this->cta->isPopOver;
                 $instance['popOverTime'] = $this->cta->popOverTime;
                 $instance['popOverHide'] = $this->cta->popOverHide;
+                $instance['followOriginalUrl'] = $this->cta->followOriginalUrl;
                 $isHidePopOver = $instance['isPopOver'] && $instance['popOverHide'] ? TRUE : FALSE;
                 if($this->cta->isForm || $this->cta->isClasslist){
                     $r .= $this->widgetForm->getHtml($args, $instance);
@@ -266,13 +267,13 @@ class WidgetCTA extends \WP_Widget
                     // only links
                     if($this->cta->isLink){
                         $blank = $this->cta->isNewWindow ? 'target="_blank"'  : '';
-                        $r .= '<form '. $blank .' action="'. $this->cta->link .'">';
+                        $r .= '<form '. $blank .' method="POST" action="'. $this->cta->link .'">';
                             $r .= '<span id="'. $bid .'">';
                             $r .= '<input type="submit" value="'. $this->cta->linkText .'" />';
                             $r .= '</span>';
                         $r .= '</form>';
                         if($this->cta->isImage && (!empty($this->cta->image) || !empty($this->cta->imageHover))){
-                            $r .= Attachment::generateCss($this->cta->image, $this->cta->imageHover, $bid, TRUE);
+                            $r .= Attachment::generateCss($this->cta->image, $this->cta->imageHover, $bid, 'full');
                         }
                     } elseif($this->cta->isClasslist){
                         //$r .= print_r($this->cta);

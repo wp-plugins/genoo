@@ -82,7 +82,11 @@ class HtmlForm
             // remove form if succes
             if($err == true){
                 if(!empty($this->form)){
-                    $this->form->parentNode->removeChild($this->form);
+                    if($this->form->parentNode){
+                        $this->form->parentNode->removeChild($this->form);
+                    } else {
+                        // No form parent
+                    }
                 }
             }
             if(!empty($this->msg)){

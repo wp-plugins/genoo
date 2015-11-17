@@ -53,9 +53,10 @@ class Frontend
         Action::add('wp',    array($this, 'wp'), 999, 1);
         // Enqueue scripts
         Action::add('wp_enqueue_scripts', array($this, 'enqueue'), 1, 1);
+        Action::add('wp_head', array($this, 'enqueueFirst'), 1, 1);
         // Footer
-        Action::add('wp_footer', array($this, 'footerFirst'), 999);
-        Action::add('wp_footer', array($this, 'footerLast'), 1);
+        Action::add('wp_footer', array($this, 'footerFirst'), 1);
+        Action::add('wp_footer', array($this, 'footerLast'), 999);
         Action::add('shutdown', array($this, 'shutdown'), 10, 1);
     }
 
@@ -108,7 +109,7 @@ class Frontend
                     error_reporting(0);
                     ini_set('error_reporting', 0);
                     // Set through widget
-                    $widget = new WidgetCTA(false);
+                    $widget = new \Genoo\WidgetCTA(false);
                     $widget->setThroughShortcode(1, $wp->query_vars['genooIframeCTA'], array());
                     $class = '';
                     if($widget->cta->popup['image-on']){
@@ -124,9 +125,11 @@ class Frontend
                     $r .= '</div></div>';
                     $r .= '</div>';
                     // Display!
-                    Filter::removeFrom('wp_head')->everythingExceptLike(array('style', 'script'));
+                    //Filter::removeFrom('wp_head')->everythingExceptLike(array('style', 'script'));
+                    // TODO: Discover what's causing issue with the above line
                     Frontend::renderMobileWindow('Preview', $r, 'genooPreviewModal');
                 } catch (\Exception $e){
+                    echo $e->getMessage();
                 }
                 exit;
             }
@@ -191,14 +194,35 @@ class Frontend
 
 
     /**
+     * First
+     */
+    public function enqueueFirst()
+    {
+        // Tracking code
+        if(GENOO_SETUP){
+            $inHeader = apply_filters('genoo_tracking_in_header', FALSE);
+            if($inHeader == TRUE){
+                // Get repo
+                echo $this->repositorySettings->getTrackingCode();
+            }
+        }
+    }
+
+
+    /**
      * Footer first
      */
     public function footerFirst()
     {
         // Tracking code
         if(GENOO_SETUP){
+            $inHeader = apply_filters('genoo_tracking_in_header', FALSE);
             // Get repo
-            echo $this->repositorySettings->getTrackingCode();
+            if($inHeader == FALSE){
+                echo $this->repositorySettings->getTrackingCode();
+            }
+            global $GENOO_STYLES;
+            echo $GENOO_STYLES;
         }
     }
 
@@ -232,7 +256,11 @@ class Frontend
                     if(!empty($modalGuts)){
                         // inject hidden inputs first
                         $modalGutsInject = new HtmlForm($modalGuts);
-                        $modalGutsInject->appendHiddenInputs(array('popup' => 'true', 'returnModalUrl' => ModalWindow::getReturnUrl($id)));
+                        if(isset($widget->cta) && isset($widget->cta->followOriginalUrl) && ($widget->cta->followOriginalUrl == TRUE)){
+                            // do not inject anything
+                        } else {
+                            $modalGutsInject->appendHiddenInputs(array('popup' => 'true', 'returnModalUrl' => ModalWindow::getReturnUrl($id)));
+                        }
                         // inject message
                         $modalResult = ModalWindow::modalFormResult($id);
                         $repositorySettings = new RepositorySettings();

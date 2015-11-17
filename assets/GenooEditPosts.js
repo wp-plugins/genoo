@@ -156,6 +156,9 @@ Metabox.checkEnabled = function()
             if(Document.elementExists(('pop-up-over'))){
                 document.getElementById('pop-up-over').style.display = 'block';
             }
+            if(Document.elementExists(('themeMetaboxRowfollow_original_return_url'))){
+                document.getElementById('themeMetaboxRowfollow_original_return_url').style.display = 'block';
+            }
         } else if(document.getElementById('cta_type').options[document.getElementById('cta_type').selectedIndex].value == 'link') {
             document.getElementById('themeMetaboxRowcta_type').style.display = 'block';
             document.getElementById('themeMetaboxRowbutton_url').style.display = 'block';
@@ -172,11 +175,17 @@ Metabox.checkEnabled = function()
             if(Document.elementExists(('pop-up-over'))){
                 document.getElementById('pop-up-over').style.display = 'none';
             }
+            if(Document.elementExists(('themeMetaboxRowfollow_original_return_url'))){
+                document.getElementById('themeMetaboxRowfollow_original_return_url').style.display = 'none';
+            }
         } else if(document.getElementById('cta_type').options[document.getElementById('cta_type').selectedIndex].value == 'class'){
             document.getElementById('themeMetaboxRowcta_type').style.display = 'block';
             document.getElementById('themeMetaboxRowbutton_text').style.display = 'none';
             if(Document.elementExists(('themeMetaboxRowclass_list'))){
                 document.getElementById('themeMetaboxRowclass_list').style.display = 'block';
+            }
+            if(Document.elementExists(('themeMetaboxRowfollow_original_return_url'))){
+                document.getElementById('themeMetaboxRowfollow_original_return_url').style.display = 'none';
             }
             document.getElementById('form').selectedIndex = 0;
             document.getElementById('form_theme').selectedIndex = 0;
@@ -279,6 +288,9 @@ Metabox.hideAll = function()
         document.getElementById('themeMetaboxRowbutton_hover_image').style.display = 'none';
         document.getElementById('themeMetaboxRowform_success_message').style.display = 'none';
         document.getElementById('themeMetaboxRowform_error_message').style.display = 'none';
+        if(Document.elementExists(('themeMetaboxRowfollow_original_return_url'))){
+            document.getElementById('themeMetaboxRowfollow_original_return_url').style.display = 'none';
+        }
         if(Document.elementExists(('themeMetaboxRowclass_list'))){
             document.getElementById('themeMetaboxRowclass_list').style.display = 'none';
         }

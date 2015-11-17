@@ -135,7 +135,7 @@ class WidgetForm extends \WP_Widget
                 $html .= '<div class="genooGuts">';
                 $html .= '<div id="genooMsg"></div>';
                 // Close shortcode block
-                $html .= MetaboxBuilder::getHTMLRenderer($instance['popup'], $formForm);
+                $html .= MetaboxBuilder::getHTMLRenderer($instance['popup'], $formForm, $this->id);
                 $html .= '</div>';
                 $html .= '<div class="clear"></div>';
                 $html .= '</div>';
