@@ -363,6 +363,7 @@ Modal.close = function(e, modalId)
             Tool.switchClass(document.getElementById('genooOverlay'), 'visible');
             modalOverlay.style.display = 'none';
             Tool.removeAllClassOf('genooOverlay', 'visible');
+            Tool.removeClass(document.body, 'genooModalOpen');
         }
     });
 };

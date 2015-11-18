@@ -52,7 +52,7 @@ class Genoo
         define('GENOO_ASSETS_DIR', GENOO_ROOT . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR);
         define('GENOO_CACHE',   GENOO_ROOT . 'cache' . DIRECTORY_SEPARATOR);
         define('GENOO_DEBUG',   get_option('genooDebug'));
-        define('GENOO_REFRESH', sha1('added-sugar-with-pop-over'));
+        define('GENOO_REFRESH', sha1('added-sugar-with-pop-over-fix-js'));
         define('GENOO_DOMAIN', '//api.genoo.com');
         // start the engine last file to require, rest is auto
         // custom auto loader, PSR-0 Standard

@@ -530,3 +530,8 @@ body .themeResetDefault em { color: #000; background: none; border: 0; }
 	body.genooModalOpen:after { z-index: 2147483000; content: ' '; top: 0; left: 0; right: auto; }
 	body #genooOverlay { background: none !important; position: absolute; }
 }
+
+@media all and (max-width: 385px)
+{
+	.genooModal { width: 100% !important; left: 0; margin-left: 0; }
+}
