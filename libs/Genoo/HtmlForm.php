@@ -50,39 +50,44 @@ class HtmlForm
     public function appendClasses()
     {
         // Get all elements we can
-        $formElements['form'] = array($this->form);
-        $formElements['wrapper'] = $this->form->getElementsByTagName("p");
-        $formElements['label'] = $this->form->getElementsByTagName("label");
-        $formElements['input'] = $this->form->getElementsByTagName("input");
-        $formElements['select'] = $this->form->getElementsByTagName("select");
-        $formElements['textarea'] = $this->form->getElementsByTagName("textarea");
-        $formElements['button'] = $this->form->getElementsByTagName("button");
-        // Go through each filter type
-        foreach($formElements as $filter => $elements)
-        {
-            // Class name
-            $class = apply_filters('wpmktengine_form_element_class_' . $filter, NULL);
-            // Only if class assigned
-            if(!is_null($class)){
-                // can we go through?
-                if($elements instanceof \DOMNodeList || is_array($elements)){
-                    // Can we assign these?
-                    foreach($elements as $element){
-                        if(
-                            method_exists($element, 'getAttribute')
-                            &&
-                            method_exists($element, 'setAttribute')
-                            &&
-                            method_exists($element, 'hasAttribute')
-                        ){
-                            if($filter == 'input' && $element->hasAttribute('type') && $element->getAttribute('type') == 'hidden'){
-                                continue;
-                            }
-                            if($element->hasAttribute('class')){
-                                $prep = $element->getAttribute('class');
-                                $element->setAttribute('class', $prep . ' ' . $class);
-                            } else {
-                                $element->setAttribute('class', $class);
+        if(isset($this->form) && method_exists($this->form, 'getElementsByTagName')){
+            $formElements['form'] = array($this->form);
+            $formElements['wrapper'] = $this->form->getElementsByTagName("p");
+            $formElements['label'] = $this->form->getElementsByTagName("label");
+            $formElements['input'] = $this->form->getElementsByTagName("input");
+            $formElements['select'] = $this->form->getElementsByTagName("select");
+            $formElements['textarea'] = $this->form->getElementsByTagName("textarea");
+            $formElements['button'] = $this->form->getElementsByTagName("button");
+            // Go through each filter type
+            foreach($formElements as $filter => $elements)
+            {
+                // Class name
+                $class = apply_filters('wpmktengine_form_element_class_' . $filter, NULL);
+                // Only if class assigned
+                if(!is_null($class)){
+                    // can we go through?
+                    if($elements instanceof \DOMNodeList || is_array($elements)){
+                        // Can we assign these?
+                        foreach($elements as $element){
+                            if(
+                                method_exists($element, 'getAttribute')
+                                &&
+                                method_exists($element, 'setAttribute')
+                                &&
+                                method_exists($element, 'hasAttribute')
+                            ){
+                                if($filter == 'input' && $element->hasAttribute('type') && $element->getAttribute('type') == 'hidden'){
+                                    continue;
+                                }
+                                if($filter == 'input' && $element->hasAttribute('type') && $element->getAttribute('type') == 'submit'){
+                                    $class = apply_filters('wpmktengine_form_element_class_button', NULL);
+                                }
+                                if($element->hasAttribute('class')){
+                                    $prep = $element->getAttribute('class');
+                                    $element->setAttribute('class', $prep . ' ' . $class);
+                                } else {
+                                    $element->setAttribute('class', $class);
+                                }
                             }
                         }
                     }
