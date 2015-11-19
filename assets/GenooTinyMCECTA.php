@@ -41,8 +41,19 @@ class GenooTinyMCECTA extends TinyMCEHanlder
     }
 
 
+
     /**
-     * Genoo CTA pop-up javascript
+     * Resolve additional variables
+     */
+
+    public function resolveSecond()
+    {
+        $this->cta = (isset($_GET['cta']) && $_GET['cta'] == 'true') ? true : false;
+    }
+
+
+    /**
+     * WPMKTENGINE CTA pop-up javascript
      */
 
     public function renderJavascript()
@@ -55,25 +66,30 @@ class GenooTinyMCECTA extends TinyMCEHanlder
         var ctaVal = cta.options[cta.selectedIndex].value;
         var align = document.getElementById("align");
         var alignVal = align.options[align.selectedIndex].value;
+        var timeChecked = document.getElementById('hide_button').checked;
+        var time = document.getElementById('hide_button_time').value;
         // output
         output += '[<?php echo $this->shortcode; ?>';
         if(ctaVal){ output += ' id=\''+ctaVal+'\''; }
         if(alignVal){ output += ' align=\''+alignVal+'\''; }
+        if(timeChecked && (time > 0)){ output += ' time=\''+time+'\''; }
         output += ']';
         // bam
         <?php if($this->edit){ ?>
+        //tinyMCEPopup.execCommand('WPMKTGENGINERefresh', false, output);
+        //tinyMCEPopup.execCommand('mceReplaceContent', false, output);
         tinyMCEPopup.execCommand('<?php echo $this->refresh; ?>Ref', false, output);
     <?php } else { ?>
         tinyMCEPopup.execCommand('mceReplaceContent', false, output);
     <?php } ?>
         tinyMCEPopup.execCommand('<?php echo $this->refresh; ?>');
         tinyMCEPopup.close();
-        <?php
+    <?php
     }
 
 
     /**
-     * Genoo CTA pop-up form
+     * WPMKTENGINE CTA pop-up form
      */
 
     public function renderForm()
@@ -102,20 +118,36 @@ class GenooTinyMCECTA extends TinyMCEHanlder
                 <option value="right" <?php echo is_array($this->selected) && in_array('right', $this->selected) ? 'selected' : '' ?>>Right</option>
             </select>
         </p>
+        <p>
+            <label for="hide_button"><input type="checkbox" name="hide_button" id="hide_button" /> Allow CTA to appear after a time interval?</label> <br /> <br />
+        </p>
+        <p id="hide_button_time_box" style="display: none;">
+            <label for="align">CTA appearance interval:</label><br/>
+            <input type="number" name="hide_button_time" id="hide_button_time" class="text" />
+        </p>
         <script type="text/javascript">
             jQuery(function() {
                 var data = Popup.data();
                 if(data){
                     var dataShort = '[' + data + ']';
                     var atts = window.parent.wp.shortcode.next('genooCTA', dataShort);
-                    console.log(atts);
                     if(atts.shortcode.attrs.named.id){
                         jQuery('#cta').val(atts.shortcode.attrs.named.id).change();
                     }
                     if(atts.shortcode.attrs.named.align){
                         jQuery('#align').val(atts.shortcode.attrs.named.align).change();
                     }
+                    if(atts.shortcode.attrs.named.time){
+                        if(atts.shortcode.attrs.named.time > 0){
+                            jQuery('#hide_button').prop('checked', true).change();
+                            jQuery('#hide_button_time_box').toggle();
+                            jQuery('#hide_button_time').val(atts.shortcode.attrs.named.time).change();
+                        }
+                    }
                 }
+                jQuery('#hide_button').change(function(){
+                    jQuery('#hide_button_time_box').toggle();
+                });
             });
         </script>
     <?php

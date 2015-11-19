@@ -254,6 +254,8 @@ class WidgetCTA extends \WP_Widget
                 $instance['isPopOver'] = $this->cta->isPopOver;
                 $instance['popOverTime'] = $this->cta->popOverTime;
                 $instance['popOverHide'] = $this->cta->popOverHide;
+                $instance['hideButton'] = isset($this->shortcodeAtts['time']) ? TRUE : FALSE;
+                $instance['hideButtonTIME'] = isset($this->shortcodeAtts['time']) ? $this->shortcodeAtts['time'] : 0;
                 $instance['followOriginalUrl'] = $this->cta->followOriginalUrl;
                 $isHidePopOver = $instance['isPopOver'] && $instance['popOverHide'] ? TRUE : FALSE;
                 if($this->cta->isForm || $this->cta->isClasslist){

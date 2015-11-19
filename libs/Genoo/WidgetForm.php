@@ -161,7 +161,8 @@ class WidgetForm extends \WP_Widget
             }
         } elseif ($formModal == true){
             // Might be a shortcode
-            $html .= $formAlign != false ? '<div class="genooInlineBlock '. $formAlign .'">' : null;
+            $hidden = (isset($instance['hideButton']) && $instance['hideButton'] == TRUE) ? 'style="display:none"' : '';
+            $html .= $formAlign != false ? '<div '. $hidden .' id="' . $this->id . '" class="genooInlineBlock '. $formAlign .'">' : '<div '. $hidden .' id="' . $this->id . '"">';
             $html .= $args['before_widget'];
             $html .= '<div class="'. $formClass .' genooNoBG">';
             if(isset($instance['displayTitle']) && $instance['displayTitle'] == true){ $html .= '<div class="genooTitle">' . $args['before_title'] . $instance['title'] . $args['after_title'] . '</div>'; }
@@ -171,15 +172,13 @@ class WidgetForm extends \WP_Widget
                 $buttonId = "genooGeneratedButton" . $this->id;
                 $html .= '<span id="'. $buttonId .'" class="genooStripDown genooWidgetButton">';
                 // Skipping mobile button? Shortcodes cant deal with mobile button now
-                if(!$isHidePopOver){
-                    if($formHSkipMobileButton){
-                        $html .= '<span>' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
+                if($formHSkipMobileButton){
+                    $html .= '<span>' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
+                } else {
+                    $html .= '<span class="genooDisplayDesktop">' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
+                    if(isset($instance['canHaveMobile']) && $instance['canHaveMobile'] == false){
                     } else {
-                        $html .= '<span class="genooDisplayDesktop">' . ModalWindow::button($formButton, $this->id, true, 'genooButton form-button-submit') . '<div class="clear"></div></span>';
-                        if(isset($instance['canHaveMobile']) && $instance['canHaveMobile'] == false){
-                        } else {
-                            $html .= '<span class="genooDisplayMobile">' . ModalWindow::button($formButton, $this->id, false, 'genooButton form-button-submit', true) . '<div class="clear"></div></span>';
-                        }
+                        $html .= '<span class="genooDisplayMobile">' . ModalWindow::button($formButton, $this->id, false, 'genooButton form-button-submit', true) . '<div class="clear"></div></span>';
                     }
                 }
                 $html .= '<div class="clear"></div></span>';
@@ -204,13 +203,36 @@ class WidgetForm extends \WP_Widget
             $html .= '</div>';
             $html .= $args['after_widget'];
             // Close if shortcode
-            $html .= $formAlign != false ? '</div>' : null;
+            $html .= $formAlign != false ? '</div>' : '</div>';
+            if(isset($instance['hideButton']) && $instance['hideButton'] == TRUE){
+                $html .= self::getModalFullScrollJavascript($this->id, (int)$instance['hideButtonTIME']);
+            }
         }
         if(isset($instance['isPopOver']) && $instance['isPopOver'] == TRUE && $formModal == TRUE && isset($instance['isPopOverInject'])){
             $time = is_numeric($instance['popOverTime']) ? $instance['popOverTime'] : 0;
             $html .= self::getModalOpenJavascript(ModalWindow::getModalId($this->id), $time);
         }
         return $html;
+    }
+
+    /**
+     * @param $modalId
+     * @param bool $seconds
+     * @return string
+     */
+    public static function getModalFullScrollJavascript($modalId, $seconds = FALSE)
+    {
+        $r = '';
+        if(is_int($seconds)){
+            $r = '<script type="text/javascript">
+                        Document.ready(window, function(e){
+                            setTimeout(function(){
+                                document.getElementById(\''. $modalId .'\').style.display = \'\';
+                            }, '. ($seconds * 1000) .');
+                        });
+                  </script>';
+        }
+        return $r;
     }
 
     /**

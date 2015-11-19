@@ -2,10 +2,10 @@
 Contributors: Genoo,latorante
 Tags: marketing automation, email marketing, centralized lead database, lead capture forms
 Requires at least: 3.3
-Tested up to: 4.2.2
+Tested up to: 4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 3.0.6
+Stable tag: 3.0.7
 
 Combine the flexibility of WordPress with the power of Genoo and experience amazing results!
 
@@ -67,6 +67,10 @@ Not a Genoo customer yet? Let's get your ["30-Day Free Trial"](http://www.genoo.
 * Updated CTA metabox validation
 
 == Changelog ==
+
+= 3.0.7 =
+* Ability to add custom classes to form elements
+* Ability to make CTA button appear after time period
 
 = 3.0.5 =
 * Fixed minor issues
