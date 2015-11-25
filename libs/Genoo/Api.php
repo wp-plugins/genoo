@@ -584,7 +584,9 @@ class Api
             'activity_stream_type' => $activityType, // posted comment
             'activity_name' => $activityName, // title of post
             'activity_description' => $activityDesc, // comment itself
-            'url' => $activityUrl // url of post
+            'url' => $activityUrl, // url of post,
+            'ebid' => '',
+            'ebslid' => ''
         );
 
         // call me maybe

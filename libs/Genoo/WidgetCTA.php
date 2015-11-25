@@ -271,9 +271,9 @@ class WidgetCTA extends \WP_Widget
                         $blank = $this->cta->isNewWindow ? 'target="_blank"'  : '';
                         $hidden = (isset($instance['hideButton']) && $instance['hideButton'] == TRUE) ? 'style="display:none"' : '';
                         $r .= '<form '. $blank .' method="POST" action="'. $this->cta->link .'">';
-                        $r .= '<span id="'. $bid .'" '. $hidden .'>';
-                        $r .= '<input type="submit" value="'. $this->cta->linkText .'" />';
-                        $r .= '</span>';
+                            $r .= '<span id="'. $bid .'" '. $hidden .'>';
+                            $r .= '<input type="submit" value="'. $this->cta->linkText .'" />';
+                            $r .= '</span>';
                         $r .= '</form>';
                         if($this->cta->isImage && (!empty($this->cta->image) || !empty($this->cta->imageHover))){
                             $r .= Attachment::generateCss($this->cta->image, $this->cta->imageHover, $bid, 'full');
