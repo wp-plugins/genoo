@@ -39,7 +39,7 @@ class Widgets
             if(GENOO_LUMENS){
                 register_widget('\Genoo\WidgetLumen');
             }
-        });
+        }, 3916); // Completely random number to avoid collision of some sort
     }
 
 
